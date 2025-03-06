@@ -1,3 +1,1 @@
-# news_feed_neoflex
-
-A new Flutter project.
+Internal_information_system_for_Neoflex
