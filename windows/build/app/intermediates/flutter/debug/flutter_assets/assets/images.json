@@ -1,0 +1,4 @@
+{
+    "images": ["image1.jpg", "image2.jpg","image3.jpg", "image4.jpg","image5.jpg","image6.jpg","image7.jpg"],
+    "text": ["image1.txt", "image2.txt", "image3.txt", "image4.txt", "image5.txt", "image6.txt", "image7.txt"]
+}

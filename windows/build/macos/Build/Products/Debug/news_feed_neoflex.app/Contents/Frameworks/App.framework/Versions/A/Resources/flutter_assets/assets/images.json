@@ -1,0 +1,52 @@
+{
+    "posts": [
+      {
+        "images": ["image1.jpg", "image1_2.jpg"],
+        "text": "image1.txt"
+      },
+      {
+        "images": ["image2.jpg"],
+        "text": "image2.txt"
+      },
+      {
+        "images": ["image3.jpg"],
+        "text": "image3.txt"
+      },
+      {
+        "images": [
+          "image4.jpg",
+          "image4_2.jpg",
+          "image4_3.jpg",
+          "image4_4.jpg",
+          "image4_5.jpg",
+          "image4_6.jpg"
+        ],
+        "text": "image4.txt"
+      },
+      {
+        "images": [
+          "image5.jpg",
+          "image5_2.jpg",
+          "image5_3.jpg",
+          "image5_4.jpg",
+          "image5_5.jpg",
+          "image5_6.jpg",
+          "image5_7.jpg",
+          "image5_8.jpg"
+        ],
+        "text": "image5.txt"
+      },
+          {
+        "images": [
+          "image6.jpg",
+          "image6_2.jpg",
+          "image6_3.jpg",
+          "image6_4.jpg",
+          "image6_5.jpg",
+          "image6_6.jpg"
+        ],
+        "text": "image6.txt"
+      }
+    ]
+  }
+  
