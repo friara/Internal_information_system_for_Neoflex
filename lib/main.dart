@@ -1,16 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:news_feed_neoflex/main_page.dart';
-//import 'package:sqflite/sqflite.dart';
+import 'package:news_feed_neoflex/app_routes.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
-  sqfliteFfiInit(); // инициализация sqflite для использования на десктопе или вебе
+  sqfliteFfiInit(); // Инициализация sqflite для десктопа/веба
   databaseFactory = databaseFactoryFfi;
 
-  runApp(
-    const MaterialApp(
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
       title: 'Dynamic Image List',
-      home: MainApp(),
-    ),
-  );
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
+      ),
+      initialRoute: AppRoutes.newsFeed,
+      routes: AppRoutes.routes,
+    );
+  }
 }

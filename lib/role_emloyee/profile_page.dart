@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'database.dart'; // Импортируйте ваш класс DatabaseHelper
+import '../database.dart'; // Импортируйте ваш класс DatabaseHelper
 
 class Profile extends StatefulWidget {
   Profile({super.key});
@@ -89,7 +89,8 @@ class _ProfileState extends State<Profile> {
     return Scaffold(
         appBar: AppBar(
           foregroundColor: Colors.purple,
-          title: const Text("PROFILE"),
+          title: const Text("Профиль пользователя"),
+          automaticallyImplyLeading: false,
           actions: [
             IconButton(
               icon: const Icon(Icons.save), // Иконка для кнопки сохранить

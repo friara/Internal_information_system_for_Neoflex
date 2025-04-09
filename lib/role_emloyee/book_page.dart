@@ -14,7 +14,9 @@ class BookPageState extends State<BookPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        foregroundColor: Colors.purple,
         title: const Text('Карта офиса'),
+        automaticallyImplyLeading: false,
       ),
       body: OfficeMap(),
     );

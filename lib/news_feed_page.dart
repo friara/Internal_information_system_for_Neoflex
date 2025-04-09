@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:news_feed_neoflex/horizontal_image_slider.dart';
-import 'package:news_feed_neoflex/new_post_page.dart';
+import 'package:news_feed_neoflex/role_manager/new_post_page/new_post_page.dart';
 
 class Post {
   final List<String> imageUrls;
