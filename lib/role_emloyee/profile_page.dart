@@ -152,11 +152,6 @@ class _ProfileState extends State<Profile> {
             ),
           ],
         ),
-        // floatingActionButton: FloatingActionButton(
-        //     onPressed: () async {
-        //       Navigator.of(context).pop('Result 123');
-        //     },
-        //     child: const Icon(Icons.image)), // Кнопка профиля.
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
