@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:news_feed_neoflex/role_manager/users_page/date_format.dart';
+import 'package:news_feed_neoflex/role_manager/users_page/phone_format.dart';
 
 class CreateUserPage extends StatefulWidget {
   final Function(Map<String, String>) onSave;
@@ -21,6 +23,14 @@ class _CreateUserPageState extends State<CreateUserPage> {
   late TextEditingController _birthDateController;
   late TextEditingController _phoneController;
   String _selectedRole = 'Сотрудник';
+  bool _obscurePassword = true;
+
+  late FocusNode _lastNameFocus;
+  late FocusNode _firstNameFocus;
+  late FocusNode _middleNameFocus;
+  late FocusNode _phoneFocus;
+  late FocusNode _loginFocus;
+  late FocusNode _passwordFocus;
 
   @override
   void initState() {
@@ -33,10 +43,24 @@ class _CreateUserPageState extends State<CreateUserPage> {
     _passwordController = TextEditingController();
     _birthDateController = TextEditingController();
     _phoneController = TextEditingController();
+
+    _lastNameFocus = FocusNode();
+    _firstNameFocus = FocusNode();
+    _middleNameFocus = FocusNode();
+    _phoneFocus = FocusNode();
+    _loginFocus = FocusNode();
+    _passwordFocus = FocusNode();
   }
 
   @override
   void dispose() {
+    _lastNameFocus.dispose();
+    _firstNameFocus.dispose();
+    _middleNameFocus.dispose();
+    _phoneFocus.dispose();
+    _loginFocus.dispose();
+    _passwordFocus.dispose();
+
     _firstNameController.dispose();
     _middleNameController.dispose();
     _lastNameController.dispose();
@@ -50,12 +74,13 @@ class _CreateUserPageState extends State<CreateUserPage> {
 
   void _saveUser() {
     if (_formKey.currentState!.validate()) {
+      final formattedPhone = _phoneController.text;
       final newUser = {
         'name':
             '${_lastNameController.text} ${_firstNameController.text} ${_middleNameController.text}',
         'fio':
             '${_lastNameController.text} ${_firstNameController.text} ${_middleNameController.text}',
-        'phone': _phoneController.text,
+        'phone': formattedPhone,
         'position': _positionController.text,
         'role': _selectedRole,
         'login': _loginController.text,
@@ -71,21 +96,6 @@ class _CreateUserPageState extends State<CreateUserPage> {
           duration: Duration(seconds: 2),
         ),
       );
-    }
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null) {
-      setState(() {
-        _birthDateController.text =
-            "${picked.day}.${picked.month}.${picked.year}";
-      });
     }
   }
 
@@ -109,140 +119,132 @@ class _CreateUserPageState extends State<CreateUserPage> {
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: _lastNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Фамилия',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Пожалуйста, введите фамилию';
-                    }
-                    return null;
+                  focusNode: _lastNameFocus,
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) {
+                    FocusScope.of(context).requestFocus(_firstNameFocus);
                   },
+                  decoration: const InputDecoration(
+                      labelText: 'Фамилия', border: OutlineInputBorder()),
+                  validator: (value) => value?.isEmpty ?? true
+                      ? 'Пожалуйста, введите фамилию'
+                      : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _firstNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Имя',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Пожалуйста, введите имя';
-                    }
-                    return null;
+                  focusNode: _firstNameFocus,
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) {
+                    FocusScope.of(context).requestFocus(_middleNameFocus);
                   },
+                  decoration: const InputDecoration(
+                      labelText: 'Имя', border: OutlineInputBorder()),
+                  validator: (value) =>
+                      value?.isEmpty ?? true ? 'Пожалуйста, введите имя' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _middleNameController,
+                  focusNode: _middleNameFocus,
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) {
+                    FocusScope.of(context).requestFocus(_phoneFocus);
+                  },
                   decoration: const InputDecoration(
-                    labelText: 'Отчество',
-                    border: OutlineInputBorder(),
-                  ),
+                      labelText: 'Отчество', border: OutlineInputBorder()),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _phoneController,
+                  focusNode: _phoneFocus,
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) {
+                    FocusScope.of(context).requestFocus(_loginFocus);
+                  },
                   decoration: const InputDecoration(
                     labelText: 'Телефон',
                     border: OutlineInputBorder(),
+                    hintText: '+7 (___) ___-__-__',
                   ),
                   keyboardType: TextInputType.phone,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9+-\s()]')),
+                    RuPhoneInputFormatter(),
+                    LengthLimitingTextInputFormatter(18),
                   ],
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Пожалуйста, введите телефон';
-                    }
-                    return null;
-                  },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _loginController,
-                  decoration: const InputDecoration(
-                    labelText: 'Логин',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Пожалуйста, введите логин';
-                    }
-                    return null;
+                  focusNode: _loginFocus,
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) {
+                    FocusScope.of(context).requestFocus(_passwordFocus);
                   },
+                  decoration: const InputDecoration(
+                      labelText: 'Логин', border: OutlineInputBorder()),
+                  validator: (value) => value?.isEmpty ?? true
+                      ? 'Пожалуйста, введите логин'
+                      : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _passwordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Пароль',
-                    border: OutlineInputBorder(),
-                  ),
-                  obscureText: true,
+                  focusNode: _passwordFocus,
+                  textInputAction: TextInputAction.next,
+                  decoration: InputDecoration(
+                      labelText: 'Пароль',
+                      border: const OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        icon: Icon(_obscurePassword
+                            ? Icons.lock_open
+                            : Icons.lock_outline),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
+                      )),
+                  obscureText: _obscurePassword,
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
+                    if (value?.isEmpty ?? true) {
                       return 'Пожалуйста, введите пароль';
                     }
-                    if (value.length < 6) {
+                    if (value!.length < 6) {
                       return 'Пароль должен содержать минимум 6 символов';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
+                DateInput(
                   controller: _birthDateController,
-                  decoration: InputDecoration(
-                    labelText: 'Дата рождения',
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.calendar_today),
-                      onPressed: () => _selectDate(context),
-                    ),
-                  ),
-                  readOnly: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Пожалуйста, выберите дату рождения';
-                    }
-                    return null;
-                  },
+                  labelText: 'Дата рождения',
+                  validator: (value) => value?.isEmpty ?? true
+                      ? 'Пожалуйста, введите дату рождения'
+                      : null,
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   value: _selectedRole,
                   decoration: const InputDecoration(
-                    labelText: 'Роль',
-                    border: OutlineInputBorder(),
-                  ),
+                      labelText: 'Роль', border: OutlineInputBorder()),
                   items: ['Сотрудник', 'Менеджер']
                       .map((role) => DropdownMenuItem(
                             value: role,
                             child: Text(role),
                           ))
                       .toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedRole = value!;
-                    });
-                  },
+                  onChanged: (value) => setState(() => _selectedRole = value!),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _positionController,
                   decoration: const InputDecoration(
-                    labelText: 'Должность',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Пожалуйста, введите должность';
-                    }
-                    return null;
-                  },
+                      labelText: 'Должность', border: OutlineInputBorder()),
+                  validator: (value) => value?.isEmpty ?? true
+                      ? 'Пожалуйста, введите должность'
+                      : null,
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
@@ -251,21 +253,13 @@ class _CreateUserPageState extends State<CreateUserPage> {
                     backgroundColor: Colors.blueAccent,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 16,
-                    ),
+                        horizontal: 32, vertical: 16),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    elevation: 5,
+                        borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: const Text(
-                    'Сохранить',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: const Text('Сохранить',
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),

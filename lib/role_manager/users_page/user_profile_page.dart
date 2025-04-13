@@ -1,8 +1,10 @@
 import 'dart:io';
-
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:news_feed_neoflex/role_manager/users_page/date_format.dart';
+import 'package:news_feed_neoflex/role_manager/users_page/phone_format.dart';
 
 class UserProfilePage extends StatefulWidget {
   final Map<String, String> userData;
@@ -34,6 +36,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
   late String _selectedRole;
   File? _avatarImage;
   final ImagePicker _picker = ImagePicker();
+  bool _obscurePassword = true;
+
+  late FocusNode _fioFocus;
+  late FocusNode _phoneFocus;
+  late FocusNode _loginFocus;
+  late FocusNode _passwordFocus;
 
   @override
   void initState() {
@@ -51,10 +59,20 @@ class _UserProfilePageState extends State<UserProfilePage> {
         TextEditingController(text: widget.userData['birthDate'] ?? '');
     _selectedRole = widget.userData['role'] ?? 'Сотрудник';
     _avatarImage = widget.initialAvatar;
+
+    _fioFocus = FocusNode();
+    _phoneFocus = FocusNode();
+    _loginFocus = FocusNode();
+    _passwordFocus = FocusNode();
   }
 
   @override
   void dispose() {
+    _fioFocus.dispose();
+    _phoneFocus.dispose();
+    _loginFocus.dispose();
+    _passwordFocus.dispose();
+
     _fioController.dispose();
     _phoneController.dispose();
     _positionController.dispose();
@@ -77,37 +95,48 @@ class _UserProfilePageState extends State<UserProfilePage> {
     };
 
     widget.onSave(updatedUser);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Данные пользователя сохранены'),
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null) {
-      setState(() {
-        _birthDateController.text =
-            "${picked.day}.${picked.month}.${picked.year}";
-      });
-    }
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text('Данные пользователя сохранены'),
+      duration: Duration(seconds: 2),
+    ));
   }
 
   Future<void> _pickImage() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      final newAvatar = File(image.path);
-      setState(() {
-        _avatarImage = newAvatar;
-      });
-      widget.onAvatarChanged(newAvatar);
+    try {
+      if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+        final result = await FilePicker.platform.pickFiles(
+          type: FileType.image,
+          allowedExtensions: ['jpg', 'jpeg', 'png'],
+        );
+
+        if (result != null && result.files.single.path != null) {
+          final newAvatar = File(result.files.single.path!);
+          setState(() {
+            _avatarImage = newAvatar;
+          });
+          widget.onAvatarChanged(newAvatar);
+        }
+      } else {
+        final XFile? image = await _picker.pickImage(
+          source: ImageSource.gallery,
+          imageQuality: 85,
+        );
+
+        if (image != null) {
+          final newAvatar = File(image.path);
+          setState(() {
+            _avatarImage = newAvatar;
+          });
+          widget.onAvatarChanged(newAvatar);
+        }
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Ошибка при выборе изображения: ${e.toString()}'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
     }
   }
 
@@ -133,12 +162,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 widget.onDelete(widget.userData['name']!);
                 Navigator.of(context).pop();
                 Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Пользователь удален'),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text('Пользователь удален'),
+                  duration: Duration(seconds: 2),
+                ));
               },
             ),
           ],
@@ -184,6 +211,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
               const SizedBox(height: 20),
               TextField(
                 controller: _fioController,
+                focusNode: _fioFocus,
+                textInputAction: TextInputAction.next,
+                onSubmitted: (_) =>
+                    FocusScope.of(context).requestFocus(_phoneFocus),
                 decoration: const InputDecoration(
                   labelText: 'ФИО',
                   border: OutlineInputBorder(),
@@ -192,18 +223,28 @@ class _UserProfilePageState extends State<UserProfilePage> {
               const SizedBox(height: 16),
               TextField(
                 controller: _phoneController,
+                focusNode: _phoneFocus,
+                textInputAction: TextInputAction.next,
+                onSubmitted: (_) =>
+                    FocusScope.of(context).requestFocus(_loginFocus),
                 decoration: const InputDecoration(
                   labelText: 'Телефон',
                   border: OutlineInputBorder(),
+                  hintText: '+7 (___) ___-__-__',
                 ),
                 keyboardType: TextInputType.phone,
                 inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
+                  RuPhoneInputFormatter(),
+                  LengthLimitingTextInputFormatter(18)
                 ],
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: _loginController,
+                focusNode: _loginFocus,
+                textInputAction: TextInputAction.next,
+                onSubmitted: (_) =>
+                    FocusScope.of(context).requestFocus(_passwordFocus),
                 decoration: const InputDecoration(
                   labelText: 'Логин',
                   border: OutlineInputBorder(),
@@ -212,24 +253,26 @@ class _UserProfilePageState extends State<UserProfilePage> {
               const SizedBox(height: 16),
               TextField(
                 controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'Пароль',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
+                focusNode: _passwordFocus,
+                decoration: InputDecoration(
+                    labelText: 'Пароль',
+                    border: const OutlineInputBorder(),
+                    suffixIcon: IconButton(
+                      icon: Icon(_obscurePassword
+                          ? Icons.lock_open
+                          : Icons.lock_outline),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                    )),
+                obscureText: _obscurePassword,
               ),
               const SizedBox(height: 16),
-              TextField(
+              DateInput(
                 controller: _birthDateController,
-                decoration: InputDecoration(
-                  labelText: 'Дата рождения',
-                  border: const OutlineInputBorder(),
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.calendar_today),
-                    onPressed: () => _selectDate(context),
-                  ),
-                ),
-                readOnly: true,
+                labelText: 'Дата рождения',
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(

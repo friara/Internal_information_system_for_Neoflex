@@ -143,7 +143,7 @@ class _ListOfUsersState extends State<ListOfUsers> {
                 return ListTile(
                   title: Text(user['name']!),
                   leading: CircleAvatar(
-                    backgroundColor: Colors.grey[300],
+                    backgroundColor: Colors.grey,
                     backgroundImage:
                         avatarFile != null ? FileImage(avatarFile) : null,
                     child: avatarFile == null
