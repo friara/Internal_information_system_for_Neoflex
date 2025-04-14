@@ -37,6 +37,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   File? _avatarImage;
   final ImagePicker _picker = ImagePicker();
   bool _obscurePassword = true;
+  Color colorForLabel = const Color.fromARGB(255, 104, 102, 102);
 
   late FocusNode _fioFocus;
   late FocusNode _phoneFocus;
@@ -83,8 +84,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   void _saveProfile() {
+    final name = widget.userData['name'] ??
+        widget.userData['fio'] ??
+        'Новый пользователь';
+
     final updatedUser = {
-      'name': widget.userData['name']!,
+      'name': name,
       'fio': _fioController.text,
       'phone': _phoneController.text,
       'position': _positionController.text,
@@ -159,13 +164,17 @@ class _UserProfilePageState extends State<UserProfilePage> {
             TextButton(
               child: const Text('Да'),
               onPressed: () {
-                widget.onDelete(widget.userData['name']!);
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text('Пользователь удален'),
-                  duration: Duration(seconds: 2),
-                ));
+                final userIdentifier =
+                    widget.userData['name'] ?? widget.userData['fio'] ?? '';
+                if (userIdentifier.isNotEmpty) {
+                  widget.onDelete(widget.userData['fio']!);
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text('Пользователь удален'),
+                    duration: Duration(seconds: 2),
+                  ));
+                }
               },
             ),
           ],
@@ -177,18 +186,36 @@ class _UserProfilePageState extends State<UserProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Профиль пользователя'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80.0),
+        child: Column(
+          children: [
+            AppBar(
+              foregroundColor: Colors.purple,
+              title: const Align(
+                alignment: Alignment.center,
+                child: Text("Профиль пользователя"),
+              ),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => Navigator.pop(context),
+              ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.save),
+                  onPressed: _saveProfile,
+                ),
+              ],
+              //scrolledUnderElevation: 0, // Убирает тень при прокрутке
+              surfaceTintColor: const Color.fromARGB(255, 100, 29, 113),
+            ),
+            const Divider(
+              height: 1,
+              thickness: 1,
+              color: Colors.grey,
+            ),
+          ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
-            onPressed: _saveProfile,
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -215,9 +242,19 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 textInputAction: TextInputAction.next,
                 onSubmitted: (_) =>
                     FocusScope.of(context).requestFocus(_phoneFocus),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'ФИО',
-                  border: OutlineInputBorder(),
+                  labelStyle: TextStyle(
+                    color: colorForLabel,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide:
+                        const BorderSide(color: Colors.purple, width: 2),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -227,9 +264,19 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 textInputAction: TextInputAction.next,
                 onSubmitted: (_) =>
                     FocusScope.of(context).requestFocus(_loginFocus),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Телефон',
-                  border: OutlineInputBorder(),
+                  labelStyle: TextStyle(
+                    color: colorForLabel,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide:
+                        const BorderSide(color: Colors.purple, width: 2),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
                   hintText: '+7 (___) ___-__-__',
                 ),
                 keyboardType: TextInputType.phone,
@@ -245,9 +292,19 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 textInputAction: TextInputAction.next,
                 onSubmitted: (_) =>
                     FocusScope.of(context).requestFocus(_passwordFocus),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Логин',
-                  border: OutlineInputBorder(),
+                  labelStyle: TextStyle(
+                    color: colorForLabel,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide:
+                        const BorderSide(color: Colors.purple, width: 2),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -256,7 +313,17 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 focusNode: _passwordFocus,
                 decoration: InputDecoration(
                     labelText: 'Пароль',
-                    border: const OutlineInputBorder(),
+                    labelStyle: TextStyle(
+                      color: colorForLabel,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: Colors.purple, width: 2),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
                     suffixIcon: IconButton(
                       icon: Icon(_obscurePassword
                           ? Icons.lock_open
@@ -277,9 +344,19 @@ class _UserProfilePageState extends State<UserProfilePage> {
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: _selectedRole,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Роль',
-                  border: OutlineInputBorder(),
+                  labelStyle: TextStyle(
+                    color: colorForLabel,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide:
+                        const BorderSide(color: Colors.purple, width: 2),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
                 ),
                 items: ['Сотрудник', 'Менеджер']
                     .map((role) => DropdownMenuItem(
@@ -296,9 +373,19 @@ class _UserProfilePageState extends State<UserProfilePage> {
               const SizedBox(height: 16),
               TextField(
                 controller: _positionController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Должность',
-                  border: OutlineInputBorder(),
+                  labelStyle: TextStyle(
+                    color: colorForLabel,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide:
+                        const BorderSide(color: Colors.purple, width: 2),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
                 ),
               ),
               const SizedBox(height: 24),

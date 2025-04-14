@@ -131,33 +131,58 @@ class ChatPageState extends State<ChatPage> {
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        automaticallyImplyLeading: false,
-        title: _showGroupCreation
-            ? const Text("Создание группы")
-            : const Text("Чаты"),
-        actions: _showGroupCreation
-            ? null
-            : [
-                IconButton(
-                    icon: const Icon(Icons.add),
-                    onPressed: () => setState(() => _showCreateOptions = true)),
-              ],
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80.0),
+        child: Column(
+          children: [
+            AppBar(
+              foregroundColor: Colors.purple,
+              automaticallyImplyLeading: false,
+              title: Align(
+                alignment: Alignment.centerLeft,
+                child: _showGroupCreation
+                    ? const Text("Создание группы")
+                    : const Text("Чаты"),
+              ),
+              actions: _showGroupCreation
+                  ? null
+                  : [
+                      IconButton(
+                          icon: const Icon(Icons.add),
+                          onPressed: () =>
+                              setState(() => _showCreateOptions = true)),
+                    ],
+              //scrolledUnderElevation: 0, // Убирает тень при прокрутке
+              surfaceTintColor: const Color.fromARGB(255, 100, 29, 113),
+            ),
+            const Divider(
+              height: 1,
+              thickness: 1,
+              color: Colors.grey,
+            ),
+          ],
+        ),
       ),
       body: Stack(
         children: [
           Column(
             children: [
-              const Divider(height: 1, thickness: 1, color: Colors.grey),
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
+                    labelStyle: const TextStyle(
+                      color: Color.fromARGB(255, 104, 102, 102),
+                    ),
                     hintText: 'Поиск',
                     border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30)),
+                        borderRadius: BorderRadius.circular(10.0)),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: Colors.purple, width: 2),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
                     suffixIcon: IconButton(
                       icon: Icon(_isSearchActive ? Icons.close : Icons.search),
                       onPressed:
@@ -299,6 +324,9 @@ class ChatPageState extends State<ChatPage> {
               child: const Text('Создать'),
             ),
           ],
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          surfaceTintColor: Colors.transparent,
         ),
         body: SingleChildScrollView(
           child: Column(

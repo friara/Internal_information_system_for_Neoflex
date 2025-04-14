@@ -130,7 +130,7 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      backgroundColor: Colors.white,
+      surfaceTintColor: const Color.fromARGB(255, 100, 29, 113),
       automaticallyImplyLeading: false,
       title: InkWell(
         onTap: widget.isGroup ? _showGroupInfo : null,

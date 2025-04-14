@@ -24,6 +24,7 @@ class _CreateUserPageState extends State<CreateUserPage> {
   late TextEditingController _phoneController;
   String _selectedRole = 'Сотрудник';
   bool _obscurePassword = true;
+  Color colorForLabel = const Color.fromARGB(255, 104, 102, 102);
 
   late FocusNode _lastNameFocus;
   late FocusNode _firstNameFocus;
@@ -76,8 +77,7 @@ class _CreateUserPageState extends State<CreateUserPage> {
     if (_formKey.currentState!.validate()) {
       final formattedPhone = _phoneController.text;
       final newUser = {
-        'name':
-            '${_lastNameController.text} ${_firstNameController.text} ${_middleNameController.text}',
+        'name': 'user_${DateTime.now().millisecondsSinceEpoch}',
         'fio':
             '${_lastNameController.text} ${_firstNameController.text} ${_middleNameController.text}',
         'phone': formattedPhone,
@@ -102,11 +102,29 @@ class _CreateUserPageState extends State<CreateUserPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Создание пользователя'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80.0),
+        child: Column(
+          children: [
+            AppBar(
+              foregroundColor: Colors.purple,
+              title: const Align(
+                alignment: Alignment.center,
+                child: Text("Создание пользователя"),
+              ),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => Navigator.pop(context),
+              ),
+              //scrolledUnderElevation: 0, // Убирает тень при прокрутке
+              surfaceTintColor: const Color.fromARGB(255, 100, 29, 113),
+            ),
+            const Divider(
+              height: 1,
+              thickness: 1,
+              color: Colors.grey,
+            ),
+          ],
         ),
       ),
       body: SingleChildScrollView(
@@ -124,8 +142,20 @@ class _CreateUserPageState extends State<CreateUserPage> {
                   onFieldSubmitted: (_) {
                     FocusScope.of(context).requestFocus(_firstNameFocus);
                   },
-                  decoration: const InputDecoration(
-                      labelText: 'Фамилия', border: OutlineInputBorder()),
+                  decoration: InputDecoration(
+                    labelText: 'Фамилия',
+                    labelStyle: TextStyle(
+                      color: colorForLabel,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: Colors.purple, width: 2),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
                   validator: (value) => value?.isEmpty ?? true
                       ? 'Пожалуйста, введите фамилию'
                       : null,
@@ -138,8 +168,20 @@ class _CreateUserPageState extends State<CreateUserPage> {
                   onFieldSubmitted: (_) {
                     FocusScope.of(context).requestFocus(_middleNameFocus);
                   },
-                  decoration: const InputDecoration(
-                      labelText: 'Имя', border: OutlineInputBorder()),
+                  decoration: InputDecoration(
+                    labelText: 'Имя',
+                    labelStyle: TextStyle(
+                      color: colorForLabel,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: Colors.purple, width: 2),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
                   validator: (value) =>
                       value?.isEmpty ?? true ? 'Пожалуйста, введите имя' : null,
                 ),
@@ -151,8 +193,20 @@ class _CreateUserPageState extends State<CreateUserPage> {
                   onFieldSubmitted: (_) {
                     FocusScope.of(context).requestFocus(_phoneFocus);
                   },
-                  decoration: const InputDecoration(
-                      labelText: 'Отчество', border: OutlineInputBorder()),
+                  decoration: InputDecoration(
+                    labelText: 'Отчество',
+                    labelStyle: TextStyle(
+                      color: colorForLabel,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: Colors.purple, width: 2),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -162,9 +216,19 @@ class _CreateUserPageState extends State<CreateUserPage> {
                   onFieldSubmitted: (_) {
                     FocusScope.of(context).requestFocus(_loginFocus);
                   },
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Телефон',
-                    border: OutlineInputBorder(),
+                    labelStyle: TextStyle(
+                      color: colorForLabel,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: Colors.purple, width: 2),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
                     hintText: '+7 (___) ___-__-__',
                   ),
                   keyboardType: TextInputType.phone,
@@ -181,8 +245,20 @@ class _CreateUserPageState extends State<CreateUserPage> {
                   onFieldSubmitted: (_) {
                     FocusScope.of(context).requestFocus(_passwordFocus);
                   },
-                  decoration: const InputDecoration(
-                      labelText: 'Логин', border: OutlineInputBorder()),
+                  decoration: InputDecoration(
+                    labelText: 'Логин',
+                    labelStyle: TextStyle(
+                      color: colorForLabel,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: Colors.purple, width: 2),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
                   validator: (value) => value?.isEmpty ?? true
                       ? 'Пожалуйста, введите логин'
                       : null,
@@ -194,7 +270,17 @@ class _CreateUserPageState extends State<CreateUserPage> {
                   textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
                       labelText: 'Пароль',
-                      border: const OutlineInputBorder(),
+                      labelStyle: TextStyle(
+                        color: colorForLabel,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide:
+                            const BorderSide(color: Colors.purple, width: 2),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
                       suffixIcon: IconButton(
                         icon: Icon(_obscurePassword
                             ? Icons.lock_open
@@ -227,8 +313,20 @@ class _CreateUserPageState extends State<CreateUserPage> {
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   value: _selectedRole,
-                  decoration: const InputDecoration(
-                      labelText: 'Роль', border: OutlineInputBorder()),
+                  decoration: InputDecoration(
+                    labelText: 'Роль',
+                    labelStyle: TextStyle(
+                      color: colorForLabel,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: Colors.purple, width: 2),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
                   items: ['Сотрудник', 'Менеджер']
                       .map((role) => DropdownMenuItem(
                             value: role,
@@ -240,8 +338,20 @@ class _CreateUserPageState extends State<CreateUserPage> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _positionController,
-                  decoration: const InputDecoration(
-                      labelText: 'Должность', border: OutlineInputBorder()),
+                  decoration: InputDecoration(
+                    labelText: 'Должность',
+                    labelStyle: TextStyle(
+                      color: colorForLabel,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: Colors.purple, width: 2),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
                   validator: (value) => value?.isEmpty ?? true
                       ? 'Пожалуйста, введите должность'
                       : null,
@@ -250,7 +360,7 @@ class _CreateUserPageState extends State<CreateUserPage> {
                 ElevatedButton(
                   onPressed: _saveUser,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
+                    backgroundColor: Colors.purple,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 32, vertical: 16),

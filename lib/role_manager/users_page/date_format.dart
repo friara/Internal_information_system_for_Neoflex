@@ -38,7 +38,16 @@ class _DateInputState extends State<DateInput> {
       controller: widget.controller,
       decoration: InputDecoration(
         labelText: widget.labelText,
-        border: const OutlineInputBorder(),
+        labelStyle: const TextStyle(
+          color: Color.fromARGB(255, 104, 102, 102),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.purple, width: 2),
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
         suffixIcon: IconButton(
           icon: const Icon(Icons.calendar_today),
           onPressed: () => _selectDate(context),

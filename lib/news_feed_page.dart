@@ -168,6 +168,7 @@ class NewsFeedState extends State<NewsFeed> {
                   },
                 ),
               ],
+              surfaceTintColor: const Color.fromARGB(255, 100, 29, 113),
             ),
             const Divider(
               height: 1,

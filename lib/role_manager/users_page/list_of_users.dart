@@ -12,7 +12,7 @@ class ListOfUsers extends StatefulWidget {
 class _ListOfUsersState extends State<ListOfUsers> {
   final List<Map<String, String>> _users = List.generate(20, (index) {
     return {
-      'name': 'Имя пользователя $index',
+      'name': 'user_$index',
       'fio': 'Бублик Петрович $index',
       'phone': '+7 (${index.toString().padLeft(3, '0')}) 123-45-67',
       'position': 'Должность $index',
@@ -27,12 +27,12 @@ class _ListOfUsersState extends State<ListOfUsers> {
   final TextEditingController _searchController = TextEditingController();
   int _selectedIndex = 3;
   final Map<String, File?> _userAvatars = {};
+  bool _isSearchActive = false;
 
   @override
   void initState() {
     super.initState();
     _filteredUsers = _users;
-    _searchController.addListener(_filterUsers);
   }
 
   @override
@@ -44,9 +44,19 @@ class _ListOfUsersState extends State<ListOfUsers> {
   void _filterUsers() {
     final query = _searchController.text.toLowerCase();
     setState(() {
+      _isSearchActive = query.isNotEmpty;
       _filteredUsers = _users.where((user) {
-        return user['name']!.toLowerCase().contains(query);
+        return user['fio']!.toLowerCase().contains(query) ||
+            user['position']!.toLowerCase().contains(query);
       }).toList();
+    });
+  }
+
+  void _clearSearch() {
+    setState(() {
+      _searchController.clear();
+      _isSearchActive = false;
+      _filteredUsers = _users;
     });
   }
 
@@ -66,10 +76,19 @@ class _ListOfUsersState extends State<ListOfUsers> {
 
   void _updateUserData(Map<String, String> updatedUser) {
     setState(() {
-      int index = _users.indexWhere((u) => u['name'] == updatedUser['name']);
+      final userIdentifier = updatedUser['name'] ?? updatedUser['fio'];
+
+      int index = _users.indexWhere((u) =>
+          (u['name'] != null && u['name'] == userIdentifier) ||
+          (u['fio'] != null && u['fio'] == userIdentifier));
+
       if (index != -1) {
         _users[index] = updatedUser;
-        _filterUsers();
+        if (_isSearchActive) {
+          _filterUsers();
+        } else {
+          _filteredUsers = List.from(_users);
+        }
       }
     });
   }
@@ -78,7 +97,11 @@ class _ListOfUsersState extends State<ListOfUsers> {
     setState(() {
       _users.removeWhere((user) => user['name'] == userName);
       _userAvatars.remove(userName);
-      _filterUsers();
+      if (_isSearchActive) {
+        _filterUsers();
+      } else {
+        _filteredUsers = List.from(_users);
+      }
     });
   }
 
@@ -89,48 +112,84 @@ class _ListOfUsersState extends State<ListOfUsers> {
     });
   }
 
-  void _updateAvatar(String userName, File? avatarFile) {
+  void _updateAvatar(String userFio, File? avatarFile) {
     setState(() {
-      _userAvatars[userName] = avatarFile;
+      _userAvatars[userFio] = avatarFile;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Список пользователей'),
-        automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CreateUserPage(
-                    onSave: _addNewUser,
-                  ),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80.0),
+        child: Column(
+          children: [
+            AppBar(
+              foregroundColor: Colors.purple,
+              automaticallyImplyLeading: false,
+              title: const Align(
+                alignment: Alignment.centerLeft,
+                child: Text("Список пользователей"),
+              ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CreateUserPage(
+                          onSave: _addNewUser,
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
-        ],
+              ],
+              //scrolledUnderElevation: 0, // Убирает тень при прокрутке
+              surfaceTintColor: const Color.fromARGB(255, 100, 29, 113),
+            ),
+            const Divider(
+              height: 1,
+              thickness: 1,
+              color: Colors.grey,
+            ),
+          ],
+        ),
       ),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(16.0),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                labelText: 'Поиск пользователей',
-                hintText: 'Введите имя...',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
+                  labelText: 'Поиск пользователей',
+                  labelStyle: const TextStyle(
+                    color: Color.fromARGB(255, 104, 102, 102),
+                  ),
+                  hintText: 'Введите имя...',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide:
+                        const BorderSide(color: Colors.purple, width: 2),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  suffixIcon: IconButton(
+                      icon: Icon(
+                        _isSearchActive ? Icons.close : Icons.search,
+                      ),
+                      onPressed: () {
+                        if (_isSearchActive) {
+                          _clearSearch();
+                        } else {
+                          _filterUsers();
+                        }
+                      })),
+              onSubmitted: (_) => _filterUsers(),
             ),
           ),
           Expanded(
@@ -138,10 +197,9 @@ class _ListOfUsersState extends State<ListOfUsers> {
               itemCount: _filteredUsers.length,
               itemBuilder: (context, index) {
                 final user = _filteredUsers[index];
-                final avatarFile = _userAvatars[user['name']];
-
+                final avatarFile = _userAvatars[user['fio']];
                 return ListTile(
-                  title: Text(user['name']!),
+                  title: Text(user['fio']!),
                   leading: CircleAvatar(
                     backgroundColor: Colors.grey,
                     backgroundImage:
@@ -156,11 +214,11 @@ class _ListOfUsersState extends State<ListOfUsers> {
                       MaterialPageRoute(
                         builder: (context) => UserProfilePage(
                           userData: user,
-                          initialAvatar: _userAvatars[user['name']],
+                          initialAvatar: _userAvatars[user['fio']],
                           onSave: _updateUserData,
                           onDelete: _deleteUser,
                           onAvatarChanged: (file) =>
-                              _updateAvatar(user['name']!, file),
+                              _updateAvatar(user['fio']!, file),
                         ),
                       ),
                     );
