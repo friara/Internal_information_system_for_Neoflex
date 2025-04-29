@@ -108,20 +108,23 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   Future<void> _pickImage() async {
     try {
-      if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+      if (Platform.isMacOS) {
         final result = await FilePicker.platform.pickFiles(
           type: FileType.image,
-          allowedExtensions: ['jpg', 'jpeg', 'png'],
+          allowMultiple: false,
         );
 
-        if (result != null && result.files.single.path != null) {
-          final newAvatar = File(result.files.single.path!);
-          setState(() {
-            _avatarImage = newAvatar;
-          });
-          widget.onAvatarChanged(newAvatar);
+        if (result != null && result.files.isNotEmpty) {
+          final file = result.files.first;
+          if (file.path != null) {
+            final newAvatar = File(file.path!);
+            setState(() {
+              _avatarImage = newAvatar;
+            });
+            widget.onAvatarChanged(newAvatar);
+          }
         }
-      } else {
+      } else if (Platform.isIOS || Platform.isAndroid) {
         final XFile? image = await _picker.pickImage(
           source: ImageSource.gallery,
           imageQuality: 85,
@@ -133,6 +136,23 @@ class _UserProfilePageState extends State<UserProfilePage> {
             _avatarImage = newAvatar;
           });
           widget.onAvatarChanged(newAvatar);
+        }
+      } else {
+        final result = await FilePicker.platform.pickFiles(
+          type: FileType.image,
+          allowedExtensions: ['jpg', 'jpeg', 'png'],
+          allowMultiple: false,
+        );
+
+        if (result != null && result.files.isNotEmpty) {
+          final file = result.files.first;
+          if (file.path != null) {
+            final newAvatar = File(file.path!);
+            setState(() {
+              _avatarImage = newAvatar;
+            });
+            widget.onAvatarChanged(newAvatar);
+          }
         }
       }
     } catch (e) {

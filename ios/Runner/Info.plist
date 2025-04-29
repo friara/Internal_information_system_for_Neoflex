@@ -45,5 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Для выбора фото и видео</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Для съемки фото и видео</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Для записи звука к видео</string>
 </dict>
 </plist>
