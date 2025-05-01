@@ -23,7 +23,7 @@ class Post {
 }
 
 class NewsFeed extends StatefulWidget {
-  const NewsFeed({Key? key}) : super(key: key);
+  const NewsFeed({super.key});
 
   @override
   NewsFeedState createState() => NewsFeedState();
@@ -152,12 +152,18 @@ class NewsFeedState extends State<NewsFeed> {
                 child: Text("Главная"),
               ),
               actions: [
+                IconButton( // вход
+      icon: const Icon(Icons.login),
+      onPressed: () {
+        Navigator.pushNamed(context, '/login');
+      },
+    ),
                 IconButton(
                   icon: const Icon(Icons.add),
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => NewPostPage()),
+                      MaterialPageRoute(builder: (context) => const NewPostPage()),
                     );
                   },
                 ),

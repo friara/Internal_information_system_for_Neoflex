@@ -13,15 +13,36 @@ dependencies:
   sqflite_common_ffi: ^2.2.0
   path_provider: ^2.0.2
   image_picker: ^0.8.4+4
-  permission_handler: ^10.0.0
-  file_picker: ^4.0.0
-  syncfusion_flutter_pdfviewer: ^20.4.48
-  open_file: ^3.2.1
+  permission_handler: ^12.0.0+1
+  file_picker: ^10.1.0
+  syncfusion_flutter_pdfviewer: ^29.1.39
+  open_file: ^3.3.1
+  dio: ^5.8.0+1
+  shared_preferences: ^2.5.3
+  flutter_appauth: ^9.0.0
+  flutter_secure_storage: ^8.0.0
+  flutter_riverpod: ^2.6.1
+  oauth2: ^2.0.3
+  oauth2_client: ^3.2.2
+  built_collection: ^5.1.1
+  openapi_generator_annotations: ^6.1.0
+  get_it: ^8.0.3
+  openapi:
+    path: api
+  flutter_bloc: ^9.1.0
+  universal_html: ^2.2.4
+  url_launcher: ^6.3.1
+  crypto: ^3.0.6
+  convert: ^3.1.2
+  jwt_decode: ^0.3.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  build_runner: ^2.4.15
+  openapi_generator: ^6.1.0
+  openapi_generator_cli: ^6.1.0
 
 flutter:
   uses-material-design: true  

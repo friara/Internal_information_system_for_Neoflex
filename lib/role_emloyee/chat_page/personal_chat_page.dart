@@ -15,12 +15,12 @@ class PersonalChatPage extends StatefulWidget {
   final File? groupImage;
 
   const PersonalChatPage({
-    Key? key,
+    super.key,
     required this.userId,
     this.isGroup = false,
     this.groupMembers = const [],
     this.groupImage,
-  }) : super(key: key);
+  });
 
   @override
   _PersonalChatPageState createState() => _PersonalChatPageState();

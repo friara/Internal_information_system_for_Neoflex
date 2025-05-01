@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:news_feed_neoflex/horizontal_image_slider.dart';
 import 'package:news_feed_neoflex/new_post_page.dart';
 import 'package:file_picker/file_picker.dart';
-import 'publication_page.dart';
 import 'dart:io';
 
 class Post {
@@ -33,7 +32,7 @@ class Post {
 }
 
 class NewsFeed extends StatefulWidget {
-  const NewsFeed({Key? key}) : super(key: key);
+  const NewsFeed({super.key});
 
   @override
   NewsFeedState createState() => NewsFeedState();
@@ -126,7 +125,7 @@ class NewsFeedState extends State<NewsFeed> {
   Future<void> _navigateToNewPostPage() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => NewPostPage()),
+      MaterialPageRoute(builder: (context) => const NewPostPage()),
     );
 
     if (result != null && result is Map<String, dynamic>) {
@@ -244,7 +243,7 @@ class NewsFeedState extends State<NewsFeed> {
                                           horizontal: 8.0),
                                       child: Text(file.name),
                                     ))
-                                .toList(),
+                                ,
                           ],
                         ),
                       Row(
