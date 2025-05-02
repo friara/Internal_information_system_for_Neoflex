@@ -58,6 +58,20 @@ The application has several functions:
 
 
 
+- By clicking on the edit icon, you can go to the post editing page, where you can rewrite/delete text, add/delete photos to the post. When saved, the changes will be immediately displayed in the news feed. You can also delete the entire post by clicking on the trash button in the upper-right corner.
+
+
+<img width="320" alt="Снимок экрана 2025-05-02 в 16 32 33" src="https://github.com/user-attachments/assets/50866935-0f8a-452f-a407-791e8472a29a" />
+
+
+
+<img width="306" alt="Снимок экрана 2025-05-02 в 16 32 21" src="https://github.com/user-attachments/assets/e107fc17-79e0-4def-9734-27feecfb63b9" />
+
+
+
+<img width="320" alt="Снимок экрана 2025-05-02 в 16 32 33" src="https://github.com/user-attachments/assets/258bb18c-73eb-4bea-8058-29224c18acdf" />
+
+
 - on the office map page, you can screen your workplace by clicking on the red label;
 
 
