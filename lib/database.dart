@@ -1,6 +1,7 @@
 import 'dart:convert';
 //import 'dart:io';
 import 'package:flutter/services.dart';
+// ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
 //import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -63,7 +64,6 @@ class DatabaseHelper {
   Future<Map<String, dynamic>?> getProfile() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query('profile');
-    print("Полученные записи из БД: $maps");
     return maps.isNotEmpty ? maps.first : null;
   }
 

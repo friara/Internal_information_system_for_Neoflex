@@ -1,33 +1,14 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:news_feed_neoflex/horizontal_image_slider.dart';
+import 'package:news_feed_neoflex/post_model.dart';
+import 'package:news_feed_neoflex/role_manager/edit_post_page.dart';
 import 'package:news_feed_neoflex/role_manager/new_post_page/new_post_page.dart';
 
-class Post {
-  final List<String> imageUrls;
-  final String textFileName;
-  String text;
-  List<String> comments;
-  bool isLiked;
-  int likesCount;
-  final DateTime date;
-  final int views;
-
-  Post({
-    required this.imageUrls,
-    required this.textFileName,
-    required this.text,
-    required this.comments,
-    required this.date,
-    required this.views,
-    this.isLiked = false,
-    this.likesCount = 0,
-  });
-}
-
 class NewsFeed extends StatefulWidget {
-  const NewsFeed({Key? key}) : super(key: key);
+  const NewsFeed({super.key});
 
   @override
   NewsFeedState createState() => NewsFeedState();
@@ -40,8 +21,6 @@ class NewsFeedState extends State<NewsFeed> {
   List<Post> filteredPosts = [];
   List<bool> showCommentInput = [];
   bool isLoading = false;
-
-  //String _searchQuery = '';
   String _sortBy = 'date';
   bool _sortAscending = true;
   bool _showFilters = false;
@@ -155,20 +134,6 @@ class NewsFeedState extends State<NewsFeed> {
     }
   }
 
-  // void _applySearch() {
-  //   setState(() {
-  //     if (_searchQuery.isEmpty) {
-  //       filteredPosts = List.from(posts);
-  //     } else {
-  //       filteredPosts = posts
-  //           .where((post) =>
-  //               post.text.toLowerCase().contains(_searchQuery.toLowerCase()))
-  //           .toList();
-  //     }
-  //     _applySort();
-  //   });
-  // }
-
   void _applyDateFilter() {
     setState(() {
       if (_selectedDate == null) {
@@ -214,6 +179,39 @@ class NewsFeedState extends State<NewsFeed> {
     }
   }
 
+  void _navigateToEditPost(BuildContext context, Post post, int index) async {
+    try {
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => EditPostPage(
+            initialText: post.text,
+            initialImagePaths: post.imageUrls,
+            onSave: (newText, newImages) {
+              setState(() {
+                filteredPosts[index].text = newText;
+                filteredPosts[index].imageUrls = newImages;
+              });
+            },
+            onDelete: () {
+              setState(() {
+                posts.removeAt(index);
+                filteredPosts.removeAt(index);
+              });
+            },
+          ),
+        ),
+      );
+    } catch (e, stackTrace) {
+      debugPrint('Ошибка при редактировании поста: $e');
+      debugPrint('Стек вызовов: $stackTrace');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Ошибка при открытии редактора: ${e.toString()}')),
+      );
+    }
+  }
+
   Widget _buildFilterControls() {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -222,6 +220,7 @@ class NewsFeedState extends State<NewsFeed> {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
+            // ignore: deprecated_member_use
             color: Colors.grey.withOpacity(0.3),
             spreadRadius: 2,
             blurRadius: 5,
@@ -230,103 +229,215 @@ class NewsFeedState extends State<NewsFeed> {
         ],
       ),
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Column(
-        children: [
-          Row(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 375;
+          return Column(
             children: [
-              const Text('Фильтр по дате:',
-                  style: TextStyle(fontSize: 16, color: Colors.black)),
-              const SizedBox(width: 10),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey[200], // Светло-серый фон
-                  foregroundColor: Colors.black, // Черный текст
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(4), // Прямоугольные углы
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                ),
-                onPressed: () => _selectDate(context),
-                child: Text(
-                  _selectedDate == null
-                      ? 'Выберите дату'
-                      : '${_selectedDate!.day}.${_selectedDate!.month}.${_selectedDate!.year}',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-              const SizedBox(width: 10),
-              if (_selectedDate != null)
-                IconButton(
-                  icon: const Icon(Icons.clear, color: Colors.black),
+              isSmallScreen
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Фильтр по дате:',
+                            style:
+                                TextStyle(fontSize: 16, color: Colors.black)),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.grey[200],
+                                  foregroundColor: Colors.black,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 8),
+                                ),
+                                onPressed: () => _selectDate(context),
+                                child: Text(
+                                  _selectedDate == null
+                                      ? 'Выберите дату'
+                                      : '${_selectedDate!.day}.${_selectedDate!.month}.${_selectedDate!.year}',
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              ),
+                            ),
+                            if (_selectedDate != null)
+                              IconButton(
+                                icon: const Icon(Icons.clear, size: 20),
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedDate = null;
+                                    _applyDateFilter();
+                                  });
+                                },
+                              ),
+                          ],
+                        ),
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        const Text('Фильтр по дате:',
+                            style:
+                                TextStyle(fontSize: 16, color: Colors.black)),
+                        const SizedBox(width: 10),
+                        IntrinsicWidth(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey[200],
+                              foregroundColor: Colors.black,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                            ),
+                            onPressed: () => _selectDate(context),
+                            child: Text(
+                              _selectedDate == null
+                                  ? 'Выберите дату'
+                                  : '${_selectedDate!.day}.${_selectedDate!.month}.${_selectedDate!.year}',
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ),
+                        ),
+                        if (_selectedDate != null)
+                          IconButton(
+                            icon: const Icon(Icons.clear, size: 20),
+                            onPressed: () {
+                              setState(() {
+                                _selectedDate = null;
+                                _applyDateFilter();
+                              });
+                            },
+                          ),
+                      ],
+                    ),
+              const SizedBox(height: 12),
+              isSmallScreen
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Сортировка:',
+                            style:
+                                TextStyle(fontSize: 16, color: Colors.black)),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: DropdownButton<String>(
+                                isExpanded: true,
+                                value: _sortBy,
+                                style: const TextStyle(
+                                    fontSize: 16, color: Colors.black),
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: 'date',
+                                    child: Text('По дате'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'popularity',
+                                    child: Text('По популярности'),
+                                  ),
+                                ],
+                                onChanged: (String? value) {
+                                  setState(() {
+                                    _sortBy = value!;
+                                    _applySort();
+                                  });
+                                },
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                _sortAscending
+                                    ? Icons.arrow_upward
+                                    : Icons.arrow_downward,
+                                color: Colors.purple,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _sortAscending = !_sortAscending;
+                                  _applySort();
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        const Text('Сортировка:',
+                            style:
+                                TextStyle(fontSize: 16, color: Colors.black)),
+                        const SizedBox(width: 40),
+                        IntrinsicWidth(
+                          child: DropdownButton<String>(
+                            isExpanded: true,
+                            value: _sortBy,
+                            style: const TextStyle(
+                                fontSize: 16, color: Colors.black),
+                            items: const [
+                              DropdownMenuItem(
+                                value: 'date',
+                                child: Text('По дате'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'popularity',
+                                child: Text('По популярности'),
+                              ),
+                            ],
+                            onChanged: (String? value) {
+                              setState(() {
+                                _sortBy = value!;
+                                _applySort();
+                              });
+                            },
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            _sortAscending
+                                ? Icons.arrow_upward
+                                : Icons.arrow_downward,
+                            color: Colors.purple,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _sortAscending = !_sortAscending;
+                              _applySort();
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+
+              const SizedBox(height: 12),
+
+              // Кнопка сброса
+              Align(
+                alignment: Alignment.centerRight,
+                child: IconButton(
+                  icon: const Icon(Icons.refresh, size: 24),
                   onPressed: () {
                     setState(() {
                       _selectedDate = null;
-                      _applyDateFilter();
+                      _sortBy = 'date';
+                      _sortAscending = true;
+                      filteredPosts = List.from(posts);
                     });
                   },
                 ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              const Text('Сортировка:',
-                  style: TextStyle(fontSize: 16, color: Colors.black)),
-              const SizedBox(width: 40),
-              DropdownButton<String>(
-                value: _sortBy,
-                style: const TextStyle(fontSize: 16, color: Colors.black),
-                items: const [
-                  DropdownMenuItem(
-                    value: 'date',
-                    child: Text('По дате'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'popularity',
-                    child: Text('По популярности'),
-                  ),
-                ],
-                onChanged: (String? value) {
-                  setState(() {
-                    _sortBy = value!;
-                    _applySort();
-                  });
-                },
-              ),
-              const SizedBox(width: 20),
-              IconButton(
-                icon: Icon(
-                  _sortAscending ? Icons.arrow_upward : Icons.arrow_downward,
-                  color: Colors.purple,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _sortAscending = !_sortAscending;
-                    _applySort();
-                  });
-                },
               ),
             ],
-          ),
-          const SizedBox(height: 10),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: () {
-                setState(() {
-                  _selectedDate = null;
-                  _sortBy = 'date';
-                  _sortAscending = true;
-                  filteredPosts = List.from(posts);
-                });
-              },
-            ),
-          )
-        ],
+          );
+        },
       ),
     );
   }
@@ -390,7 +501,6 @@ class NewsFeedState extends State<NewsFeed> {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Добавляем отображение даты и просмотров
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 8.0),
@@ -446,6 +556,11 @@ class NewsFeedState extends State<NewsFeed> {
                                       icon: const Icon(Icons.message),
                                       onPressed: () =>
                                           toggleCommentInput(index),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.edit),
+                                      onPressed: () => _navigateToEditPost(
+                                          context, post, index),
                                     ),
                                   ],
                                 ),

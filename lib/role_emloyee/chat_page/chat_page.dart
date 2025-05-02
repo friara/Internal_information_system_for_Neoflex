@@ -10,7 +10,7 @@ class ChatPage extends StatefulWidget {
   final Map<String, dynamic>? newGroup;
   final String? newContact;
 
-  const ChatPage({Key? key, this.newGroup, this.newContact}) : super(key: key);
+  const ChatPage({super.key, this.newGroup, this.newContact});
 
   @override
   ChatPageState createState() => ChatPageState();
@@ -20,14 +20,14 @@ class ChatPageState extends State<ChatPage> {
   int _selectedIndex = 2;
   final TextEditingController _searchController = TextEditingController();
   bool _isSearchActive = false;
-  List<String> _allChats =
+  final List<String> _allChats =
       List.generate(10, (index) => 'Имя Пользователя $index');
   bool _showCreateOptions = false;
   bool _showGroupCreation = false;
   Map<String, bool> _selectedUsers = {};
   File? _groupImage;
   final TextEditingController _groupNameController = TextEditingController();
-  List<Map<String, dynamic>> _groups = [];
+  final List<Map<String, dynamic>> _groups = [];
 
   @override
   void initState() {
@@ -85,6 +85,7 @@ class ChatPageState extends State<ChatPage> {
         }
       }
     } catch (e) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Ошибка при выборе изображения')));
     }
@@ -92,7 +93,9 @@ class ChatPageState extends State<ChatPage> {
 
   void _createGroup() {
     if (_groupNameController.text.isEmpty ||
-        !_selectedUsers.values.any((v) => v)) return;
+        !_selectedUsers.values.any((v) => v)) {
+      return;
+    }
 
     final newGroup = {
       'name': _groupNameController.text,
@@ -372,7 +375,7 @@ class ChatPageState extends State<ChatPage> {
                             backgroundImage:
                                 AssetImage("assets/images/imageMyProfile.jpg")),
                       ))
-                  .toList(),
+                  ,
             ],
           ),
         ),
@@ -391,13 +394,16 @@ class ChatPageState extends State<ChatPage> {
       ],
       currentIndex: _selectedIndex,
       onTap: (index) {
-        if (index == 0)
+        if (index == 0) {
           Navigator.pushNamed(context, '/');
-        else if (index == 1)
+        } else if (index == 1)
+          // ignore: curly_braces_in_flow_control_structures
           Navigator.pushNamed(context, '/page1');
         else if (index == 3)
+          // ignore: curly_braces_in_flow_control_structures
           Navigator.pushNamed(context, '/page3');
         else
+          // ignore: curly_braces_in_flow_control_structures
           setState(() => _selectedIndex = index);
       },
       selectedItemColor: const Color(0xFF48036F),

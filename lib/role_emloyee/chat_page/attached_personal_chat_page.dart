@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 class AttachedPersonalChatPage extends StatefulWidget {
-  const AttachedPersonalChatPage({Key? key, required this.userId})
-      : super(key: key);
+  const AttachedPersonalChatPage({super.key, required this.userId});
 
   final String userId;
 
   @override
+  // ignore: library_private_types_in_public_api
   _AttachedPersonalChatPageState createState() =>
       _AttachedPersonalChatPageState();
 }

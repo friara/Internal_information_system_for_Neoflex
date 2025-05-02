@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:news_feed_neoflex/role_manager/users_page/create_user_page.dart';
 import 'package:news_feed_neoflex/role_manager/users_page/user_profile_page.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
 class ListOfUsers extends StatefulWidget {
+  const ListOfUsers({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _ListOfUsersState createState() => _ListOfUsersState();
 }
 

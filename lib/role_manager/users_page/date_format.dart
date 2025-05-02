@@ -7,13 +7,14 @@ class DateInput extends StatefulWidget {
   final String? Function(String?)? validator; // Add the validator
 
   const DateInput({
-    Key? key,
+    super.key,
     required this.controller,
     required this.labelText,
     this.validator, // Add the validator to the constructor
-  }) : super(key: key);
+  });
 
   @override
+  // ignore: library_private_types_in_public_api
   _DateInputState createState() => _DateInputState();
 }
 
@@ -27,7 +28,7 @@ class _DateInputState extends State<DateInput> {
     );
     if (picked != null) {
       setState(() {
-        widget.controller.text = DateFormat('dd.MM.yyyy').format(picked!);
+        widget.controller.text = DateFormat('dd.MM.yyyy').format(picked);
       });
     }
   }

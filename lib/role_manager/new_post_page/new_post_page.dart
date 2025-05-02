@@ -6,15 +6,16 @@ import 'package:file_picker/file_picker.dart';
 import 'publication_page.dart';
 
 class NewPostPage extends StatefulWidget {
-  const NewPostPage({Key? key}) : super(key: key);
+  const NewPostPage({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _NewPostPageState createState() => _NewPostPageState();
 }
 
 class _NewPostPageState extends State<NewPostPage> {
   final TextEditingController _textController = TextEditingController();
-  List<File> _selectedImages = [];
+  final List<File> _selectedImages = [];
   bool _isNextButtonEnabled = false;
 
   @override
@@ -48,14 +49,34 @@ class _NewPostPageState extends State<NewPostPage> {
   Future<void> _pickImageMobile() async {
     final picker = ImagePicker();
     List<XFile>? pickedFiles;
-
-    // Request gallery permissions
     var status = await Permission.photos.status;
     if (!status.isGranted) {
       status = await Permission.photos.request();
       if (status.isDenied) {
-        print('Gallery permission denied');
-        return; // Exit if permission is still denied
+        if (await Permission.photos.shouldShowRequestRationale) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => AlertDialog(
+              title: const Text('Требуется доступ'),
+              content: const Text(
+                  'Приложению нужен доступ к галереи для выбора фото'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Отмена'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await openAppSettings();
+                  },
+                  child: const Text('Настройки'),
+                ),
+              ],
+            ),
+          );
+        }
+        return;
       }
     }
 
@@ -64,7 +85,6 @@ class _NewPostPageState extends State<NewPostPage> {
 
       setState(() {
         if (pickedFiles != null) {
-          // Add selected images to the list
           for (var file in pickedFiles) {
             _selectedImages.add(File(file.path));
           }
@@ -75,6 +95,9 @@ class _NewPostPageState extends State<NewPostPage> {
       });
     } catch (e) {
       print('Error picking image: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка при выборе изображения: $e')),
+      );
     }
   }
 
@@ -87,7 +110,6 @@ class _NewPostPageState extends State<NewPostPage> {
     if (result != null) {
       List<File> files = result.paths.map((path) => File(path!)).toList();
       setState(() {
-        // Add selected images to the list
         _selectedImages.addAll(files);
         _updateNextButtonState();
       });
@@ -103,17 +125,17 @@ class _NewPostPageState extends State<NewPostPage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        foregroundColor: Colors.purple,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.black),
+          icon: const Icon(Icons.close, color: Colors.purple),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
-        title: const Text(
-          'Новый пост',
-          style: TextStyle(color: Colors.black, fontSize: 18),
+        title: const Align(
+          alignment: Alignment.center,
+          child: Text("Новый пост"),
         ),
         centerTitle: true,
         actions: [
@@ -136,65 +158,91 @@ class _NewPostPageState extends State<NewPostPage> {
                   }
                 : null,
             style: TextButton.styleFrom(
-              foregroundColor: _isNextButtonEnabled ? Colors.blue : Colors.grey,
+              foregroundColor:
+                  _isNextButtonEnabled ? Colors.purple : Colors.grey,
             ),
             child: const Text('Далее'),
           ),
         ],
+        surfaceTintColor: const Color.fromARGB(255, 100, 29, 113),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _textController,
-              decoration: const InputDecoration(
-                hintText: 'Напишите что-нибудь...',
-                border: InputBorder.none,
-              ),
-              maxLines: null,
-              keyboardType: TextInputType.multiline,
-            ),
-            if (_selectedImages.isNotEmpty)
-              Container(
-                height: imageHeight,
-                child: PageView.builder(
-                  itemCount: _selectedImages.length,
-                  itemBuilder: (context, index) {
-                    return Stack(
-                      alignment: Alignment.topRight,
-                      children: [
-                        Image.file(
-                          _selectedImages[index],
-                          width: screenWidth,
-                          height: imageHeight,
-                          fit: BoxFit.contain,
-                        ),
-                        GestureDetector(
-                          onTap: () =>
-                              setState(() => _selectedImages.removeAt(index)),
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                                color: Colors.grey.withOpacity(0.7),
-                                shape: BoxShape.circle),
-                            child: const Icon(Icons.close,
-                                size: 16, color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              TextField(
+                controller: _textController,
+                decoration: const InputDecoration(
+                  hintText: 'Напишите что-нибудь...',
+                  border: InputBorder.none,
                 ),
+                maxLines: null,
+                keyboardType: TextInputType.multiline,
               ),
-          ],
+              SizedBox(height: 50),
+              if (_selectedImages.isNotEmpty)
+                Container(
+                  height: imageHeight,
+                  child: PageView.builder(
+                    itemCount: _selectedImages.length,
+                    itemBuilder: (context, index) {
+                      return Stack(
+                        alignment: Alignment.topRight,
+                        children: [
+                          Image.file(
+                            _selectedImages[index],
+                            width: screenWidth,
+                            height: imageHeight,
+                            fit: BoxFit.contain,
+                          ),
+                          GestureDetector(
+                            onTap: () =>
+                                setState(() => _selectedImages.removeAt(index)),
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                  color: Colors.grey.withOpacity(0.7),
+                                  shape: BoxShape.circle),
+                              child: const Icon(Icons.close,
+                                  size: 16, color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              SizedBox(height: 100),
+            ],
+          ),
         ),
       ),
-      bottomSheet: Container(
-          padding: const EdgeInsets.all(16.0),
-          child: IconButton(
-              icon: const Icon(Icons.attach_file, color: Colors.black),
-              onPressed: _pickImage)),
+      floatingActionButton: Align(
+        alignment: Alignment.bottomLeft,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 35.0, bottom: 16.0),
+          child: Material(
+            borderRadius: BorderRadius.circular(8.0),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(8.0),
+              onTap: _pickImage,
+              child: Container(
+                width: 56.0,
+                height: 56.0,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: const Icon(
+                  Icons.attach_file,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

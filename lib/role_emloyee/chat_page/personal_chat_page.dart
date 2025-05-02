@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:open_file/open_file.dart';
@@ -15,14 +14,15 @@ class PersonalChatPage extends StatefulWidget {
   final File? groupImage;
 
   const PersonalChatPage({
-    Key? key,
+    super.key,
     required this.userId,
     this.isGroup = false,
     this.groupMembers = const [],
     this.groupImage,
-  }) : super(key: key);
+  });
 
   @override
+  // ignore: library_private_types_in_public_api
   _PersonalChatPageState createState() => _PersonalChatPageState();
 }
 

@@ -24,14 +24,15 @@ class BookPageState extends State<BookPage> {
 }
 
 class OfficeMap extends StatefulWidget {
+  const OfficeMap({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _OfficeMapState createState() => _OfficeMapState();
 }
 
 class _OfficeMapState extends State<OfficeMap> {
   int _selectedIndex = 1; // Начальный индекс
-  final TextEditingController _searchController =
-      TextEditingController(); // Контроллер для поисковой строки
 
   List<Map<String, dynamic>> places = [
     {'x': 100, 'y': 200, 'booked': false},
@@ -40,7 +41,7 @@ class _OfficeMapState extends State<OfficeMap> {
     // Добавьте больше мест
   ];
 
-  String _filter = 'all'; // 'all', 'booked', 'free'
+  final String _filter = 'all'; // 'all', 'booked', 'free'
 
   void _onItemTapped(int index) {
     if (index == 0) {
@@ -149,9 +150,10 @@ class _OfficeMapState extends State<OfficeMap> {
 class AnimatedMarker extends StatefulWidget {
   final bool booked;
 
-  const AnimatedMarker({Key? key, required this.booked}) : super(key: key);
+  const AnimatedMarker({super.key, required this.booked});
 
   @override
+  // ignore: library_private_types_in_public_api
   _AnimatedMarkerState createState() => _AnimatedMarkerState();
 }
 
