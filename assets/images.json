@@ -2,15 +2,21 @@
     "posts": [
       {
         "images": ["image1.jpg", "image1_2.jpg"],
-        "text": "image1.txt"
+        "text": "image1.txt",
+        "date": "2025-01-14",
+        "views": 123
       },
       {
         "images": ["image2.jpg"],
-        "text": "image2.txt"
+        "text": "image2.txt",
+        "date": "2025-01-14",
+        "views": 231
       },
       {
         "images": ["image3.jpg"],
-        "text": "image3.txt"
+        "text": "image3.txt",
+        "date": "2025-02-02",
+        "views": 99
       },
       {
         "images": [
@@ -21,7 +27,9 @@
           "image4_5.jpg",
           "image4_6.jpg"
         ],
-        "text": "image4.txt"
+        "text": "image4.txt",
+        "date": "2025-02-08",
+        "views": 245
       },
       {
         "images": [
@@ -34,7 +42,9 @@
           "image5_7.jpg",
           "image5_8.jpg"
         ],
-        "text": "image5.txt"
+        "text": "image5.txt",
+        "date": "2025-02-10",
+        "views": 345
       },
           {
         "images": [
@@ -45,7 +55,9 @@
           "image6_5.jpg",
           "image6_6.jpg"
         ],
-        "text": "image6.txt"
+        "text": "image6.txt",
+        "date": "2025-02-15",
+        "views": 67
       }
     ]
   }

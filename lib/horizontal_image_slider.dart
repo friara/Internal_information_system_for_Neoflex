@@ -6,6 +6,7 @@ class HorizontalImageSlider extends StatefulWidget {
   const HorizontalImageSlider({super.key, required this.imageUrls});
 
   @override
+  // ignore: library_private_types_in_public_api
   _HorizontalImageSliderState createState() => _HorizontalImageSliderState();
 }
 

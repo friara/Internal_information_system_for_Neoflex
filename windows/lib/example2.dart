@@ -84,8 +84,7 @@ class NewsFeedState extends State<NewsFeed> {
         posts = newPosts;
         isLoading = false;
       });
-    } catch (e) {
-      print('Error loading posts: $e');
+    } catch (e) {      
       setState(() {
         isLoading = false;
       });

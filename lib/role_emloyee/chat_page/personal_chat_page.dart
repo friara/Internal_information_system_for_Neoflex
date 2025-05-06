@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:open_file/open_file.dart';
@@ -23,6 +22,7 @@ class PersonalChatPage extends StatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _PersonalChatPageState createState() => _PersonalChatPageState();
 }
 
@@ -66,21 +66,49 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
 
   Future<void> _pickFiles() async {
     try {
-      final result = await FilePicker.platform.pickFiles(allowMultiple: true);
-      if (result != null) {
-        setState(() => _selectedFiles.addAll(result.files));
+      if (Platform.isMacOS) {
+        final result = await FilePicker.platform.pickFiles(
+          allowMultiple: true,
+          type: FileType.any,
+        );
+        if (result != null) {
+          setState(() => _selectedFiles.addAll(result.files));
+        }
+      } else {
+        final result = await FilePicker.platform.pickFiles(allowMultiple: true);
+        if (result != null) {
+          setState(() => _selectedFiles.addAll(result.files));
+        }
       }
     } catch (e) {
-      _showError('Ошибка при выборе файла');
+      _showError('Ошибка при выборе файла: ${e.toString()}');
     }
   }
 
   Future<void> _pickImageOrVideo() async {
     try {
-      if (kIsWeb ||
-          Platform.isWindows ||
-          Platform.isLinux ||
-          Platform.isMacOS) {
+      if (Platform.isMacOS) {
+        // Для macOS используем file_picker с явным указанием типа
+        final result = await FilePicker.platform.pickFiles(
+          allowMultiple: true,
+          type: FileType.media,
+        );
+        if (result != null) {
+          setState(() => _selectedFiles.addAll(result.files));
+        }
+      } else if (Platform.isIOS) {
+        final image =
+            await ImagePicker().pickImage(source: ImageSource.gallery);
+        if (image != null) {
+          setState(() {
+            _selectedFiles.add(PlatformFile(
+              name: image.name,
+              size: File(image.path).lengthSync(),
+              path: image.path,
+            ));
+          });
+        }
+      } else {
         final result = await FilePicker.platform.pickFiles(
           allowMultiple: true,
           type: FileType.custom,
@@ -89,22 +117,9 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
         if (result != null) {
           setState(() => _selectedFiles.addAll(result.files));
         }
-      } else {
-        final image =
-            await ImagePicker().pickImage(source: ImageSource.gallery);
-        if (image != null) {
-          final file = File(image.path);
-          setState(() async {
-            _selectedFiles.add(PlatformFile(
-              name: image.name,
-              size: await file.length(),
-              path: image.path,
-            ));
-          });
-        }
       }
     } catch (e) {
-      _showError('Ошибка при выборе медиа');
+      _showError('Ошибка при выборе медиа: ${e.toString()}');
     }
   }
 
@@ -130,7 +145,7 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      backgroundColor: Colors.white,
+      surfaceTintColor: const Color.fromARGB(255, 100, 29, 113),
       automaticallyImplyLeading: false,
       title: InkWell(
         onTap: widget.isGroup ? _showGroupInfo : null,

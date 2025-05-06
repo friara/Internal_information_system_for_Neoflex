@@ -6,6 +6,7 @@ class AttachedPersonalChatPage extends StatefulWidget {
   final String userId;
 
   @override
+  // ignore: library_private_types_in_public_api
   _AttachedPersonalChatPageState createState() =>
       _AttachedPersonalChatPageState();
 }

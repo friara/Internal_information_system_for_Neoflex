@@ -27,13 +27,12 @@ class OfficeMap extends StatefulWidget {
   const OfficeMap({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _OfficeMapState createState() => _OfficeMapState();
 }
 
 class _OfficeMapState extends State<OfficeMap> {
   int _selectedIndex = 1; // Начальный индекс
-  final TextEditingController _searchController =
-      TextEditingController(); // Контроллер для поисковой строки
 
   List<Map<String, dynamic>> places = [
     {'x': 100, 'y': 200, 'booked': false},
@@ -154,6 +153,7 @@ class AnimatedMarker extends StatefulWidget {
   const AnimatedMarker({super.key, required this.booked});
 
   @override
+  // ignore: library_private_types_in_public_api
   _AnimatedMarkerState createState() => _AnimatedMarkerState();
 }
 

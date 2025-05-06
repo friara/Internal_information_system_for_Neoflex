@@ -5,6 +5,7 @@ import 'package:news_feed_neoflex/role_emloyee/chat_page/chat_page.dart';
 import 'package:news_feed_neoflex/role_emloyee/profile_page.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
 
+import 'package:news_feed_neoflex/role_manager/users_page/list_of_users.dart';
 
 class AppRoutes {
   static const String newsFeed = '/';
@@ -20,6 +21,8 @@ class AppRoutes {
       chatPage: (context) => const ChatPage(),
       profilePage: (context) => const Profile(),
       loginPage: (context) => const LoginScreen()      // Добавляем страницу входа
+      //profilePage: (context) => Profile(),
+      //profilePage: (context) => ListOfUsers(),
     };
   }
 }
