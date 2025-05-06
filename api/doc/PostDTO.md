@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 **createdWhen** | [**DateTime**](DateTime.md) |  | [optional] 
 **title** | **String** |  | [optional] 
 **text** | **String** |  | [optional] 
-**mediaUrls** | **BuiltList&lt;String&gt;** |  | [optional] 
+**mediaUrls** | [**BuiltList&lt;MediaDTO&gt;**](MediaDTO.md) |  | [optional] 
 **userId** | **int** |  | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

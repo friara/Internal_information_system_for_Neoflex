@@ -9,16 +9,18 @@ All URIs are relative to *http://localhost:8080*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**createUser**](UserControllerApi.md#createuser) | **POST** /api/users | 
-[**deleteUser**](UserControllerApi.md#deleteuser) | **DELETE** /api/users/{id} | 
+[**adminCreateUser**](UserControllerApi.md#admincreateuser) | **POST** /api/users | 
+[**adminDeleteUser**](UserControllerApi.md#admindeleteuser) | **DELETE** /api/users/{id} | 
 [**getAllUsers**](UserControllerApi.md#getallusers) | **GET** /api/users | 
+[**getCurrentUser**](UserControllerApi.md#getcurrentuser) | **GET** /api/users/me | 
 [**getUserById**](UserControllerApi.md#getuserbyid) | **GET** /api/users/{id} | 
-[**updateUser**](UserControllerApi.md#updateuser) | **PUT** /api/users/{id} | 
-[**uploadAvatar**](UserControllerApi.md#uploadavatar) | **POST** /api/users/{id}/avatar | 
+[**searchByFIO**](UserControllerApi.md#searchbyfio) | **GET** /api/users/search | 
+[**updateCurrentUser**](UserControllerApi.md#updatecurrentuser) | **PUT** /api/users/me | 
+[**uploadAvatar**](UserControllerApi.md#uploadavatar) | **POST** /api/users/me/avatar | 
 
 
-# **createUser**
-> UserDTO createUser(userDTO)
+# **adminCreateUser**
+> UserDTO adminCreateUser(userDTO)
 
 
 
@@ -30,10 +32,10 @@ final api = Openapi().getUserControllerApi();
 final UserDTO userDTO = ; // UserDTO | 
 
 try {
-    final response = api.createUser(userDTO);
+    final response = api.adminCreateUser(userDTO);
     print(response);
 } catch on DioException (e) {
-    print('Exception when calling UserControllerApi->createUser: $e\n');
+    print('Exception when calling UserControllerApi->adminCreateUser: $e\n');
 }
 ```
 
@@ -58,8 +60,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **deleteUser**
-> deleteUser(id)
+# **adminDeleteUser**
+> adminDeleteUser(id)
 
 
 
@@ -71,9 +73,9 @@ final api = Openapi().getUserControllerApi();
 final int id = 789; // int | 
 
 try {
-    api.deleteUser(id);
+    api.adminDeleteUser(id);
 } catch on DioException (e) {
-    print('Exception when calling UserControllerApi->deleteUser: $e\n');
+    print('Exception when calling UserControllerApi->adminDeleteUser: $e\n');
 }
 ```
 
@@ -135,6 +137,43 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **getCurrentUser**
+> UserDTO getCurrentUser()
+
+
+
+### Example
+```dart
+import 'package:openapi/api.dart';
+
+final api = Openapi().getUserControllerApi();
+
+try {
+    final response = api.getCurrentUser();
+    print(response);
+} catch on DioException (e) {
+    print('Exception when calling UserControllerApi->getCurrentUser: $e\n');
+}
+```
+
+### Parameters
+This endpoint does not need any parameter.
+
+### Return type
+
+[**UserDTO**](UserDTO.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **getUserById**
 > UserDTO getUserById(id)
 
@@ -176,8 +215,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **updateUser**
-> UserDTO updateUser(id, userDTO)
+# **searchByFIO**
+> PageUserDTO searchByFIO(query, page, size)
 
 
 
@@ -186,14 +225,15 @@ No authorization required
 import 'package:openapi/api.dart';
 
 final api = Openapi().getUserControllerApi();
-final int id = 789; // int | 
-final UserDTO userDTO = ; // UserDTO | 
+final String query = query_example; // String | 
+final int page = 56; // int | 
+final int size = 56; // int | 
 
 try {
-    final response = api.updateUser(id, userDTO);
+    final response = api.searchByFIO(query, page, size);
     print(response);
 } catch on DioException (e) {
-    print('Exception when calling UserControllerApi->updateUser: $e\n');
+    print('Exception when calling UserControllerApi->searchByFIO: $e\n');
 }
 ```
 
@@ -201,7 +241,49 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **int**|  | 
+ **query** | **String**|  | 
+ **page** | **int**|  | [optional] [default to 0]
+ **size** | **int**|  | [optional] [default to 10]
+
+### Return type
+
+[**PageUserDTO**](PageUserDTO.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **updateCurrentUser**
+> UserDTO updateCurrentUser(userDTO)
+
+
+
+### Example
+```dart
+import 'package:openapi/api.dart';
+
+final api = Openapi().getUserControllerApi();
+final UserDTO userDTO = ; // UserDTO | 
+
+try {
+    final response = api.updateCurrentUser(userDTO);
+    print(response);
+} catch on DioException (e) {
+    print('Exception when calling UserControllerApi->updateCurrentUser: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
  **userDTO** | [**UserDTO**](UserDTO.md)|  | 
 
 ### Return type
@@ -220,7 +302,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **uploadAvatar**
-> String uploadAvatar(id, uploadAvatarRequest)
+> String uploadAvatar(uploadAvatarRequest)
 
 
 
@@ -229,11 +311,10 @@ No authorization required
 import 'package:openapi/api.dart';
 
 final api = Openapi().getUserControllerApi();
-final int id = 789; // int | 
 final UploadAvatarRequest uploadAvatarRequest = ; // UploadAvatarRequest | 
 
 try {
-    final response = api.uploadAvatar(id, uploadAvatarRequest);
+    final response = api.uploadAvatar(uploadAvatarRequest);
     print(response);
 } catch on DioException (e) {
     print('Exception when calling UserControllerApi->uploadAvatar: $e\n');
@@ -244,7 +325,6 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **int**|  | 
  **uploadAvatarRequest** | [**UploadAvatarRequest**](UploadAvatarRequest.md)|  | [optional] 
 
 ### Return type

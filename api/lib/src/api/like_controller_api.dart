@@ -8,9 +8,10 @@ import 'package:built_value/json_object.dart';
 import 'package:built_value/serializer.dart';
 import 'package:dio/dio.dart';
 
-import 'package:built_collection/built_collection.dart';
 import 'package:openapi/src/api_util.dart';
 import 'package:openapi/src/model/like_dto.dart';
+import 'package:openapi/src/model/page_like_dto.dart';
+import 'package:openapi/src/model/pageable.dart';
 
 class LikeControllerApi {
 
@@ -24,7 +25,7 @@ class LikeControllerApi {
   /// 
   ///
   /// Parameters:
-  /// * [likeDTO] 
+  /// * [postId] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -35,7 +36,7 @@ class LikeControllerApi {
   /// Returns a [Future] containing a [Response] with a [LikeDTO] as data
   /// Throws [DioException] if API call or serialization fails
   Future<Response<LikeDTO>> createLike({ 
-    required LikeDTO likeDTO,
+    required int postId,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -43,7 +44,7 @@ class LikeControllerApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/likes';
+    final _path = r'/api/posts/{postId}/likes'.replaceAll('{' r'postId' '}', encodeQueryParameter(_serializers, postId, const FullType(int)).toString());
     final _options = Options(
       method: r'POST',
       headers: <String, dynamic>{
@@ -53,31 +54,11 @@ class LikeControllerApi {
         'secure': <Map<String, String>>[],
         ...?extra,
       },
-      contentType: 'application/json',
       validateStatus: validateStatus,
     );
 
-    dynamic _bodyData;
-
-    try {
-      const _type = FullType(LikeDTO);
-      _bodyData = _serializers.serialize(likeDTO, specifiedType: _type);
-
-    } catch(error, stackTrace) {
-      throw DioException(
-         requestOptions: _options.compose(
-          _dio.options,
-          _path,
-        ),
-        type: DioExceptionType.unknown,
-        error: error,
-        stackTrace: stackTrace,
-      );
-    }
-
     final _response = await _dio.request<Object>(
       _path,
-      data: _bodyData,
       options: _options,
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
@@ -119,7 +100,8 @@ class LikeControllerApi {
   /// 
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [postId] 
+  /// * [userId] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -130,7 +112,8 @@ class LikeControllerApi {
   /// Returns a [Future]
   /// Throws [DioException] if API call or serialization fails
   Future<Response<void>> deleteLike({ 
-    required int id,
+    required int postId,
+    required int userId,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -138,7 +121,7 @@ class LikeControllerApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/likes/{id}'.replaceAll('{' r'id' '}', encodeQueryParameter(_serializers, id, const FullType(int)).toString());
+    final _path = r'/api/posts/{postId}/likes/{userId}'.replaceAll('{' r'postId' '}', encodeQueryParameter(_serializers, postId, const FullType(int)).toString()).replaceAll('{' r'userId' '}', encodeQueryParameter(_serializers, userId, const FullType(int)).toString());
     final _options = Options(
       method: r'DELETE',
       headers: <String, dynamic>{
@@ -162,10 +145,12 @@ class LikeControllerApi {
     return _response;
   }
 
-  /// getAllLikes
+  /// getLikesByPost
   /// 
   ///
   /// Parameters:
+  /// * [postId] 
+  /// * [pageable] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -173,9 +158,11 @@ class LikeControllerApi {
   /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
   /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
   ///
-  /// Returns a [Future] containing a [Response] with a [BuiltList<LikeDTO>] as data
+  /// Returns a [Future] containing a [Response] with a [PageLikeDTO] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<LikeDTO>>> getAllLikes({ 
+  Future<Response<PageLikeDTO>> getLikesByPost({ 
+    required int postId,
+    required Pageable pageable,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -183,7 +170,7 @@ class LikeControllerApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/likes';
+    final _path = r'/api/posts/{postId}/likes'.replaceAll('{' r'postId' '}', encodeQueryParameter(_serializers, postId, const FullType(int)).toString());
     final _options = Options(
       method: r'GET',
       headers: <String, dynamic>{
@@ -196,22 +183,27 @@ class LikeControllerApi {
       validateStatus: validateStatus,
     );
 
+    final _queryParameters = <String, dynamic>{
+      r'pageable': encodeQueryParameter(_serializers, pageable, const FullType(Pageable)),
+    };
+
     final _response = await _dio.request<Object>(
       _path,
       options: _options,
+      queryParameters: _queryParameters,
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,
     );
 
-    BuiltList<LikeDTO>? _responseData;
+    PageLikeDTO? _responseData;
 
     try {
       final rawResponse = _response.data;
       _responseData = rawResponse == null ? null : _serializers.deserialize(
         rawResponse,
-        specifiedType: const FullType(BuiltList, [FullType(LikeDTO)]),
-      ) as BuiltList<LikeDTO>;
+        specifiedType: const FullType(PageLikeDTO),
+      ) as PageLikeDTO;
 
     } catch (error, stackTrace) {
       throw DioException(
@@ -223,7 +215,7 @@ class LikeControllerApi {
       );
     }
 
-    return Response<BuiltList<LikeDTO>>(
+    return Response<PageLikeDTO>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,
@@ -235,11 +227,11 @@ class LikeControllerApi {
     );
   }
 
-  /// getLikeById
+  /// getLikesCount
   /// 
   ///
   /// Parameters:
-  /// * [id] 
+  /// * [postId] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -247,10 +239,10 @@ class LikeControllerApi {
   /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
   /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
   ///
-  /// Returns a [Future] containing a [Response] with a [LikeDTO] as data
+  /// Returns a [Future] containing a [Response] with a [int] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<LikeDTO>> getLikeById({ 
-    required int id,
+  Future<Response<int>> getLikesCount({ 
+    required int postId,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -258,7 +250,7 @@ class LikeControllerApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/likes/{id}'.replaceAll('{' r'id' '}', encodeQueryParameter(_serializers, id, const FullType(int)).toString());
+    final _path = r'/api/posts/{postId}/likes/count'.replaceAll('{' r'postId' '}', encodeQueryParameter(_serializers, postId, const FullType(int)).toString());
     final _options = Options(
       method: r'GET',
       headers: <String, dynamic>{
@@ -279,14 +271,11 @@ class LikeControllerApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    LikeDTO? _responseData;
+    int? _responseData;
 
     try {
       final rawResponse = _response.data;
-      _responseData = rawResponse == null ? null : _serializers.deserialize(
-        rawResponse,
-        specifiedType: const FullType(LikeDTO),
-      ) as LikeDTO;
+      _responseData = rawResponse == null ? null : rawResponse as int;
 
     } catch (error, stackTrace) {
       throw DioException(
@@ -298,7 +287,7 @@ class LikeControllerApi {
       );
     }
 
-    return Response<LikeDTO>(
+    return Response<int>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,

@@ -4,6 +4,7 @@
 
 // ignore_for_file: unused_element
 import 'package:built_collection/built_collection.dart';
+import 'package:openapi/src/model/media_dto.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
@@ -33,7 +34,7 @@ abstract class PostDTO implements Built<PostDTO, PostDTOBuilder> {
   String? get text;
 
   @BuiltValueField(wireName: r'mediaUrls')
-  BuiltList<String>? get mediaUrls;
+  BuiltList<MediaDTO>? get mediaUrls;
 
   @BuiltValueField(wireName: r'userId')
   int? get userId;
@@ -93,7 +94,7 @@ class _$PostDTOSerializer implements PrimitiveSerializer<PostDTO> {
       yield r'mediaUrls';
       yield serializers.serialize(
         object.mediaUrls,
-        specifiedType: const FullType(BuiltList, [FullType(String)]),
+        specifiedType: const FullType(BuiltList, [FullType(MediaDTO)]),
       );
     }
     if (object.userId != null) {
@@ -157,8 +158,8 @@ class _$PostDTOSerializer implements PrimitiveSerializer<PostDTO> {
         case r'mediaUrls':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(String)]),
-          ) as BuiltList<String>;
+            specifiedType: const FullType(BuiltList, [FullType(MediaDTO)]),
+          ) as BuiltList<MediaDTO>;
           result.mediaUrls.replace(valueDes);
           break;
         case r'userId':

@@ -8,8 +8,6 @@ part of 'like_dto.dart';
 
 class _$LikeDTO extends LikeDTO {
   @override
-  final int? id;
-  @override
   final int? postId;
   @override
   final int? userId;
@@ -17,7 +15,7 @@ class _$LikeDTO extends LikeDTO {
   factory _$LikeDTO([void Function(LikeDTOBuilder)? updates]) =>
       (new LikeDTOBuilder()..update(updates))._build();
 
-  _$LikeDTO._({this.id, this.postId, this.userId}) : super._();
+  _$LikeDTO._({this.postId, this.userId}) : super._();
 
   @override
   LikeDTO rebuild(void Function(LikeDTOBuilder) updates) =>
@@ -29,16 +27,12 @@ class _$LikeDTO extends LikeDTO {
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    return other is LikeDTO &&
-        id == other.id &&
-        postId == other.postId &&
-        userId == other.userId;
+    return other is LikeDTO && postId == other.postId && userId == other.userId;
   }
 
   @override
   int get hashCode {
     var _$hash = 0;
-    _$hash = $jc(_$hash, id.hashCode);
     _$hash = $jc(_$hash, postId.hashCode);
     _$hash = $jc(_$hash, userId.hashCode);
     _$hash = $jf(_$hash);
@@ -48,7 +42,6 @@ class _$LikeDTO extends LikeDTO {
   @override
   String toString() {
     return (newBuiltValueToStringHelper(r'LikeDTO')
-          ..add('id', id)
           ..add('postId', postId)
           ..add('userId', userId))
         .toString();
@@ -57,10 +50,6 @@ class _$LikeDTO extends LikeDTO {
 
 class LikeDTOBuilder implements Builder<LikeDTO, LikeDTOBuilder> {
   _$LikeDTO? _$v;
-
-  int? _id;
-  int? get id => _$this._id;
-  set id(int? id) => _$this._id = id;
 
   int? _postId;
   int? get postId => _$this._postId;
@@ -77,7 +66,6 @@ class LikeDTOBuilder implements Builder<LikeDTO, LikeDTOBuilder> {
   LikeDTOBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
-      _id = $v.id;
       _postId = $v.postId;
       _userId = $v.userId;
       _$v = null;
@@ -102,7 +90,6 @@ class LikeDTOBuilder implements Builder<LikeDTO, LikeDTOBuilder> {
   _$LikeDTO _build() {
     final _$result = _$v ??
         new _$LikeDTO._(
-          id: id,
           postId: postId,
           userId: userId,
         );

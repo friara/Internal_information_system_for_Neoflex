@@ -47,14 +47,15 @@ Please follow the [installation procedure](#installation--usage) and then run th
 import 'package:openapi/openapi.dart';
 
 
-final api = Openapi().getChatControllerApi();
-final ChatDTO chatDTO = ; // ChatDTO | 
+final api = Openapi().getBookingControllerApi();
+final int workspaceId = 789; // int | 
+final DateTime date = 2013-10-20T19:20:30+01:00; // DateTime | 
 
 try {
-    final response = await api.createChat(chatDTO);
+    final response = await api.checkAvailability(workspaceId, date);
     print(response);
 } catch on DioException (e) {
-    print("Exception when calling ChatControllerApi->createChat: $e\n");
+    print("Exception when calling BookingControllerApi->checkAvailability: $e\n");
 }
 
 ```
@@ -65,6 +66,11 @@ All URIs are relative to *http://localhost:8080*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+[*BookingControllerApi*](doc/BookingControllerApi.md) | [**checkAvailability**](doc/BookingControllerApi.md#checkavailability) | **GET** /api/bookings/availability/{workspaceId} | 
+[*BookingControllerApi*](doc/BookingControllerApi.md) | [**createBooking**](doc/BookingControllerApi.md#createbooking) | **POST** /api/bookings | 
+[*BookingControllerApi*](doc/BookingControllerApi.md) | [**deleteBooking**](doc/BookingControllerApi.md#deletebooking) | **DELETE** /api/bookings/{id} | 
+[*BookingControllerApi*](doc/BookingControllerApi.md) | [**getAllBookings**](doc/BookingControllerApi.md#getallbookings) | **GET** /api/bookings | 
+[*BookingControllerApi*](doc/BookingControllerApi.md) | [**getBookingById**](doc/BookingControllerApi.md#getbookingbyid) | **GET** /api/bookings/{id} | 
 [*ChatControllerApi*](doc/ChatControllerApi.md) | [**createChat**](doc/ChatControllerApi.md#createchat) | **POST** /api/chats | 
 [*ChatControllerApi*](doc/ChatControllerApi.md) | [**deleteChat**](doc/ChatControllerApi.md#deletechat) | **DELETE** /api/chats/{id} | 
 [*ChatControllerApi*](doc/ChatControllerApi.md) | [**getAllChats**](doc/ChatControllerApi.md#getallchats) | **GET** /api/chats | 
@@ -73,21 +79,17 @@ Class | Method | HTTP request | Description
 [*CommentControllerApi*](doc/CommentControllerApi.md) | [**deleteComment**](doc/CommentControllerApi.md#deletecomment) | **DELETE** /api/comments/{id} | 
 [*CommentControllerApi*](doc/CommentControllerApi.md) | [**getAllComments**](doc/CommentControllerApi.md#getallcomments) | **GET** /api/comments | 
 [*CommentControllerApi*](doc/CommentControllerApi.md) | [**getCommentById**](doc/CommentControllerApi.md#getcommentbyid) | **GET** /api/comments/{id} | 
-[*FileControllerApi*](doc/FileControllerApi.md) | [**createFile**](doc/FileControllerApi.md#createfile) | **POST** /api/files | 
-[*FileControllerApi*](doc/FileControllerApi.md) | [**deleteFile**](doc/FileControllerApi.md#deletefile) | **DELETE** /api/files/{id} | 
-[*FileControllerApi*](doc/FileControllerApi.md) | [**getAllFiles**](doc/FileControllerApi.md#getallfiles) | **GET** /api/files | 
-[*FileControllerApi*](doc/FileControllerApi.md) | [**getFileById**](doc/FileControllerApi.md#getfilebyid) | **GET** /api/files/{id} | 
-[*ImageControllerApi*](doc/ImageControllerApi.md) | [**getImage**](doc/ImageControllerApi.md#getimage) | **GET** /api/images/{filename} | 
-[*ImageControllerApi*](doc/ImageControllerApi.md) | [**uploadImage**](doc/ImageControllerApi.md#uploadimage) | **POST** /api/images/upload | 
-[*LikeControllerApi*](doc/LikeControllerApi.md) | [**createLike**](doc/LikeControllerApi.md#createlike) | **POST** /api/likes | 
-[*LikeControllerApi*](doc/LikeControllerApi.md) | [**deleteLike**](doc/LikeControllerApi.md#deletelike) | **DELETE** /api/likes/{id} | 
-[*LikeControllerApi*](doc/LikeControllerApi.md) | [**getAllLikes**](doc/LikeControllerApi.md#getalllikes) | **GET** /api/likes | 
-[*LikeControllerApi*](doc/LikeControllerApi.md) | [**getLikeById**](doc/LikeControllerApi.md#getlikebyid) | **GET** /api/likes/{id} | 
-[*MediaControllerApi*](doc/MediaControllerApi.md) | [**getMediaFile**](doc/MediaControllerApi.md#getmediafile) | **GET** /api/media/{filename} | 
+[*FileControllerApi*](doc/FileControllerApi.md) | [**downloadFile**](doc/FileControllerApi.md#downloadfile) | **GET** /api/files/{filename} | 
+[*LikeControllerApi*](doc/LikeControllerApi.md) | [**createLike**](doc/LikeControllerApi.md#createlike) | **POST** /api/posts/{postId}/likes | 
+[*LikeControllerApi*](doc/LikeControllerApi.md) | [**deleteLike**](doc/LikeControllerApi.md#deletelike) | **DELETE** /api/posts/{postId}/likes/{userId} | 
+[*LikeControllerApi*](doc/LikeControllerApi.md) | [**getLikesByPost**](doc/LikeControllerApi.md#getlikesbypost) | **GET** /api/posts/{postId}/likes | 
+[*LikeControllerApi*](doc/LikeControllerApi.md) | [**getLikesCount**](doc/LikeControllerApi.md#getlikescount) | **GET** /api/posts/{postId}/likes/count | 
+[*MediaControllerApi*](doc/MediaControllerApi.md) | [**downloadMedia**](doc/MediaControllerApi.md#downloadmedia) | **GET** /api/media/{filename} | 
 [*MessageControllerApi*](doc/MessageControllerApi.md) | [**createMessage**](doc/MessageControllerApi.md#createmessage) | **POST** /api/messages | 
 [*MessageControllerApi*](doc/MessageControllerApi.md) | [**deleteMessage**](doc/MessageControllerApi.md#deletemessage) | **DELETE** /api/messages/{id} | 
 [*MessageControllerApi*](doc/MessageControllerApi.md) | [**getAllMessages**](doc/MessageControllerApi.md#getallmessages) | **GET** /api/messages | 
 [*MessageControllerApi*](doc/MessageControllerApi.md) | [**getMessageById**](doc/MessageControllerApi.md#getmessagebyid) | **GET** /api/messages/{id} | 
+[*MessageControllerApi*](doc/MessageControllerApi.md) | [**updateMessage**](doc/MessageControllerApi.md#updatemessage) | **PUT** /api/messages/{id} | 
 [*PostControllerApi*](doc/PostControllerApi.md) | [**createPost**](doc/PostControllerApi.md#createpost) | **POST** /api/posts | 
 [*PostControllerApi*](doc/PostControllerApi.md) | [**deletePost**](doc/PostControllerApi.md#deletepost) | **DELETE** /api/posts/{id} | 
 [*PostControllerApi*](doc/PostControllerApi.md) | [**getAllPosts**](doc/PostControllerApi.md#getallposts) | **GET** /api/posts | 
@@ -97,27 +99,42 @@ Class | Method | HTTP request | Description
 [*RepostControllerApi*](doc/RepostControllerApi.md) | [**deleteRepost**](doc/RepostControllerApi.md#deleterepost) | **DELETE** /api/reposts/{id} | 
 [*RepostControllerApi*](doc/RepostControllerApi.md) | [**getAllReposts**](doc/RepostControllerApi.md#getallreposts) | **GET** /api/reposts | 
 [*RepostControllerApi*](doc/RepostControllerApi.md) | [**getRepostById**](doc/RepostControllerApi.md#getrepostbyid) | **GET** /api/reposts/{id} | 
-[*TestControllerApi*](doc/TestControllerApi.md) | [**privateHello**](doc/TestControllerApi.md#privatehello) | **GET** /api/private/hello | 
-[*TestControllerApi*](doc/TestControllerApi.md) | [**publicHello**](doc/TestControllerApi.md#publichello) | **GET** /api/public/hello | 
-[*UserControllerApi*](doc/UserControllerApi.md) | [**createUser**](doc/UserControllerApi.md#createuser) | **POST** /api/users | 
-[*UserControllerApi*](doc/UserControllerApi.md) | [**deleteUser**](doc/UserControllerApi.md#deleteuser) | **DELETE** /api/users/{id} | 
+[*UserControllerApi*](doc/UserControllerApi.md) | [**adminCreateUser**](doc/UserControllerApi.md#admincreateuser) | **POST** /api/users | 
+[*UserControllerApi*](doc/UserControllerApi.md) | [**adminDeleteUser**](doc/UserControllerApi.md#admindeleteuser) | **DELETE** /api/users/{id} | 
 [*UserControllerApi*](doc/UserControllerApi.md) | [**getAllUsers**](doc/UserControllerApi.md#getallusers) | **GET** /api/users | 
+[*UserControllerApi*](doc/UserControllerApi.md) | [**getCurrentUser**](doc/UserControllerApi.md#getcurrentuser) | **GET** /api/users/me | 
 [*UserControllerApi*](doc/UserControllerApi.md) | [**getUserById**](doc/UserControllerApi.md#getuserbyid) | **GET** /api/users/{id} | 
-[*UserControllerApi*](doc/UserControllerApi.md) | [**updateUser**](doc/UserControllerApi.md#updateuser) | **PUT** /api/users/{id} | 
-[*UserControllerApi*](doc/UserControllerApi.md) | [**uploadAvatar**](doc/UserControllerApi.md#uploadavatar) | **POST** /api/users/{id}/avatar | 
+[*UserControllerApi*](doc/UserControllerApi.md) | [**searchByFIO**](doc/UserControllerApi.md#searchbyfio) | **GET** /api/users/search | 
+[*UserControllerApi*](doc/UserControllerApi.md) | [**updateCurrentUser**](doc/UserControllerApi.md#updatecurrentuser) | **PUT** /api/users/me | 
+[*UserControllerApi*](doc/UserControllerApi.md) | [**uploadAvatar**](doc/UserControllerApi.md#uploadavatar) | **POST** /api/users/me/avatar | 
+[*WorkspaceControllerApi*](doc/WorkspaceControllerApi.md) | [**createWorkspace**](doc/WorkspaceControllerApi.md#createworkspace) | **POST** /api/workspaces | 
+[*WorkspaceControllerApi*](doc/WorkspaceControllerApi.md) | [**deleteWorkspace**](doc/WorkspaceControllerApi.md#deleteworkspace) | **DELETE** /api/workspaces/{id} | 
+[*WorkspaceControllerApi*](doc/WorkspaceControllerApi.md) | [**getAllWorkspaces**](doc/WorkspaceControllerApi.md#getallworkspaces) | **GET** /api/workspaces | 
+[*WorkspaceControllerApi*](doc/WorkspaceControllerApi.md) | [**getAvailableWorkspaces**](doc/WorkspaceControllerApi.md#getavailableworkspaces) | **GET** /api/workspaces/available | 
+[*WorkspaceControllerApi*](doc/WorkspaceControllerApi.md) | [**getWorkspaceById**](doc/WorkspaceControllerApi.md#getworkspacebyid) | **GET** /api/workspaces/{id} | 
+[*WorkspaceControllerApi*](doc/WorkspaceControllerApi.md) | [**updateWorkspace**](doc/WorkspaceControllerApi.md#updateworkspace) | **PUT** /api/workspaces/{id} | 
 
 
 ## Documentation For Models
 
+ - [BookingDTO](doc/BookingDTO.md)
  - [ChatDTO](doc/ChatDTO.md)
  - [CommentDTO](doc/CommentDTO.md)
  - [FileDTO](doc/FileDTO.md)
  - [LikeDTO](doc/LikeDTO.md)
+ - [MediaDTO](doc/MediaDTO.md)
  - [MessageDTO](doc/MessageDTO.md)
+ - [PageBookingDTO](doc/PageBookingDTO.md)
+ - [PageLikeDTO](doc/PageLikeDTO.md)
+ - [PageUserDTO](doc/PageUserDTO.md)
+ - [Pageable](doc/Pageable.md)
+ - [PageableObject](doc/PageableObject.md)
  - [PostDTO](doc/PostDTO.md)
  - [RepostDTO](doc/RepostDTO.md)
+ - [SortObject](doc/SortObject.md)
  - [UploadAvatarRequest](doc/UploadAvatarRequest.md)
  - [UserDTO](doc/UserDTO.md)
+ - [WorkspaceDTO](doc/WorkspaceDTO.md)
 
 
 ## Documentation For Authorization

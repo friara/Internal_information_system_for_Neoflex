@@ -13,10 +13,11 @@ part 'file_dto.g.dart';
 /// Properties:
 /// * [id] 
 /// * [fileName] 
-/// * [filePath] 
+/// * [fileUrl] 
 /// * [fileType] 
 /// * [uploadedWhen] 
 /// * [uploadedBy] 
+/// * [messageId] 
 @BuiltValue()
 abstract class FileDTO implements Built<FileDTO, FileDTOBuilder> {
   @BuiltValueField(wireName: r'id')
@@ -25,8 +26,8 @@ abstract class FileDTO implements Built<FileDTO, FileDTOBuilder> {
   @BuiltValueField(wireName: r'fileName')
   String? get fileName;
 
-  @BuiltValueField(wireName: r'filePath')
-  String? get filePath;
+  @BuiltValueField(wireName: r'fileUrl')
+  String? get fileUrl;
 
   @BuiltValueField(wireName: r'fileType')
   String? get fileType;
@@ -36,6 +37,9 @@ abstract class FileDTO implements Built<FileDTO, FileDTOBuilder> {
 
   @BuiltValueField(wireName: r'uploadedBy')
   int? get uploadedBy;
+
+  @BuiltValueField(wireName: r'messageId')
+  int? get messageId;
 
   FileDTO._();
 
@@ -74,10 +78,10 @@ class _$FileDTOSerializer implements PrimitiveSerializer<FileDTO> {
         specifiedType: const FullType(String),
       );
     }
-    if (object.filePath != null) {
-      yield r'filePath';
+    if (object.fileUrl != null) {
+      yield r'fileUrl';
       yield serializers.serialize(
-        object.filePath,
+        object.fileUrl,
         specifiedType: const FullType(String),
       );
     }
@@ -99,6 +103,13 @@ class _$FileDTOSerializer implements PrimitiveSerializer<FileDTO> {
       yield r'uploadedBy';
       yield serializers.serialize(
         object.uploadedBy,
+        specifiedType: const FullType(int),
+      );
+    }
+    if (object.messageId != null) {
+      yield r'messageId';
+      yield serializers.serialize(
+        object.messageId,
         specifiedType: const FullType(int),
       );
     }
@@ -139,12 +150,12 @@ class _$FileDTOSerializer implements PrimitiveSerializer<FileDTO> {
           ) as String;
           result.fileName = valueDes;
           break;
-        case r'filePath':
+        case r'fileUrl':
           final valueDes = serializers.deserialize(
             value,
             specifiedType: const FullType(String),
           ) as String;
-          result.filePath = valueDes;
+          result.fileUrl = valueDes;
           break;
         case r'fileType':
           final valueDes = serializers.deserialize(
@@ -166,6 +177,13 @@ class _$FileDTOSerializer implements PrimitiveSerializer<FileDTO> {
             specifiedType: const FullType(int),
           ) as int;
           result.uploadedBy = valueDes;
+          break;
+        case r'messageId':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(int),
+          ) as int;
+          result.messageId = valueDes;
           break;
         default:
           unhandled.add(key);

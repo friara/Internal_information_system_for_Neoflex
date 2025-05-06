@@ -19,7 +19,7 @@ class MediaControllerApi {
 
   const MediaControllerApi(this._dio, this._serializers);
 
-  /// getMediaFile
+  /// downloadMedia
   /// 
   ///
   /// Parameters:
@@ -33,7 +33,7 @@ class MediaControllerApi {
   ///
   /// Returns a [Future] containing a [Response] with a [Uint8List] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<Uint8List>> getMediaFile({ 
+  Future<Response<Uint8List>> downloadMedia({ 
     required String filename,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,

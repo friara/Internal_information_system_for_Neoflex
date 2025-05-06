@@ -9,14 +9,14 @@ All URIs are relative to *http://localhost:8080*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**createLike**](LikeControllerApi.md#createlike) | **POST** /api/likes | 
-[**deleteLike**](LikeControllerApi.md#deletelike) | **DELETE** /api/likes/{id} | 
-[**getAllLikes**](LikeControllerApi.md#getalllikes) | **GET** /api/likes | 
-[**getLikeById**](LikeControllerApi.md#getlikebyid) | **GET** /api/likes/{id} | 
+[**createLike**](LikeControllerApi.md#createlike) | **POST** /api/posts/{postId}/likes | 
+[**deleteLike**](LikeControllerApi.md#deletelike) | **DELETE** /api/posts/{postId}/likes/{userId} | 
+[**getLikesByPost**](LikeControllerApi.md#getlikesbypost) | **GET** /api/posts/{postId}/likes | 
+[**getLikesCount**](LikeControllerApi.md#getlikescount) | **GET** /api/posts/{postId}/likes/count | 
 
 
 # **createLike**
-> LikeDTO createLike(likeDTO)
+> LikeDTO createLike(postId)
 
 
 
@@ -25,10 +25,10 @@ Method | HTTP request | Description
 import 'package:openapi/api.dart';
 
 final api = Openapi().getLikeControllerApi();
-final LikeDTO likeDTO = ; // LikeDTO | 
+final int postId = 789; // int | 
 
 try {
-    final response = api.createLike(likeDTO);
+    final response = api.createLike(postId);
     print(response);
 } catch on DioException (e) {
     print('Exception when calling LikeControllerApi->createLike: $e\n');
@@ -39,7 +39,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **likeDTO** | [**LikeDTO**](LikeDTO.md)|  | 
+ **postId** | **int**|  | 
 
 ### Return type
 
@@ -51,13 +51,13 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
+ - **Content-Type**: Not defined
  - **Accept**: */*
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **deleteLike**
-> deleteLike(id)
+> deleteLike(postId, userId)
 
 
 
@@ -66,10 +66,11 @@ No authorization required
 import 'package:openapi/api.dart';
 
 final api = Openapi().getLikeControllerApi();
-final int id = 789; // int | 
+final int postId = 789; // int | 
+final int userId = 789; // int | 
 
 try {
-    api.deleteLike(id);
+    api.deleteLike(postId, userId);
 } catch on DioException (e) {
     print('Exception when calling LikeControllerApi->deleteLike: $e\n');
 }
@@ -79,7 +80,8 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **int**|  | 
+ **postId** | **int**|  | 
+ **userId** | **int**|  | 
 
 ### Return type
 
@@ -96,8 +98,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **getAllLikes**
-> BuiltList<LikeDTO> getAllLikes()
+# **getLikesByPost**
+> PageLikeDTO getLikesByPost(postId, pageable)
 
 
 
@@ -106,21 +108,27 @@ No authorization required
 import 'package:openapi/api.dart';
 
 final api = Openapi().getLikeControllerApi();
+final int postId = 789; // int | 
+final Pageable pageable = ; // Pageable | 
 
 try {
-    final response = api.getAllLikes();
+    final response = api.getLikesByPost(postId, pageable);
     print(response);
 } catch on DioException (e) {
-    print('Exception when calling LikeControllerApi->getAllLikes: $e\n');
+    print('Exception when calling LikeControllerApi->getLikesByPost: $e\n');
 }
 ```
 
 ### Parameters
-This endpoint does not need any parameter.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **postId** | **int**|  | 
+ **pageable** | [**Pageable**](.md)|  | 
 
 ### Return type
 
-[**BuiltList&lt;LikeDTO&gt;**](LikeDTO.md)
+[**PageLikeDTO**](PageLikeDTO.md)
 
 ### Authorization
 
@@ -133,8 +141,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **getLikeById**
-> LikeDTO getLikeById(id)
+# **getLikesCount**
+> int getLikesCount(postId)
 
 
 
@@ -143,13 +151,13 @@ No authorization required
 import 'package:openapi/api.dart';
 
 final api = Openapi().getLikeControllerApi();
-final int id = 789; // int | 
+final int postId = 789; // int | 
 
 try {
-    final response = api.getLikeById(id);
+    final response = api.getLikesCount(postId);
     print(response);
 } catch on DioException (e) {
-    print('Exception when calling LikeControllerApi->getLikeById: $e\n');
+    print('Exception when calling LikeControllerApi->getLikesCount: $e\n');
 }
 ```
 
@@ -157,11 +165,11 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **int**|  | 
+ **postId** | **int**|  | 
 
 ### Return type
 
-[**LikeDTO**](LikeDTO.md)
+**int**
 
 ### Authorization
 

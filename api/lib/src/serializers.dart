@@ -15,45 +15,59 @@ import 'package:openapi/src/date_serializer.dart';
 import 'package:openapi/src/model/date.dart';
 import 'dart:typed_data';
 
+import 'package:openapi/src/model/booking_dto.dart';
 import 'package:openapi/src/model/chat_dto.dart';
 import 'package:openapi/src/model/comment_dto.dart';
 import 'package:openapi/src/model/file_dto.dart';
 import 'package:openapi/src/model/like_dto.dart';
+import 'package:openapi/src/model/media_dto.dart';
 import 'package:openapi/src/model/message_dto.dart';
+import 'package:openapi/src/model/page_booking_dto.dart';
+import 'package:openapi/src/model/page_like_dto.dart';
+import 'package:openapi/src/model/page_user_dto.dart';
+import 'package:openapi/src/model/pageable.dart';
+import 'package:openapi/src/model/pageable_object.dart';
 import 'package:openapi/src/model/post_dto.dart';
 import 'package:openapi/src/model/repost_dto.dart';
+import 'package:openapi/src/model/sort_object.dart';
 import 'package:openapi/src/model/upload_avatar_request.dart';
 import 'package:openapi/src/model/user_dto.dart';
+import 'package:openapi/src/model/workspace_dto.dart';
 
 part 'serializers.g.dart';
 
 @SerializersFor([
+  BookingDTO,
   ChatDTO,
   CommentDTO,
   FileDTO,
   LikeDTO,
+  MediaDTO,
   MessageDTO,
+  PageBookingDTO,
+  PageLikeDTO,
+  PageUserDTO,
+  Pageable,
+  PageableObject,
   PostDTO,
   RepostDTO,
+  SortObject,
   UploadAvatarRequest,
   UserDTO,
+  WorkspaceDTO,
 ])
 Serializers serializers = (_$serializers.toBuilder()
-      ..addBuilderFactory(
-        const FullType(BuiltList, [FullType(FileDTO)]),
-        () => ListBuilder<FileDTO>(),
-      )
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(ChatDTO)]),
         () => ListBuilder<ChatDTO>(),
       )
       ..addBuilderFactory(
-        const FullType(BuiltList, [FullType(MessageDTO)]),
-        () => ListBuilder<MessageDTO>(),
+        const FullType(BuiltList, [FullType(DateTime)]),
+        () => ListBuilder<DateTime>(),
       )
       ..addBuilderFactory(
-        const FullType(BuiltList, [FullType(LikeDTO)]),
-        () => ListBuilder<LikeDTO>(),
+        const FullType(BuiltList, [FullType(MessageDTO)]),
+        () => ListBuilder<MessageDTO>(),
       )
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(RepostDTO)]),
@@ -66,6 +80,10 @@ Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(UserDTO)]),
         () => ListBuilder<UserDTO>(),
+      )
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(WorkspaceDTO)]),
+        () => ListBuilder<WorkspaceDTO>(),
       )
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(CommentDTO)]),

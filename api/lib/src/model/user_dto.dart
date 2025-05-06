@@ -21,6 +21,7 @@ part 'user_dto.g.dart';
 /// * [appointment] 
 /// * [birthday] 
 /// * [avatarUrl] 
+/// * [phoneNumber] 
 @BuiltValue()
 abstract class UserDTO implements Built<UserDTO, UserDTOBuilder> {
   @BuiltValueField(wireName: r'id')
@@ -49,6 +50,9 @@ abstract class UserDTO implements Built<UserDTO, UserDTOBuilder> {
 
   @BuiltValueField(wireName: r'avatarUrl')
   String? get avatarUrl;
+
+  @BuiltValueField(wireName: r'phoneNumber')
+  String? get phoneNumber;
 
   UserDTO._();
 
@@ -133,6 +137,13 @@ class _$UserDTOSerializer implements PrimitiveSerializer<UserDTO> {
       yield r'avatarUrl';
       yield serializers.serialize(
         object.avatarUrl,
+        specifiedType: const FullType(String),
+      );
+    }
+    if (object.phoneNumber != null) {
+      yield r'phoneNumber';
+      yield serializers.serialize(
+        object.phoneNumber,
         specifiedType: const FullType(String),
       );
     }
@@ -221,6 +232,13 @@ class _$UserDTOSerializer implements PrimitiveSerializer<UserDTO> {
             specifiedType: const FullType(String),
           ) as String;
           result.avatarUrl = valueDes;
+          break;
+        case r'phoneNumber':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(String),
+          ) as String;
+          result.phoneNumber = valueDes;
           break;
         default:
           unhandled.add(key);

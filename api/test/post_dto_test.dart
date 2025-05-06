@@ -27,7 +27,7 @@ void main() {
       // TODO
     });
 
-    // BuiltList<String> mediaUrls
+    // BuiltList<MediaDTO> mediaUrls
     test('to test the property `mediaUrls`', () async {
       // TODO
     });

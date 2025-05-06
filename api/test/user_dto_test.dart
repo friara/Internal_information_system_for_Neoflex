@@ -52,5 +52,10 @@ void main() {
       // TODO
     });
 
+    // String phoneNumber
+    test('to test the property `phoneNumber`', () async {
+      // TODO
+    });
+
   });
 }

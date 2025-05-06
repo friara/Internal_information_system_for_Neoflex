@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/auth_bloc.dart';
-// Убедитесь, что импортирован NewsFeed
-import 'package:news_feed_neoflex/news_feed_page.dart'; 
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});

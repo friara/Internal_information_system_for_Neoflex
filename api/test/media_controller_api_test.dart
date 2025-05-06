@@ -7,8 +7,8 @@ void main() {
   final instance = Openapi().getMediaControllerApi();
 
   group(MediaControllerApi, () {
-    //Future<Uint8List> getMediaFile(String filename) async
-    test('test getMediaFile', () async {
+    //Future<Uint8List> downloadMedia(String filename) async
+    test('test downloadMedia', () async {
       // TODO
     });
 

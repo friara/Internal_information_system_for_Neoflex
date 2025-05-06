@@ -37,5 +37,10 @@ void main() {
       // TODO
     });
 
+    // BuiltList<FileDTO> files
+    test('to test the property `files`', () async {
+      // TODO
+    });
+
   });
 }

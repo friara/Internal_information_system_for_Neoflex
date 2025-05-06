@@ -7,13 +7,13 @@ void main() {
   final instance = Openapi().getUserControllerApi();
 
   group(UserControllerApi, () {
-    //Future<UserDTO> createUser(UserDTO userDTO) async
-    test('test createUser', () async {
+    //Future<UserDTO> adminCreateUser(UserDTO userDTO) async
+    test('test adminCreateUser', () async {
       // TODO
     });
 
-    //Future deleteUser(int id) async
-    test('test deleteUser', () async {
+    //Future adminDeleteUser(int id) async
+    test('test adminDeleteUser', () async {
       // TODO
     });
 
@@ -22,17 +22,27 @@ void main() {
       // TODO
     });
 
+    //Future<UserDTO> getCurrentUser() async
+    test('test getCurrentUser', () async {
+      // TODO
+    });
+
     //Future<UserDTO> getUserById(int id) async
     test('test getUserById', () async {
       // TODO
     });
 
-    //Future<UserDTO> updateUser(int id, UserDTO userDTO) async
-    test('test updateUser', () async {
+    //Future<PageUserDTO> searchByFIO(String query, { int page, int size }) async
+    test('test searchByFIO', () async {
       // TODO
     });
 
-    //Future<String> uploadAvatar(int id, { UploadAvatarRequest uploadAvatarRequest }) async
+    //Future<UserDTO> updateCurrentUser(UserDTO userDTO) async
+    test('test updateCurrentUser', () async {
+      // TODO
+    });
+
+    //Future<String> uploadAvatar({ UploadAvatarRequest uploadAvatarRequest }) async
     test('test uploadAvatar', () async {
       // TODO
     });

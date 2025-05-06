@@ -16,7 +16,7 @@ class _$PostDTO extends PostDTO {
   @override
   final String? text;
   @override
-  final BuiltList<String>? mediaUrls;
+  final BuiltList<MediaDTO>? mediaUrls;
   @override
   final int? userId;
 
@@ -96,10 +96,10 @@ class PostDTOBuilder implements Builder<PostDTO, PostDTOBuilder> {
   String? get text => _$this._text;
   set text(String? text) => _$this._text = text;
 
-  ListBuilder<String>? _mediaUrls;
-  ListBuilder<String> get mediaUrls =>
-      _$this._mediaUrls ??= new ListBuilder<String>();
-  set mediaUrls(ListBuilder<String>? mediaUrls) =>
+  ListBuilder<MediaDTO>? _mediaUrls;
+  ListBuilder<MediaDTO> get mediaUrls =>
+      _$this._mediaUrls ??= new ListBuilder<MediaDTO>();
+  set mediaUrls(ListBuilder<MediaDTO>? mediaUrls) =>
       _$this._mediaUrls = mediaUrls;
 
   int? _userId;

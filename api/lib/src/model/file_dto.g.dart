@@ -12,13 +12,15 @@ class _$FileDTO extends FileDTO {
   @override
   final String? fileName;
   @override
-  final String? filePath;
+  final String? fileUrl;
   @override
   final String? fileType;
   @override
   final DateTime? uploadedWhen;
   @override
   final int? uploadedBy;
+  @override
+  final int? messageId;
 
   factory _$FileDTO([void Function(FileDTOBuilder)? updates]) =>
       (new FileDTOBuilder()..update(updates))._build();
@@ -26,10 +28,11 @@ class _$FileDTO extends FileDTO {
   _$FileDTO._(
       {this.id,
       this.fileName,
-      this.filePath,
+      this.fileUrl,
       this.fileType,
       this.uploadedWhen,
-      this.uploadedBy})
+      this.uploadedBy,
+      this.messageId})
       : super._();
 
   @override
@@ -45,10 +48,11 @@ class _$FileDTO extends FileDTO {
     return other is FileDTO &&
         id == other.id &&
         fileName == other.fileName &&
-        filePath == other.filePath &&
+        fileUrl == other.fileUrl &&
         fileType == other.fileType &&
         uploadedWhen == other.uploadedWhen &&
-        uploadedBy == other.uploadedBy;
+        uploadedBy == other.uploadedBy &&
+        messageId == other.messageId;
   }
 
   @override
@@ -56,10 +60,11 @@ class _$FileDTO extends FileDTO {
     var _$hash = 0;
     _$hash = $jc(_$hash, id.hashCode);
     _$hash = $jc(_$hash, fileName.hashCode);
-    _$hash = $jc(_$hash, filePath.hashCode);
+    _$hash = $jc(_$hash, fileUrl.hashCode);
     _$hash = $jc(_$hash, fileType.hashCode);
     _$hash = $jc(_$hash, uploadedWhen.hashCode);
     _$hash = $jc(_$hash, uploadedBy.hashCode);
+    _$hash = $jc(_$hash, messageId.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -69,10 +74,11 @@ class _$FileDTO extends FileDTO {
     return (newBuiltValueToStringHelper(r'FileDTO')
           ..add('id', id)
           ..add('fileName', fileName)
-          ..add('filePath', filePath)
+          ..add('fileUrl', fileUrl)
           ..add('fileType', fileType)
           ..add('uploadedWhen', uploadedWhen)
-          ..add('uploadedBy', uploadedBy))
+          ..add('uploadedBy', uploadedBy)
+          ..add('messageId', messageId))
         .toString();
   }
 }
@@ -88,9 +94,9 @@ class FileDTOBuilder implements Builder<FileDTO, FileDTOBuilder> {
   String? get fileName => _$this._fileName;
   set fileName(String? fileName) => _$this._fileName = fileName;
 
-  String? _filePath;
-  String? get filePath => _$this._filePath;
-  set filePath(String? filePath) => _$this._filePath = filePath;
+  String? _fileUrl;
+  String? get fileUrl => _$this._fileUrl;
+  set fileUrl(String? fileUrl) => _$this._fileUrl = fileUrl;
 
   String? _fileType;
   String? get fileType => _$this._fileType;
@@ -105,6 +111,10 @@ class FileDTOBuilder implements Builder<FileDTO, FileDTOBuilder> {
   int? get uploadedBy => _$this._uploadedBy;
   set uploadedBy(int? uploadedBy) => _$this._uploadedBy = uploadedBy;
 
+  int? _messageId;
+  int? get messageId => _$this._messageId;
+  set messageId(int? messageId) => _$this._messageId = messageId;
+
   FileDTOBuilder() {
     FileDTO._defaults(this);
   }
@@ -114,10 +124,11 @@ class FileDTOBuilder implements Builder<FileDTO, FileDTOBuilder> {
     if ($v != null) {
       _id = $v.id;
       _fileName = $v.fileName;
-      _filePath = $v.filePath;
+      _fileUrl = $v.fileUrl;
       _fileType = $v.fileType;
       _uploadedWhen = $v.uploadedWhen;
       _uploadedBy = $v.uploadedBy;
+      _messageId = $v.messageId;
       _$v = null;
     }
     return this;
@@ -142,10 +153,11 @@ class FileDTOBuilder implements Builder<FileDTO, FileDTOBuilder> {
         new _$FileDTO._(
           id: id,
           fileName: fileName,
-          filePath: filePath,
+          fileUrl: fileUrl,
           fileType: fileType,
           uploadedWhen: uploadedWhen,
           uploadedBy: uploadedBy,
+          messageId: messageId,
         );
     replace(_$result);
     return _$result;

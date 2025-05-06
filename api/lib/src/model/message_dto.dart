@@ -3,6 +3,8 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:openapi/src/model/file_dto.dart';
+import 'package:built_collection/built_collection.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
@@ -17,6 +19,7 @@ part 'message_dto.g.dart';
 /// * [status] 
 /// * [chatId] 
 /// * [userId] 
+/// * [files] 
 @BuiltValue()
 abstract class MessageDTO implements Built<MessageDTO, MessageDTOBuilder> {
   @BuiltValueField(wireName: r'id')
@@ -36,6 +39,9 @@ abstract class MessageDTO implements Built<MessageDTO, MessageDTOBuilder> {
 
   @BuiltValueField(wireName: r'userId')
   int? get userId;
+
+  @BuiltValueField(wireName: r'files')
+  BuiltList<FileDTO>? get files;
 
   MessageDTO._();
 
@@ -102,6 +108,13 @@ class _$MessageDTOSerializer implements PrimitiveSerializer<MessageDTO> {
         specifiedType: const FullType(int),
       );
     }
+    if (object.files != null) {
+      yield r'files';
+      yield serializers.serialize(
+        object.files,
+        specifiedType: const FullType(BuiltList, [FullType(FileDTO)]),
+      );
+    }
   }
 
   @override
@@ -166,6 +179,13 @@ class _$MessageDTOSerializer implements PrimitiveSerializer<MessageDTO> {
             specifiedType: const FullType(int),
           ) as int;
           result.userId = valueDes;
+          break;
+        case r'files':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(BuiltList, [FullType(FileDTO)]),
+          ) as BuiltList<FileDTO>;
+          result.files.replace(valueDes);
           break;
         default:
           unhandled.add(key);

@@ -19,6 +19,8 @@ class _$MessageDTO extends MessageDTO {
   final int? chatId;
   @override
   final int? userId;
+  @override
+  final BuiltList<FileDTO>? files;
 
   factory _$MessageDTO([void Function(MessageDTOBuilder)? updates]) =>
       (new MessageDTOBuilder()..update(updates))._build();
@@ -29,7 +31,8 @@ class _$MessageDTO extends MessageDTO {
       this.text,
       this.status,
       this.chatId,
-      this.userId})
+      this.userId,
+      this.files})
       : super._();
 
   @override
@@ -48,7 +51,8 @@ class _$MessageDTO extends MessageDTO {
         text == other.text &&
         status == other.status &&
         chatId == other.chatId &&
-        userId == other.userId;
+        userId == other.userId &&
+        files == other.files;
   }
 
   @override
@@ -60,6 +64,7 @@ class _$MessageDTO extends MessageDTO {
     _$hash = $jc(_$hash, status.hashCode);
     _$hash = $jc(_$hash, chatId.hashCode);
     _$hash = $jc(_$hash, userId.hashCode);
+    _$hash = $jc(_$hash, files.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -72,7 +77,8 @@ class _$MessageDTO extends MessageDTO {
           ..add('text', text)
           ..add('status', status)
           ..add('chatId', chatId)
-          ..add('userId', userId))
+          ..add('userId', userId)
+          ..add('files', files))
         .toString();
   }
 }
@@ -104,6 +110,11 @@ class MessageDTOBuilder implements Builder<MessageDTO, MessageDTOBuilder> {
   int? get userId => _$this._userId;
   set userId(int? userId) => _$this._userId = userId;
 
+  ListBuilder<FileDTO>? _files;
+  ListBuilder<FileDTO> get files =>
+      _$this._files ??= new ListBuilder<FileDTO>();
+  set files(ListBuilder<FileDTO>? files) => _$this._files = files;
+
   MessageDTOBuilder() {
     MessageDTO._defaults(this);
   }
@@ -117,6 +128,7 @@ class MessageDTOBuilder implements Builder<MessageDTO, MessageDTOBuilder> {
       _status = $v.status;
       _chatId = $v.chatId;
       _userId = $v.userId;
+      _files = $v.files?.toBuilder();
       _$v = null;
     }
     return this;
@@ -137,15 +149,29 @@ class MessageDTOBuilder implements Builder<MessageDTO, MessageDTOBuilder> {
   MessageDTO build() => _build();
 
   _$MessageDTO _build() {
-    final _$result = _$v ??
-        new _$MessageDTO._(
-          id: id,
-          createdWhen: createdWhen,
-          text: text,
-          status: status,
-          chatId: chatId,
-          userId: userId,
-        );
+    _$MessageDTO _$result;
+    try {
+      _$result = _$v ??
+          new _$MessageDTO._(
+            id: id,
+            createdWhen: createdWhen,
+            text: text,
+            status: status,
+            chatId: chatId,
+            userId: userId,
+            files: _files?.build(),
+          );
+    } catch (_) {
+      late String _$failedField;
+      try {
+        _$failedField = 'files';
+        _files?.build();
+      } catch (e) {
+        throw new BuiltValueNestedFieldError(
+            r'MessageDTO', _$failedField, e.toString());
+      }
+      rethrow;
+    }
     replace(_$result);
     return _$result;
   }

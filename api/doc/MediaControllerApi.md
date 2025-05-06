@@ -9,11 +9,11 @@ All URIs are relative to *http://localhost:8080*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**getMediaFile**](MediaControllerApi.md#getmediafile) | **GET** /api/media/{filename} | 
+[**downloadMedia**](MediaControllerApi.md#downloadmedia) | **GET** /api/media/{filename} | 
 
 
-# **getMediaFile**
-> Uint8List getMediaFile(filename)
+# **downloadMedia**
+> Uint8List downloadMedia(filename)
 
 
 
@@ -25,10 +25,10 @@ final api = Openapi().getMediaControllerApi();
 final String filename = filename_example; // String | 
 
 try {
-    final response = api.getMediaFile(filename);
+    final response = api.downloadMedia(filename);
     print(response);
 } catch on DioException (e) {
-    print('Exception when calling MediaControllerApi->getMediaFile: $e\n');
+    print('Exception when calling MediaControllerApi->downloadMedia: $e\n');
 }
 ```
 

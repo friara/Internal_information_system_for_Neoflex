@@ -7,11 +7,6 @@ void main() {
   // TODO add properties to the builder and call build()
 
   group(LikeDTO, () {
-    // int id
-    test('to test the property `id`', () async {
-      // TODO
-    });
-
     // int postId
     test('to test the property `postId`', () async {
       // TODO

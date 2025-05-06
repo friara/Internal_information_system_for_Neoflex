@@ -25,6 +25,8 @@ class _$UserDTO extends UserDTO {
   final Date? birthday;
   @override
   final String? avatarUrl;
+  @override
+  final String? phoneNumber;
 
   factory _$UserDTO([void Function(UserDTOBuilder)? updates]) =>
       (new UserDTOBuilder()..update(updates))._build();
@@ -38,7 +40,8 @@ class _$UserDTO extends UserDTO {
       this.patronymic,
       this.appointment,
       this.birthday,
-      this.avatarUrl})
+      this.avatarUrl,
+      this.phoneNumber})
       : super._();
 
   @override
@@ -60,7 +63,8 @@ class _$UserDTO extends UserDTO {
         patronymic == other.patronymic &&
         appointment == other.appointment &&
         birthday == other.birthday &&
-        avatarUrl == other.avatarUrl;
+        avatarUrl == other.avatarUrl &&
+        phoneNumber == other.phoneNumber;
   }
 
   @override
@@ -75,6 +79,7 @@ class _$UserDTO extends UserDTO {
     _$hash = $jc(_$hash, appointment.hashCode);
     _$hash = $jc(_$hash, birthday.hashCode);
     _$hash = $jc(_$hash, avatarUrl.hashCode);
+    _$hash = $jc(_$hash, phoneNumber.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -90,7 +95,8 @@ class _$UserDTO extends UserDTO {
           ..add('patronymic', patronymic)
           ..add('appointment', appointment)
           ..add('birthday', birthday)
-          ..add('avatarUrl', avatarUrl))
+          ..add('avatarUrl', avatarUrl)
+          ..add('phoneNumber', phoneNumber))
         .toString();
   }
 }
@@ -134,6 +140,10 @@ class UserDTOBuilder implements Builder<UserDTO, UserDTOBuilder> {
   String? get avatarUrl => _$this._avatarUrl;
   set avatarUrl(String? avatarUrl) => _$this._avatarUrl = avatarUrl;
 
+  String? _phoneNumber;
+  String? get phoneNumber => _$this._phoneNumber;
+  set phoneNumber(String? phoneNumber) => _$this._phoneNumber = phoneNumber;
+
   UserDTOBuilder() {
     UserDTO._defaults(this);
   }
@@ -150,6 +160,7 @@ class UserDTOBuilder implements Builder<UserDTO, UserDTOBuilder> {
       _appointment = $v.appointment;
       _birthday = $v.birthday;
       _avatarUrl = $v.avatarUrl;
+      _phoneNumber = $v.phoneNumber;
       _$v = null;
     }
     return this;
@@ -181,6 +192,7 @@ class UserDTOBuilder implements Builder<UserDTO, UserDTOBuilder> {
           appointment: appointment,
           birthday: birthday,
           avatarUrl: avatarUrl,
+          phoneNumber: phoneNumber,
         );
     replace(_$result);
     return _$result;

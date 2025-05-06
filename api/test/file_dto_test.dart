@@ -17,8 +17,8 @@ void main() {
       // TODO
     });
 
-    // String filePath
-    test('to test the property `filePath`', () async {
+    // String fileUrl
+    test('to test the property `fileUrl`', () async {
       // TODO
     });
 
@@ -34,6 +34,11 @@ void main() {
 
     // int uploadedBy
     test('to test the property `uploadedBy`', () async {
+      // TODO
+    });
+
+    // int messageId
+    test('to test the property `messageId`', () async {
       // TODO
     });
 

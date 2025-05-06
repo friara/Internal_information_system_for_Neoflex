@@ -9,17 +9,17 @@ import 'package:openapi/src/auth/api_key_auth.dart';
 import 'package:openapi/src/auth/basic_auth.dart';
 import 'package:openapi/src/auth/bearer_auth.dart';
 import 'package:openapi/src/auth/oauth.dart';
+import 'package:openapi/src/api/booking_controller_api.dart';
 import 'package:openapi/src/api/chat_controller_api.dart';
 import 'package:openapi/src/api/comment_controller_api.dart';
 import 'package:openapi/src/api/file_controller_api.dart';
-import 'package:openapi/src/api/image_controller_api.dart';
 import 'package:openapi/src/api/like_controller_api.dart';
 import 'package:openapi/src/api/media_controller_api.dart';
 import 'package:openapi/src/api/message_controller_api.dart';
 import 'package:openapi/src/api/post_controller_api.dart';
 import 'package:openapi/src/api/repost_controller_api.dart';
-import 'package:openapi/src/api/test_controller_api.dart';
 import 'package:openapi/src/api/user_controller_api.dart';
+import 'package:openapi/src/api/workspace_controller_api.dart';
 
 class Openapi {
   static const String basePath = r'http://localhost:8080';
@@ -75,6 +75,12 @@ class Openapi {
     }
   }
 
+  /// Get BookingControllerApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  BookingControllerApi getBookingControllerApi() {
+    return BookingControllerApi(dio, serializers);
+  }
+
   /// Get ChatControllerApi instance, base route and serializer can be overridden by a given but be careful,
   /// by doing that all interceptors will not be executed
   ChatControllerApi getChatControllerApi() {
@@ -91,12 +97,6 @@ class Openapi {
   /// by doing that all interceptors will not be executed
   FileControllerApi getFileControllerApi() {
     return FileControllerApi(dio, serializers);
-  }
-
-  /// Get ImageControllerApi instance, base route and serializer can be overridden by a given but be careful,
-  /// by doing that all interceptors will not be executed
-  ImageControllerApi getImageControllerApi() {
-    return ImageControllerApi(dio, serializers);
   }
 
   /// Get LikeControllerApi instance, base route and serializer can be overridden by a given but be careful,
@@ -129,15 +129,15 @@ class Openapi {
     return RepostControllerApi(dio, serializers);
   }
 
-  /// Get TestControllerApi instance, base route and serializer can be overridden by a given but be careful,
-  /// by doing that all interceptors will not be executed
-  TestControllerApi getTestControllerApi() {
-    return TestControllerApi(dio, serializers);
-  }
-
   /// Get UserControllerApi instance, base route and serializer can be overridden by a given but be careful,
   /// by doing that all interceptors will not be executed
   UserControllerApi getUserControllerApi() {
     return UserControllerApi(dio, serializers);
+  }
+
+  /// Get WorkspaceControllerApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  WorkspaceControllerApi getWorkspaceControllerApi() {
+    return WorkspaceControllerApi(dio, serializers);
   }
 }
