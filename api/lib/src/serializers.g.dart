@@ -24,6 +24,7 @@ Serializers _$serializers = (new Serializers().toBuilder()
       ..add(RepostDTO.serializer)
       ..add(SortObject.serializer)
       ..add(UploadAvatarRequest.serializer)
+      ..add(UserCreateRequestDTO.serializer)
       ..add(UserDTO.serializer)
       ..add(WorkspaceDTO.serializer)
       ..addBuilderFactory(

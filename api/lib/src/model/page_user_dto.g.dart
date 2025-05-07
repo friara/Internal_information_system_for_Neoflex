@@ -8,9 +8,13 @@ part of 'page_user_dto.dart';
 
 class _$PageUserDTO extends PageUserDTO {
   @override
+  final int? totalPages;
+  @override
   final int? totalElements;
   @override
-  final int? totalPages;
+  final bool? first;
+  @override
+  final bool? last;
   @override
   final int? size;
   @override
@@ -19,10 +23,6 @@ class _$PageUserDTO extends PageUserDTO {
   final int? number;
   @override
   final SortObject? sort;
-  @override
-  final bool? first;
-  @override
-  final bool? last;
   @override
   final int? numberOfElements;
   @override
@@ -34,14 +34,14 @@ class _$PageUserDTO extends PageUserDTO {
       (new PageUserDTOBuilder()..update(updates))._build();
 
   _$PageUserDTO._(
-      {this.totalElements,
-      this.totalPages,
+      {this.totalPages,
+      this.totalElements,
+      this.first,
+      this.last,
       this.size,
       this.content,
       this.number,
       this.sort,
-      this.first,
-      this.last,
       this.numberOfElements,
       this.pageable,
       this.empty})
@@ -58,14 +58,14 @@ class _$PageUserDTO extends PageUserDTO {
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
     return other is PageUserDTO &&
-        totalElements == other.totalElements &&
         totalPages == other.totalPages &&
+        totalElements == other.totalElements &&
+        first == other.first &&
+        last == other.last &&
         size == other.size &&
         content == other.content &&
         number == other.number &&
         sort == other.sort &&
-        first == other.first &&
-        last == other.last &&
         numberOfElements == other.numberOfElements &&
         pageable == other.pageable &&
         empty == other.empty;
@@ -74,14 +74,14 @@ class _$PageUserDTO extends PageUserDTO {
   @override
   int get hashCode {
     var _$hash = 0;
-    _$hash = $jc(_$hash, totalElements.hashCode);
     _$hash = $jc(_$hash, totalPages.hashCode);
+    _$hash = $jc(_$hash, totalElements.hashCode);
+    _$hash = $jc(_$hash, first.hashCode);
+    _$hash = $jc(_$hash, last.hashCode);
     _$hash = $jc(_$hash, size.hashCode);
     _$hash = $jc(_$hash, content.hashCode);
     _$hash = $jc(_$hash, number.hashCode);
     _$hash = $jc(_$hash, sort.hashCode);
-    _$hash = $jc(_$hash, first.hashCode);
-    _$hash = $jc(_$hash, last.hashCode);
     _$hash = $jc(_$hash, numberOfElements.hashCode);
     _$hash = $jc(_$hash, pageable.hashCode);
     _$hash = $jc(_$hash, empty.hashCode);
@@ -92,14 +92,14 @@ class _$PageUserDTO extends PageUserDTO {
   @override
   String toString() {
     return (newBuiltValueToStringHelper(r'PageUserDTO')
-          ..add('totalElements', totalElements)
           ..add('totalPages', totalPages)
+          ..add('totalElements', totalElements)
+          ..add('first', first)
+          ..add('last', last)
           ..add('size', size)
           ..add('content', content)
           ..add('number', number)
           ..add('sort', sort)
-          ..add('first', first)
-          ..add('last', last)
           ..add('numberOfElements', numberOfElements)
           ..add('pageable', pageable)
           ..add('empty', empty))
@@ -110,14 +110,22 @@ class _$PageUserDTO extends PageUserDTO {
 class PageUserDTOBuilder implements Builder<PageUserDTO, PageUserDTOBuilder> {
   _$PageUserDTO? _$v;
 
+  int? _totalPages;
+  int? get totalPages => _$this._totalPages;
+  set totalPages(int? totalPages) => _$this._totalPages = totalPages;
+
   int? _totalElements;
   int? get totalElements => _$this._totalElements;
   set totalElements(int? totalElements) =>
       _$this._totalElements = totalElements;
 
-  int? _totalPages;
-  int? get totalPages => _$this._totalPages;
-  set totalPages(int? totalPages) => _$this._totalPages = totalPages;
+  bool? _first;
+  bool? get first => _$this._first;
+  set first(bool? first) => _$this._first = first;
+
+  bool? _last;
+  bool? get last => _$this._last;
+  set last(bool? last) => _$this._last = last;
 
   int? _size;
   int? get size => _$this._size;
@@ -135,14 +143,6 @@ class PageUserDTOBuilder implements Builder<PageUserDTO, PageUserDTOBuilder> {
   SortObjectBuilder? _sort;
   SortObjectBuilder get sort => _$this._sort ??= new SortObjectBuilder();
   set sort(SortObjectBuilder? sort) => _$this._sort = sort;
-
-  bool? _first;
-  bool? get first => _$this._first;
-  set first(bool? first) => _$this._first = first;
-
-  bool? _last;
-  bool? get last => _$this._last;
-  set last(bool? last) => _$this._last = last;
 
   int? _numberOfElements;
   int? get numberOfElements => _$this._numberOfElements;
@@ -165,14 +165,14 @@ class PageUserDTOBuilder implements Builder<PageUserDTO, PageUserDTOBuilder> {
   PageUserDTOBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
-      _totalElements = $v.totalElements;
       _totalPages = $v.totalPages;
+      _totalElements = $v.totalElements;
+      _first = $v.first;
+      _last = $v.last;
       _size = $v.size;
       _content = $v.content?.toBuilder();
       _number = $v.number;
       _sort = $v.sort?.toBuilder();
-      _first = $v.first;
-      _last = $v.last;
       _numberOfElements = $v.numberOfElements;
       _pageable = $v.pageable?.toBuilder();
       _empty = $v.empty;
@@ -200,14 +200,14 @@ class PageUserDTOBuilder implements Builder<PageUserDTO, PageUserDTOBuilder> {
     try {
       _$result = _$v ??
           new _$PageUserDTO._(
-            totalElements: totalElements,
             totalPages: totalPages,
+            totalElements: totalElements,
+            first: first,
+            last: last,
             size: size,
             content: _content?.build(),
             number: number,
             sort: _sort?.build(),
-            first: first,
-            last: last,
             numberOfElements: numberOfElements,
             pageable: _pageable?.build(),
             empty: empty,

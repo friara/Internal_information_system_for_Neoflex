@@ -15,7 +15,7 @@ part 'comment_dto.g.dart';
 /// * [createdWhen] 
 /// * [postId] 
 /// * [userId] 
-/// * [textToComm] 
+/// * [text] 
 /// * [answerToComm] 
 @BuiltValue()
 abstract class CommentDTO implements Built<CommentDTO, CommentDTOBuilder> {
@@ -31,8 +31,8 @@ abstract class CommentDTO implements Built<CommentDTO, CommentDTOBuilder> {
   @BuiltValueField(wireName: r'userId')
   int? get userId;
 
-  @BuiltValueField(wireName: r'textToComm')
-  String? get textToComm;
+  @BuiltValueField(wireName: r'text')
+  String? get text;
 
   @BuiltValueField(wireName: r'answerToComm')
   String? get answerToComm;
@@ -88,10 +88,10 @@ class _$CommentDTOSerializer implements PrimitiveSerializer<CommentDTO> {
         specifiedType: const FullType(int),
       );
     }
-    if (object.textToComm != null) {
-      yield r'textToComm';
+    if (object.text != null) {
+      yield r'text';
       yield serializers.serialize(
-        object.textToComm,
+        object.text,
         specifiedType: const FullType(String),
       );
     }
@@ -153,12 +153,12 @@ class _$CommentDTOSerializer implements PrimitiveSerializer<CommentDTO> {
           ) as int;
           result.userId = valueDes;
           break;
-        case r'textToComm':
+        case r'text':
           final valueDes = serializers.deserialize(
             value,
             specifiedType: const FullType(String),
           ) as String;
-          result.textToComm = valueDes;
+          result.text = valueDes;
           break;
         case r'answerToComm':
           final valueDes = serializers.deserialize(

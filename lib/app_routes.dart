@@ -19,10 +19,10 @@ class AppRoutes {
       newsFeed: (context) => const NewsFeed(),
       bookPage: (context) => const BookPage(),
       chatPage: (context) => const ChatPage(),
-      profilePage: (context) => const Profile(),
-      loginPage: (context) => const LoginScreen()      // Добавляем страницу входа
+      //profilePage: (context) => const Profile(),
+      loginPage: (context) => const LoginScreen(),      // Добавляем страницу входа
       //profilePage: (context) => Profile(),
-      //profilePage: (context) => ListOfUsers(),
+      profilePage: (context) => ListOfUsers(),
     };
   }
 }

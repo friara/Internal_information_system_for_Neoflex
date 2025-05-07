@@ -20,7 +20,7 @@ Method | HTTP request | Description
 
 
 # **adminCreateUser**
-> UserDTO adminCreateUser(userDTO)
+> UserDTO adminCreateUser(userCreateRequestDTO)
 
 
 
@@ -29,10 +29,10 @@ Method | HTTP request | Description
 import 'package:openapi/api.dart';
 
 final api = Openapi().getUserControllerApi();
-final UserDTO userDTO = ; // UserDTO | 
+final UserCreateRequestDTO userCreateRequestDTO = ; // UserCreateRequestDTO | 
 
 try {
-    final response = api.adminCreateUser(userDTO);
+    final response = api.adminCreateUser(userCreateRequestDTO);
     print(response);
 } catch on DioException (e) {
     print('Exception when calling UserControllerApi->adminCreateUser: $e\n');
@@ -43,7 +43,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **userDTO** | [**UserDTO**](UserDTO.md)|  | 
+ **userCreateRequestDTO** | [**UserCreateRequestDTO**](UserCreateRequestDTO.md)|  | 
 
 ### Return type
 

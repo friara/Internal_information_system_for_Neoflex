@@ -15,24 +15,30 @@ part 'page_user_dto.g.dart';
 /// PageUserDTO
 ///
 /// Properties:
-/// * [totalElements] 
 /// * [totalPages] 
+/// * [totalElements] 
+/// * [first] 
+/// * [last] 
 /// * [size] 
 /// * [content] 
 /// * [number] 
 /// * [sort] 
-/// * [first] 
-/// * [last] 
 /// * [numberOfElements] 
 /// * [pageable] 
 /// * [empty] 
 @BuiltValue()
 abstract class PageUserDTO implements Built<PageUserDTO, PageUserDTOBuilder> {
+  @BuiltValueField(wireName: r'totalPages')
+  int? get totalPages;
+
   @BuiltValueField(wireName: r'totalElements')
   int? get totalElements;
 
-  @BuiltValueField(wireName: r'totalPages')
-  int? get totalPages;
+  @BuiltValueField(wireName: r'first')
+  bool? get first;
+
+  @BuiltValueField(wireName: r'last')
+  bool? get last;
 
   @BuiltValueField(wireName: r'size')
   int? get size;
@@ -45,12 +51,6 @@ abstract class PageUserDTO implements Built<PageUserDTO, PageUserDTOBuilder> {
 
   @BuiltValueField(wireName: r'sort')
   SortObject? get sort;
-
-  @BuiltValueField(wireName: r'first')
-  bool? get first;
-
-  @BuiltValueField(wireName: r'last')
-  bool? get last;
 
   @BuiltValueField(wireName: r'numberOfElements')
   int? get numberOfElements;
@@ -84,6 +84,13 @@ class _$PageUserDTOSerializer implements PrimitiveSerializer<PageUserDTO> {
     PageUserDTO object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
+    if (object.totalPages != null) {
+      yield r'totalPages';
+      yield serializers.serialize(
+        object.totalPages,
+        specifiedType: const FullType(int),
+      );
+    }
     if (object.totalElements != null) {
       yield r'totalElements';
       yield serializers.serialize(
@@ -91,11 +98,18 @@ class _$PageUserDTOSerializer implements PrimitiveSerializer<PageUserDTO> {
         specifiedType: const FullType(int),
       );
     }
-    if (object.totalPages != null) {
-      yield r'totalPages';
+    if (object.first != null) {
+      yield r'first';
       yield serializers.serialize(
-        object.totalPages,
-        specifiedType: const FullType(int),
+        object.first,
+        specifiedType: const FullType(bool),
+      );
+    }
+    if (object.last != null) {
+      yield r'last';
+      yield serializers.serialize(
+        object.last,
+        specifiedType: const FullType(bool),
       );
     }
     if (object.size != null) {
@@ -124,20 +138,6 @@ class _$PageUserDTOSerializer implements PrimitiveSerializer<PageUserDTO> {
       yield serializers.serialize(
         object.sort,
         specifiedType: const FullType(SortObject),
-      );
-    }
-    if (object.first != null) {
-      yield r'first';
-      yield serializers.serialize(
-        object.first,
-        specifiedType: const FullType(bool),
-      );
-    }
-    if (object.last != null) {
-      yield r'last';
-      yield serializers.serialize(
-        object.last,
-        specifiedType: const FullType(bool),
       );
     }
     if (object.numberOfElements != null) {
@@ -184,6 +184,13 @@ class _$PageUserDTOSerializer implements PrimitiveSerializer<PageUserDTO> {
       final key = serializedList[i] as String;
       final value = serializedList[i + 1];
       switch (key) {
+        case r'totalPages':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(int),
+          ) as int;
+          result.totalPages = valueDes;
+          break;
         case r'totalElements':
           final valueDes = serializers.deserialize(
             value,
@@ -191,12 +198,19 @@ class _$PageUserDTOSerializer implements PrimitiveSerializer<PageUserDTO> {
           ) as int;
           result.totalElements = valueDes;
           break;
-        case r'totalPages':
+        case r'first':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(int),
-          ) as int;
-          result.totalPages = valueDes;
+            specifiedType: const FullType(bool),
+          ) as bool;
+          result.first = valueDes;
+          break;
+        case r'last':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(bool),
+          ) as bool;
+          result.last = valueDes;
           break;
         case r'size':
           final valueDes = serializers.deserialize(
@@ -225,20 +239,6 @@ class _$PageUserDTOSerializer implements PrimitiveSerializer<PageUserDTO> {
             specifiedType: const FullType(SortObject),
           ) as SortObject;
           result.sort.replace(valueDes);
-          break;
-        case r'first':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(bool),
-          ) as bool;
-          result.first = valueDes;
-          break;
-        case r'last':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(bool),
-          ) as bool;
-          result.last = valueDes;
           break;
         case r'numberOfElements':
           final valueDes = serializers.deserialize(

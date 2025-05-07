@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 **createdWhen** | [**DateTime**](DateTime.md) |  | [optional] 
 **postId** | **int** |  | [optional] 
 **userId** | **int** |  | [optional] 
-**textToComm** | **String** |  | [optional] 
+**text** | **String** |  | [optional] 
 **answerToComm** | **String** |  | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

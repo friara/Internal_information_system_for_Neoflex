@@ -38,6 +38,7 @@ export 'package:openapi/src/model/post_dto.dart';
 export 'package:openapi/src/model/repost_dto.dart';
 export 'package:openapi/src/model/sort_object.dart';
 export 'package:openapi/src/model/upload_avatar_request.dart';
+export 'package:openapi/src/model/user_create_request_dto.dart';
 export 'package:openapi/src/model/user_dto.dart';
 export 'package:openapi/src/model/workspace_dto.dart';
 

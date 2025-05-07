@@ -12,6 +12,7 @@ import 'package:built_collection/built_collection.dart';
 import 'package:openapi/src/api_util.dart';
 import 'package:openapi/src/model/page_user_dto.dart';
 import 'package:openapi/src/model/upload_avatar_request.dart';
+import 'package:openapi/src/model/user_create_request_dto.dart';
 import 'package:openapi/src/model/user_dto.dart';
 
 class UserControllerApi {
@@ -26,7 +27,7 @@ class UserControllerApi {
   /// 
   ///
   /// Parameters:
-  /// * [userDTO] 
+  /// * [userCreateRequestDTO] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -37,7 +38,7 @@ class UserControllerApi {
   /// Returns a [Future] containing a [Response] with a [UserDTO] as data
   /// Throws [DioException] if API call or serialization fails
   Future<Response<UserDTO>> adminCreateUser({ 
-    required UserDTO userDTO,
+    required UserCreateRequestDTO userCreateRequestDTO,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -62,8 +63,8 @@ class UserControllerApi {
     dynamic _bodyData;
 
     try {
-      const _type = FullType(UserDTO);
-      _bodyData = _serializers.serialize(userDTO, specifiedType: _type);
+      const _type = FullType(UserCreateRequestDTO);
+      _bodyData = _serializers.serialize(userCreateRequestDTO, specifiedType: _type);
 
     } catch(error, stackTrace) {
       throw DioException(

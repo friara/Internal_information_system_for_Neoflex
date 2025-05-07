@@ -75,10 +75,12 @@ Class | Method | HTTP request | Description
 [*ChatControllerApi*](doc/ChatControllerApi.md) | [**deleteChat**](doc/ChatControllerApi.md#deletechat) | **DELETE** /api/chats/{id} | 
 [*ChatControllerApi*](doc/ChatControllerApi.md) | [**getAllChats**](doc/ChatControllerApi.md#getallchats) | **GET** /api/chats | 
 [*ChatControllerApi*](doc/ChatControllerApi.md) | [**getChatById**](doc/ChatControllerApi.md#getchatbyid) | **GET** /api/chats/{id} | 
-[*CommentControllerApi*](doc/CommentControllerApi.md) | [**createComment**](doc/CommentControllerApi.md#createcomment) | **POST** /api/comments | 
-[*CommentControllerApi*](doc/CommentControllerApi.md) | [**deleteComment**](doc/CommentControllerApi.md#deletecomment) | **DELETE** /api/comments/{id} | 
-[*CommentControllerApi*](doc/CommentControllerApi.md) | [**getAllComments**](doc/CommentControllerApi.md#getallcomments) | **GET** /api/comments | 
-[*CommentControllerApi*](doc/CommentControllerApi.md) | [**getCommentById**](doc/CommentControllerApi.md#getcommentbyid) | **GET** /api/comments/{id} | 
+[*CommentControllerApi*](doc/CommentControllerApi.md) | [**createComment**](doc/CommentControllerApi.md#createcomment) | **POST** /api/posts/{postId}/comments | 
+[*CommentControllerApi*](doc/CommentControllerApi.md) | [**deleteComment**](doc/CommentControllerApi.md#deletecomment) | **DELETE** /api/posts/{postId}/comments/{commentId} | 
+[*CommentControllerApi*](doc/CommentControllerApi.md) | [**getComment**](doc/CommentControllerApi.md#getcomment) | **GET** /api/posts/{postId}/comments/{commentId} | 
+[*CommentControllerApi*](doc/CommentControllerApi.md) | [**getCommentCount**](doc/CommentControllerApi.md#getcommentcount) | **GET** /api/posts/{postId}/comments/count | 
+[*CommentControllerApi*](doc/CommentControllerApi.md) | [**getComments**](doc/CommentControllerApi.md#getcomments) | **GET** /api/posts/{postId}/comments | 
+[*CommentControllerApi*](doc/CommentControllerApi.md) | [**updateComment**](doc/CommentControllerApi.md#updatecomment) | **PUT** /api/posts/{postId}/comments/{commentId} | 
 [*FileControllerApi*](doc/FileControllerApi.md) | [**downloadFile**](doc/FileControllerApi.md#downloadfile) | **GET** /api/files/{filename} | 
 [*LikeControllerApi*](doc/LikeControllerApi.md) | [**createLike**](doc/LikeControllerApi.md#createlike) | **POST** /api/posts/{postId}/likes | 
 [*LikeControllerApi*](doc/LikeControllerApi.md) | [**deleteLike**](doc/LikeControllerApi.md#deletelike) | **DELETE** /api/posts/{postId}/likes/{userId} | 
@@ -133,6 +135,7 @@ Class | Method | HTTP request | Description
  - [RepostDTO](doc/RepostDTO.md)
  - [SortObject](doc/SortObject.md)
  - [UploadAvatarRequest](doc/UploadAvatarRequest.md)
+ - [UserCreateRequestDTO](doc/UserCreateRequestDTO.md)
  - [UserDTO](doc/UserDTO.md)
  - [WorkspaceDTO](doc/WorkspaceDTO.md)
 

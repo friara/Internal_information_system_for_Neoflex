@@ -16,7 +16,7 @@ class _$CommentDTO extends CommentDTO {
   @override
   final int? userId;
   @override
-  final String? textToComm;
+  final String? text;
   @override
   final String? answerToComm;
 
@@ -28,7 +28,7 @@ class _$CommentDTO extends CommentDTO {
       this.createdWhen,
       this.postId,
       this.userId,
-      this.textToComm,
+      this.text,
       this.answerToComm})
       : super._();
 
@@ -47,7 +47,7 @@ class _$CommentDTO extends CommentDTO {
         createdWhen == other.createdWhen &&
         postId == other.postId &&
         userId == other.userId &&
-        textToComm == other.textToComm &&
+        text == other.text &&
         answerToComm == other.answerToComm;
   }
 
@@ -58,7 +58,7 @@ class _$CommentDTO extends CommentDTO {
     _$hash = $jc(_$hash, createdWhen.hashCode);
     _$hash = $jc(_$hash, postId.hashCode);
     _$hash = $jc(_$hash, userId.hashCode);
-    _$hash = $jc(_$hash, textToComm.hashCode);
+    _$hash = $jc(_$hash, text.hashCode);
     _$hash = $jc(_$hash, answerToComm.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
@@ -71,7 +71,7 @@ class _$CommentDTO extends CommentDTO {
           ..add('createdWhen', createdWhen)
           ..add('postId', postId)
           ..add('userId', userId)
-          ..add('textToComm', textToComm)
+          ..add('text', text)
           ..add('answerToComm', answerToComm))
         .toString();
   }
@@ -96,9 +96,9 @@ class CommentDTOBuilder implements Builder<CommentDTO, CommentDTOBuilder> {
   int? get userId => _$this._userId;
   set userId(int? userId) => _$this._userId = userId;
 
-  String? _textToComm;
-  String? get textToComm => _$this._textToComm;
-  set textToComm(String? textToComm) => _$this._textToComm = textToComm;
+  String? _text;
+  String? get text => _$this._text;
+  set text(String? text) => _$this._text = text;
 
   String? _answerToComm;
   String? get answerToComm => _$this._answerToComm;
@@ -115,7 +115,7 @@ class CommentDTOBuilder implements Builder<CommentDTO, CommentDTOBuilder> {
       _createdWhen = $v.createdWhen;
       _postId = $v.postId;
       _userId = $v.userId;
-      _textToComm = $v.textToComm;
+      _text = $v.text;
       _answerToComm = $v.answerToComm;
       _$v = null;
     }
@@ -143,7 +143,7 @@ class CommentDTOBuilder implements Builder<CommentDTO, CommentDTOBuilder> {
           createdWhen: createdWhen,
           postId: postId,
           userId: userId,
-          textToComm: textToComm,
+          text: text,
           answerToComm: answerToComm,
         );
     replace(_$result);
