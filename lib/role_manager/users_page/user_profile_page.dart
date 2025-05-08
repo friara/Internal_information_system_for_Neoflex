@@ -5,12 +5,14 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:news_feed_neoflex/role_manager/users_page/date_format.dart';
 import 'package:news_feed_neoflex/role_manager/users_page/phone_format.dart';
+import 'package:openapi/openapi.dart';
+import 'dart:typed_data';
 
 class UserProfilePage extends StatefulWidget {
   final Map<String, String> userData;
   final File? initialAvatar;
-  final Function(Map<String, String>) onSave;
-  final Function(String) onDelete;
+  final Function(UserDTO) onSave; // Изменили тип
+  final Function(int) onDelete;
   final Function(File?) onAvatarChanged;
 
   const UserProfilePage({
@@ -84,27 +86,35 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   void _saveProfile() {
-    final name = widget.userData['name'] ??
-        widget.userData['fio'] ??
-        'Новый пользователь';
-
-    final updatedUser = {
-      'name': name,
-      'fio': _fioController.text,
-      'phone': _phoneController.text,
-      'position': _positionController.text,
-      'role': _selectedRole,
-      'login': _loginController.text,
-      'password': _passwordController.text,
-      'birthDate': _birthDateController.text,
-    };
-
-    widget.onSave(updatedUser);
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('Данные пользователя сохранены'),
-      duration: Duration(seconds: 2),
-    ));
+  final parts = _fioController.text.split(' ');
+  Date? birthday;
+  
+  try {
+    if (_birthDateController.text.isNotEmpty) {
+      final dateTime = DateTime.parse(_birthDateController.text);
+      birthday = Date(dateTime.year, dateTime.month, dateTime.day);
+    }
+  } catch (e) {
+    // Обработка ошибки парсинга даты
   }
+
+  final updatedUser = UserDTO((b) => b
+    ..id = int.tryParse(widget.userData['id'] ?? '')
+    ..firstName = parts.isNotEmpty ? parts[0] : null
+    ..lastName = parts.length > 1 ? parts[1] : null
+    ..patronymic = parts.length > 2 ? parts[2] : null
+    ..phoneNumber = _phoneController.text
+    ..appointment = _positionController.text
+    ..role = _selectedRole
+    ..login = _loginController.text
+    ..birthday = birthday);
+
+  widget.onSave(updatedUser);
+  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+    content: Text('Данные пользователя сохранены'),
+    duration: Duration(seconds: 2),
+  ));
+}
 
   Future<void> _pickImage() async {
     try {
@@ -184,10 +194,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
             TextButton(
               child: const Text('Да'),
               onPressed: () {
-                final userIdentifier =
-                    widget.userData['name'] ?? widget.userData['fio'] ?? '';
-                if (userIdentifier.isNotEmpty) {
-                  widget.onDelete(widget.userData['fio']!);
+                final userId = int.tryParse(widget.userData['id'] ?? '');
+                if (userId != null) {
+                  widget.onDelete(userId);
                   Navigator.of(context).pop();
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
