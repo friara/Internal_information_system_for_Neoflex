@@ -182,7 +182,7 @@ class _NewPostPageState extends State<NewPostPage> {
               ),
               SizedBox(height: 50),
               if (_selectedImages.isNotEmpty)
-                Container(
+                SizedBox(
                   height: imageHeight,
                   child: PageView.builder(
                     itemCount: _selectedImages.length,

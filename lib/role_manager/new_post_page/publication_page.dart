@@ -59,7 +59,7 @@ class _PublicationPageState extends State<PublicationPage> {
             children: [
               const SizedBox(height: 50),
               if (widget.selectedImages.isNotEmpty)
-                Container(
+                SizedBox(
                   height: imageHeight,
                   child: PageView.builder(
                     itemCount: widget.selectedImages.length,

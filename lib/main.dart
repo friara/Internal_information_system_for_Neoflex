@@ -5,7 +5,6 @@ import 'package:news_feed_neoflex/core/service_locator.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/auth_repository_impl.dart';
-import 'package:get_it/get_it.dart';
 
 void main() {
   sqfliteFfiInit();

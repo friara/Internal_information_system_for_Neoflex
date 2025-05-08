@@ -4,7 +4,6 @@ import 'package:news_feed_neoflex/role_manager/users_page/create_user_page.dart'
 import 'package:news_feed_neoflex/role_manager/users_page/user_profile_page.dart';
 import 'dart:io';
 import 'package:openapi/openapi.dart';
-import 'dart:typed_data';
 
 class ListOfUsers extends StatefulWidget {
   const ListOfUsers({super.key});

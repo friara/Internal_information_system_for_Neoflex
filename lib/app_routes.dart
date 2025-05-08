@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:news_feed_neoflex/news_feed_page.dart';
 import 'package:news_feed_neoflex/role_emloyee/book_page.dart';
 import 'package:news_feed_neoflex/role_emloyee/chat_page/chat_page.dart';
-import 'package:news_feed_neoflex/role_emloyee/profile_page.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
 
 import 'package:news_feed_neoflex/role_manager/users_page/list_of_users.dart';

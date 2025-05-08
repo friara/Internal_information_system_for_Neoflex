@@ -16,13 +16,13 @@ class UserProfilePage extends StatefulWidget {
   final Function(File?) onAvatarChanged;
 
   const UserProfilePage({
-    Key? key,
+    super.key,
     required this.userData,
     this.initialAvatar,
     required this.onSave,
     required this.onDelete,
     required this.onAvatarChanged,
-  }) : super(key: key);
+  });
 
   @override
   _UserProfilePageState createState() => _UserProfilePageState();

@@ -54,8 +54,6 @@ Future<oauth2.Client> login() async {
       discoveryUrl: _discoveryUrl,
       clientSecret: _clientSecret
     ));
-
-    if (result == null) throw Exception('Refresh token failed');
     
     return oauth2.Client(
       oauth2.Credentials(

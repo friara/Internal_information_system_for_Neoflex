@@ -6,7 +6,7 @@ import 'package:news_feed_neoflex/role_manager/users_page/phone_format.dart';
 class CreateUserPage extends StatefulWidget {
   final Function(Map<String, String>) onSave;
 
-  const CreateUserPage({Key? key, required this.onSave}) : super(key: key);
+  const CreateUserPage({super.key, required this.onSave});
 
   @override
   _CreateUserPageState createState() => _CreateUserPageState();
