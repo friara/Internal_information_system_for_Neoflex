@@ -105,7 +105,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
     ..patronymic = parts.length > 2 ? parts[2] : null
     ..phoneNumber = _phoneController.text
     ..appointment = _positionController.text
-    ..role = _selectedRole
+    ..roleName = _selectedRole
     ..login = _loginController.text
     ..birthday = birthday);
 

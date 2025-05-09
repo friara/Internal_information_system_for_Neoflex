@@ -1,4 +1,4 @@
-# openapi.model.UserDTO
+# openapi.model.UserExtendedDTO
 
 ## Load the model package
 ```dart
@@ -18,6 +18,7 @@ Name | Type | Description | Notes
 **birthday** | [**Date**](Date.md) |  | [optional] 
 **avatarUrl** | **String** |  | [optional] 
 **phoneNumber** | **String** |  | [optional] 
+**password** | **String** |  | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

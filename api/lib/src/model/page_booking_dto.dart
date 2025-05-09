@@ -17,14 +17,14 @@ part 'page_booking_dto.g.dart';
 /// Properties:
 /// * [totalPages] 
 /// * [totalElements] 
-/// * [first] 
-/// * [last] 
 /// * [size] 
 /// * [content] 
 /// * [number] 
 /// * [sort] 
-/// * [numberOfElements] 
+/// * [first] 
+/// * [last] 
 /// * [pageable] 
+/// * [numberOfElements] 
 /// * [empty] 
 @BuiltValue()
 abstract class PageBookingDTO implements Built<PageBookingDTO, PageBookingDTOBuilder> {
@@ -33,12 +33,6 @@ abstract class PageBookingDTO implements Built<PageBookingDTO, PageBookingDTOBui
 
   @BuiltValueField(wireName: r'totalElements')
   int? get totalElements;
-
-  @BuiltValueField(wireName: r'first')
-  bool? get first;
-
-  @BuiltValueField(wireName: r'last')
-  bool? get last;
 
   @BuiltValueField(wireName: r'size')
   int? get size;
@@ -52,11 +46,17 @@ abstract class PageBookingDTO implements Built<PageBookingDTO, PageBookingDTOBui
   @BuiltValueField(wireName: r'sort')
   SortObject? get sort;
 
-  @BuiltValueField(wireName: r'numberOfElements')
-  int? get numberOfElements;
+  @BuiltValueField(wireName: r'first')
+  bool? get first;
+
+  @BuiltValueField(wireName: r'last')
+  bool? get last;
 
   @BuiltValueField(wireName: r'pageable')
   PageableObject? get pageable;
+
+  @BuiltValueField(wireName: r'numberOfElements')
+  int? get numberOfElements;
 
   @BuiltValueField(wireName: r'empty')
   bool? get empty;
@@ -98,20 +98,6 @@ class _$PageBookingDTOSerializer implements PrimitiveSerializer<PageBookingDTO> 
         specifiedType: const FullType(int),
       );
     }
-    if (object.first != null) {
-      yield r'first';
-      yield serializers.serialize(
-        object.first,
-        specifiedType: const FullType(bool),
-      );
-    }
-    if (object.last != null) {
-      yield r'last';
-      yield serializers.serialize(
-        object.last,
-        specifiedType: const FullType(bool),
-      );
-    }
     if (object.size != null) {
       yield r'size';
       yield serializers.serialize(
@@ -140,11 +126,18 @@ class _$PageBookingDTOSerializer implements PrimitiveSerializer<PageBookingDTO> 
         specifiedType: const FullType(SortObject),
       );
     }
-    if (object.numberOfElements != null) {
-      yield r'numberOfElements';
+    if (object.first != null) {
+      yield r'first';
       yield serializers.serialize(
-        object.numberOfElements,
-        specifiedType: const FullType(int),
+        object.first,
+        specifiedType: const FullType(bool),
+      );
+    }
+    if (object.last != null) {
+      yield r'last';
+      yield serializers.serialize(
+        object.last,
+        specifiedType: const FullType(bool),
       );
     }
     if (object.pageable != null) {
@@ -152,6 +145,13 @@ class _$PageBookingDTOSerializer implements PrimitiveSerializer<PageBookingDTO> 
       yield serializers.serialize(
         object.pageable,
         specifiedType: const FullType(PageableObject),
+      );
+    }
+    if (object.numberOfElements != null) {
+      yield r'numberOfElements';
+      yield serializers.serialize(
+        object.numberOfElements,
+        specifiedType: const FullType(int),
       );
     }
     if (object.empty != null) {
@@ -198,20 +198,6 @@ class _$PageBookingDTOSerializer implements PrimitiveSerializer<PageBookingDTO> 
           ) as int;
           result.totalElements = valueDes;
           break;
-        case r'first':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(bool),
-          ) as bool;
-          result.first = valueDes;
-          break;
-        case r'last':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(bool),
-          ) as bool;
-          result.last = valueDes;
-          break;
         case r'size':
           final valueDes = serializers.deserialize(
             value,
@@ -240,12 +226,19 @@ class _$PageBookingDTOSerializer implements PrimitiveSerializer<PageBookingDTO> 
           ) as SortObject;
           result.sort.replace(valueDes);
           break;
-        case r'numberOfElements':
+        case r'first':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(int),
-          ) as int;
-          result.numberOfElements = valueDes;
+            specifiedType: const FullType(bool),
+          ) as bool;
+          result.first = valueDes;
+          break;
+        case r'last':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(bool),
+          ) as bool;
+          result.last = valueDes;
           break;
         case r'pageable':
           final valueDes = serializers.deserialize(
@@ -253,6 +246,13 @@ class _$PageBookingDTOSerializer implements PrimitiveSerializer<PageBookingDTO> 
             specifiedType: const FullType(PageableObject),
           ) as PageableObject;
           result.pageable.replace(valueDes);
+          break;
+        case r'numberOfElements':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(int),
+          ) as int;
+          result.numberOfElements = valueDes;
           break;
         case r'empty':
           final valueDes = serializers.deserialize(

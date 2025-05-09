@@ -112,20 +112,20 @@ class _ListOfUsersState extends State<ListOfUsers> {
   Future<void> _addNewUser(Map<String, String?> userData) async {
     try {
       final parts = (userData['fio'] ?? '').split(' ');
-      final createRequest = UserCreateRequestDTO((b) => b
+      final createRequest = UserExtendedDTO((b) => b
         ..firstName = parts.isNotEmpty ? parts[0] : null
         ..lastName = parts.length > 1 ? parts[1] : null
         ..patronymic = parts.length > 2 ? parts[2] : null
         ..phoneNumber = userData['phone']
         ..appointment = userData['position']
-        ..role = userData['role']
+        ..roleName = userData['role']
         ..login = userData['login']
         ..password = userData['password']
         ..birthday = userData['birthDate']?.isNotEmpty == true
             ? _parseDate(userData['birthDate']!)
             : null);
 
-      await userApi.adminCreateUser(userCreateRequestDTO: createRequest);
+      await userApi.adminCreateUser(userExtendedDTO: createRequest);
       await _loadUsers();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -257,7 +257,7 @@ class _ListOfUsersState extends State<ListOfUsers> {
                                   '${user.firstName ?? ''} ${user.lastName ?? ''} ${user.patronymic ?? ''}',
                               'phone': user.phoneNumber ?? '',
                               'position': user.appointment ?? '',
-                              'role': user.role ?? 'Сотрудник',
+                              'role': user.roleName ?? 'Сотрудник',
                               'login': user.login ?? '',
                               'password': '',
                               'birthDate': user.birthday?.toString() ?? '',
@@ -283,7 +283,7 @@ class _ListOfUsersState extends State<ListOfUsers> {
                                         parts.length > 2 ? parts[2] : null
                                     ..phoneNumber = updatedUser.phoneNumber
                                     ..appointment = updatedUser.appointment
-                                    ..role = updatedUser.role
+                                    ..roleName = updatedUser.roleName
                                     ..login = updatedUser.login
                                     ..birthday = updatedUser.birthday);
 

@@ -1,12 +1,12 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'user_dto.dart';
+part of 'user_extended_dto.dart';
 
 // **************************************************************************
 // BuiltValueGenerator
 // **************************************************************************
 
-class _$UserDTO extends UserDTO {
+class _$UserExtendedDTO extends UserExtendedDTO {
   @override
   final int? id;
   @override
@@ -27,11 +27,13 @@ class _$UserDTO extends UserDTO {
   final String? avatarUrl;
   @override
   final String? phoneNumber;
+  @override
+  final String? password;
 
-  factory _$UserDTO([void Function(UserDTOBuilder)? updates]) =>
-      (new UserDTOBuilder()..update(updates))._build();
+  factory _$UserExtendedDTO([void Function(UserExtendedDTOBuilder)? updates]) =>
+      (new UserExtendedDTOBuilder()..update(updates))._build();
 
-  _$UserDTO._(
+  _$UserExtendedDTO._(
       {this.id,
       this.login,
       this.roleName,
@@ -41,20 +43,22 @@ class _$UserDTO extends UserDTO {
       this.appointment,
       this.birthday,
       this.avatarUrl,
-      this.phoneNumber})
+      this.phoneNumber,
+      this.password})
       : super._();
 
   @override
-  UserDTO rebuild(void Function(UserDTOBuilder) updates) =>
+  UserExtendedDTO rebuild(void Function(UserExtendedDTOBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  UserDTOBuilder toBuilder() => new UserDTOBuilder()..replace(this);
+  UserExtendedDTOBuilder toBuilder() =>
+      new UserExtendedDTOBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    return other is UserDTO &&
+    return other is UserExtendedDTO &&
         id == other.id &&
         login == other.login &&
         roleName == other.roleName &&
@@ -64,7 +68,8 @@ class _$UserDTO extends UserDTO {
         appointment == other.appointment &&
         birthday == other.birthday &&
         avatarUrl == other.avatarUrl &&
-        phoneNumber == other.phoneNumber;
+        phoneNumber == other.phoneNumber &&
+        password == other.password;
   }
 
   @override
@@ -80,13 +85,14 @@ class _$UserDTO extends UserDTO {
     _$hash = $jc(_$hash, birthday.hashCode);
     _$hash = $jc(_$hash, avatarUrl.hashCode);
     _$hash = $jc(_$hash, phoneNumber.hashCode);
+    _$hash = $jc(_$hash, password.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper(r'UserDTO')
+    return (newBuiltValueToStringHelper(r'UserExtendedDTO')
           ..add('id', id)
           ..add('login', login)
           ..add('roleName', roleName)
@@ -96,13 +102,15 @@ class _$UserDTO extends UserDTO {
           ..add('appointment', appointment)
           ..add('birthday', birthday)
           ..add('avatarUrl', avatarUrl)
-          ..add('phoneNumber', phoneNumber))
+          ..add('phoneNumber', phoneNumber)
+          ..add('password', password))
         .toString();
   }
 }
 
-class UserDTOBuilder implements Builder<UserDTO, UserDTOBuilder> {
-  _$UserDTO? _$v;
+class UserExtendedDTOBuilder
+    implements Builder<UserExtendedDTO, UserExtendedDTOBuilder> {
+  _$UserExtendedDTO? _$v;
 
   int? _id;
   int? get id => _$this._id;
@@ -144,11 +152,15 @@ class UserDTOBuilder implements Builder<UserDTO, UserDTOBuilder> {
   String? get phoneNumber => _$this._phoneNumber;
   set phoneNumber(String? phoneNumber) => _$this._phoneNumber = phoneNumber;
 
-  UserDTOBuilder() {
-    UserDTO._defaults(this);
+  String? _password;
+  String? get password => _$this._password;
+  set password(String? password) => _$this._password = password;
+
+  UserExtendedDTOBuilder() {
+    UserExtendedDTO._defaults(this);
   }
 
-  UserDTOBuilder get _$this {
+  UserExtendedDTOBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
       _id = $v.id;
@@ -161,28 +173,29 @@ class UserDTOBuilder implements Builder<UserDTO, UserDTOBuilder> {
       _birthday = $v.birthday;
       _avatarUrl = $v.avatarUrl;
       _phoneNumber = $v.phoneNumber;
+      _password = $v.password;
       _$v = null;
     }
     return this;
   }
 
   @override
-  void replace(UserDTO other) {
+  void replace(UserExtendedDTO other) {
     ArgumentError.checkNotNull(other, 'other');
-    _$v = other as _$UserDTO;
+    _$v = other as _$UserExtendedDTO;
   }
 
   @override
-  void update(void Function(UserDTOBuilder)? updates) {
+  void update(void Function(UserExtendedDTOBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
   @override
-  UserDTO build() => _build();
+  UserExtendedDTO build() => _build();
 
-  _$UserDTO _build() {
+  _$UserExtendedDTO _build() {
     final _$result = _$v ??
-        new _$UserDTO._(
+        new _$UserExtendedDTO._(
           id: id,
           login: login,
           roleName: roleName,
@@ -193,6 +206,7 @@ class UserDTOBuilder implements Builder<UserDTO, UserDTOBuilder> {
           birthday: birthday,
           avatarUrl: avatarUrl,
           phoneNumber: phoneNumber,
+          password: password,
         );
     replace(_$result);
     return _$result;

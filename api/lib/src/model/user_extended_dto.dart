@@ -7,9 +7,9 @@ import 'package:openapi/src/model/date.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
-part 'user_dto.g.dart';
+part 'user_extended_dto.g.dart';
 
-/// UserDTO
+/// UserExtendedDTO
 ///
 /// Properties:
 /// * [id] 
@@ -22,8 +22,9 @@ part 'user_dto.g.dart';
 /// * [birthday] 
 /// * [avatarUrl] 
 /// * [phoneNumber] 
+/// * [password] 
 @BuiltValue()
-abstract class UserDTO implements Built<UserDTO, UserDTOBuilder> {
+abstract class UserExtendedDTO implements Built<UserExtendedDTO, UserExtendedDTOBuilder> {
   @BuiltValueField(wireName: r'id')
   int? get id;
 
@@ -54,27 +55,30 @@ abstract class UserDTO implements Built<UserDTO, UserDTOBuilder> {
   @BuiltValueField(wireName: r'phoneNumber')
   String? get phoneNumber;
 
-  UserDTO._();
+  @BuiltValueField(wireName: r'password')
+  String? get password;
 
-  factory UserDTO([void updates(UserDTOBuilder b)]) = _$UserDTO;
+  UserExtendedDTO._();
+
+  factory UserExtendedDTO([void updates(UserExtendedDTOBuilder b)]) = _$UserExtendedDTO;
 
   @BuiltValueHook(initializeBuilder: true)
-  static void _defaults(UserDTOBuilder b) => b;
+  static void _defaults(UserExtendedDTOBuilder b) => b;
 
   @BuiltValueSerializer(custom: true)
-  static Serializer<UserDTO> get serializer => _$UserDTOSerializer();
+  static Serializer<UserExtendedDTO> get serializer => _$UserExtendedDTOSerializer();
 }
 
-class _$UserDTOSerializer implements PrimitiveSerializer<UserDTO> {
+class _$UserExtendedDTOSerializer implements PrimitiveSerializer<UserExtendedDTO> {
   @override
-  final Iterable<Type> types = const [UserDTO, _$UserDTO];
+  final Iterable<Type> types = const [UserExtendedDTO, _$UserExtendedDTO];
 
   @override
-  final String wireName = r'UserDTO';
+  final String wireName = r'UserExtendedDTO';
 
   Iterable<Object?> _serializeProperties(
     Serializers serializers,
-    UserDTO object, {
+    UserExtendedDTO object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
     if (object.id != null) {
@@ -147,12 +151,19 @@ class _$UserDTOSerializer implements PrimitiveSerializer<UserDTO> {
         specifiedType: const FullType(String),
       );
     }
+    if (object.password != null) {
+      yield r'password';
+      yield serializers.serialize(
+        object.password,
+        specifiedType: const FullType(String),
+      );
+    }
   }
 
   @override
   Object serialize(
     Serializers serializers,
-    UserDTO object, {
+    UserExtendedDTO object, {
     FullType specifiedType = FullType.unspecified,
   }) {
     return _serializeProperties(serializers, object, specifiedType: specifiedType).toList();
@@ -163,7 +174,7 @@ class _$UserDTOSerializer implements PrimitiveSerializer<UserDTO> {
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
     required List<Object?> serializedList,
-    required UserDTOBuilder result,
+    required UserExtendedDTOBuilder result,
     required List<Object?> unhandled,
   }) {
     for (var i = 0; i < serializedList.length; i += 2) {
@@ -240,6 +251,13 @@ class _$UserDTOSerializer implements PrimitiveSerializer<UserDTO> {
           ) as String;
           result.phoneNumber = valueDes;
           break;
+        case r'password':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(String),
+          ) as String;
+          result.password = valueDes;
+          break;
         default:
           unhandled.add(key);
           unhandled.add(value);
@@ -249,12 +267,12 @@ class _$UserDTOSerializer implements PrimitiveSerializer<UserDTO> {
   }
 
   @override
-  UserDTO deserialize(
+  UserExtendedDTO deserialize(
     Serializers serializers,
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
   }) {
-    final result = UserDTOBuilder();
+    final result = UserExtendedDTOBuilder();
     final serializedList = (serialized as Iterable<Object?>).toList();
     final unhandled = <Object?>[];
     _deserializeProperties(
