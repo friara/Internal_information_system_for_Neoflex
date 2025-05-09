@@ -6,6 +6,8 @@ import 'package:news_feed_neoflex/role_manager/users_page/user_profile_page.dart
 import 'dart:io';
 import 'package:openapi/openapi.dart';
 import 'package:http/http.dart' as http;
+import 'package:news_feed_neoflex/features/auth/auth_repository_impl.dart';
+import 'package:dio/dio.dart';
 
 class ListOfUsers extends StatefulWidget {
   const ListOfUsers({super.key});
@@ -27,11 +29,17 @@ class _ListOfUsersState extends State<ListOfUsers> {
   bool _isSearchActive = false;
   bool _isLoading = true;
   String? _errorMessage;
-  final String _avatarBaseUrl = 'http://localhost:8080';
+  final dio = GetIt.I<Dio>(); // Получаем экземпляр Dio из GetIt
+  late String _avatarBaseUrl;
+  late String accessToken;
 
   @override
   void initState() {
     super.initState();
+    _avatarBaseUrl = dio.options.baseUrl; // Извлекаем базовый URL
+    GetIt.I<AuthRepositoryImpl>().getAccessToken().then((token) {
+  accessToken = token ?? ' ';
+});
     _loadUsers();
   }
 
@@ -137,13 +145,13 @@ class _ListOfUsersState extends State<ListOfUsers> {
   Future<void> _addNewUser(Map<String, String?> userData) async {
     try {
       final parts = (userData['fio'] ?? '').split(' ');
-      final createRequest = UserCreateRequestDTO((b) => b
+      final createRequest = UserExtendedDTO((b) => b
         ..firstName = parts.isNotEmpty ? parts[0] : null
         ..lastName = parts.length > 1 ? parts[1] : null
         ..patronymic = parts.length > 2 ? parts[2] : null
         ..phoneNumber = userData['phone']
         ..appointment = userData['position']
-        ..role =
+        ..roleName =
             userData['role'] == 'Администратор' ? 'ROLE_ADMIN' : 'ROLE_USER'
         ..login = userData['login']
         ..password = userData['password']
@@ -151,7 +159,7 @@ class _ListOfUsersState extends State<ListOfUsers> {
             ? _parseDate(userData['birthDate']!)
             : null);
 
-      await userApi.adminCreateUser(userCreateRequestDTO: createRequest);
+      await userApi.adminCreateUser(userExtendedDTO: createRequest);
       await _loadUsers();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -201,6 +209,8 @@ class _ListOfUsersState extends State<ListOfUsers> {
   }
 
   Widget _buildAvatarWidget(UserDTO user) {
+    
+
     final avatarUrl = user.avatarUrl != null
         ? user.avatarUrl!.startsWith('http')
             ? user.avatarUrl
@@ -231,7 +241,7 @@ class _ListOfUsersState extends State<ListOfUsers> {
               },
               httpHeaders: {
                 'Authorization':
-                    'Bearer YOUR_ACCESS_TOKEN', // Добавьте если нужно
+                    'Bearer $accessToken', // Добавьте если нужно
               },
             ),
           )
@@ -349,7 +359,7 @@ class _ListOfUsersState extends State<ListOfUsers> {
                                   '${user.firstName ?? ''} ${user.lastName ?? ''} ${user.patronymic ?? ''}',
                               'phone': user.phoneNumber ?? '',
                               'position': user.appointment ?? '',
-                              'role': user.role ?? 'ROLE_USER',
+                              'role': user.roleName ?? 'ROLE_USER',
                               'login': user.login ?? '',
                               'birthDate': user.birthday?.toString() ?? '',
                               'avatarUrl': avatarUrl ?? '',
