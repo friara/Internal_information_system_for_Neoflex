@@ -38,8 +38,8 @@ class _ListOfUsersState extends State<ListOfUsers> {
     super.initState();
     _avatarBaseUrl = dio.options.baseUrl; // Извлекаем базовый URL
     GetIt.I<AuthRepositoryImpl>().getAccessToken().then((token) {
-  accessToken = token ?? ' ';
-});
+      accessToken = token ?? ' ';
+    });
     _loadUsers();
   }
 
@@ -105,26 +105,29 @@ class _ListOfUsersState extends State<ListOfUsers> {
         throw Exception('ID пользователя отсутствует');
       }
 
-      // Логирование данных перед отправкой
-      debugPrint(
-          'Отправка обновления пользователя: ${updatedUser.toBuilder()}');
-
-      // Используем правильный endpoint для админского обновления
-      final response = await GetIt.I<Openapi>()
-          .getUserControllerApi()
-          .updateCurrentUser(userDTO: updatedUser);
+      final response =
+          await GetIt.I<Openapi>().getUserControllerApi().adminUpdateUser(
+                id: updatedUser.id!,
+                userExtendedDTO: UserExtendedDTO((b) => b
+                  ..firstName = updatedUser.firstName
+                  ..lastName = updatedUser.lastName
+                  ..patronymic = updatedUser.patronymic
+                  ..phoneNumber = updatedUser.phoneNumber
+                  ..appointment = updatedUser.appointment
+                  ..roleName = updatedUser.roleName
+                  ..login = updatedUser.login
+                  ..password = 'password' // фиктивное значение
+                  ..birthday = updatedUser.birthday),
+              );
 
       if (response.data == null) {
-        throw Exception('Не удалось обновить пользователя: ответ сервера пуст');
+        throw Exception('Не удалось обновить пользователя');
       }
 
       await _loadUsers();
     } catch (e) {
-      debugPrint('Ошибка обновления пользователя: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Ошибка обновления: ${e.toString()}'),
-        ),
+        SnackBar(content: Text('Ошибка обновления: ${e.toString()}')),
       );
       rethrow;
     }
@@ -144,23 +147,42 @@ class _ListOfUsersState extends State<ListOfUsers> {
 
   Future<void> _addNewUser(Map<String, String?> userData) async {
     try {
-      final parts = (userData['fio'] ?? '').split(' ');
+      Date birthday;
+      try {
+        // Парсим дату из строки формата YYYY-MM-DD
+        final dateStr = userData['birthDate'];
+        if (dateStr == null) throw Exception('Дата рождения обязательна');
+
+        final date = DateTime.parse(dateStr);
+        birthday = Date(date.year, date.month, date.day);
+      } catch (e) {
+        throw Exception('Неверный формат даты рождения: ${e.toString()}');
+      }
       final createRequest = UserExtendedDTO((b) => b
-        ..firstName = parts.isNotEmpty ? parts[0] : null
-        ..lastName = parts.length > 1 ? parts[1] : null
-        ..patronymic = parts.length > 2 ? parts[2] : null
+        ..firstName = userData['firstName'] ?? ''
+        ..lastName = userData['lastName'] ?? ''
+        ..patronymic = userData['patronymic']
         ..phoneNumber = userData['phone']
         ..appointment = userData['position']
         ..roleName =
             userData['role'] == 'Администратор' ? 'ROLE_ADMIN' : 'ROLE_USER'
         ..login = userData['login']
         ..password = userData['password']
-        ..birthday = userData['birthDate']?.isNotEmpty == true
-            ? _parseDate(userData['birthDate']!)
-            : null);
+        ..birthday = birthday);
 
-      await userApi.adminCreateUser(userExtendedDTO: createRequest);
-      await _loadUsers();
+      debugPrint('Отправка данных пользователя: ${createRequest.toString()}');
+
+      final response = await userApi.adminCreateUser(
+        userExtendedDTO: createRequest,
+      );
+      if (response.data != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Пользователь успешно создан')),
+        );
+        await _loadUsers();
+      } else {
+        throw Exception('Не удалось создать пользователя: ответ сервера пуст');
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -169,14 +191,14 @@ class _ListOfUsersState extends State<ListOfUsers> {
     }
   }
 
-  Date? _parseDate(String dateString) {
-    try {
-      final dateTime = DateTime.parse(dateString);
-      return Date(dateTime.year, dateTime.month, dateTime.day);
-    } catch (e) {
-      return null;
-    }
-  }
+  // Date? _parseDate(String dateString) {
+  //   try {
+  //     final dateTime = DateTime.parse(dateString);
+  //     return Date(dateTime.year, dateTime.month, dateTime.day);
+  //   } catch (e) {
+  //     return null;
+  //   }
+  // }
 
   Future<void> _updateAvatar(UserDTO user, File? avatarFile) async {
     if (avatarFile == null) return;
@@ -199,6 +221,7 @@ class _ListOfUsersState extends State<ListOfUsers> {
       if (newAvatarUrl != null) {
         final updatedUser = user.rebuild((b) => b..avatarUrl = newAvatarUrl);
         await _updateUserData(updatedUser);
+        await _loadUsers();
       }
     } catch (e) {
       Navigator.of(context).pop();
@@ -209,8 +232,6 @@ class _ListOfUsersState extends State<ListOfUsers> {
   }
 
   Widget _buildAvatarWidget(UserDTO user) {
-    
-
     final avatarUrl = user.avatarUrl != null
         ? user.avatarUrl!.startsWith('http')
             ? user.avatarUrl
@@ -240,8 +261,7 @@ class _ListOfUsersState extends State<ListOfUsers> {
                 );
               },
               httpHeaders: {
-                'Authorization':
-                    'Bearer $accessToken', // Добавьте если нужно
+                'Authorization': 'Bearer $accessToken', // Добавьте если нужно
               },
             ),
           )
@@ -364,8 +384,8 @@ class _ListOfUsersState extends State<ListOfUsers> {
                               'birthDate': user.birthday?.toString() ?? '',
                               'avatarUrl': avatarUrl ?? '',
                             },
-                            initialAvatar: user.avatarUrl != null
-                                ? File(user.avatarUrl!)
+                            initialAvatarUrl: user.avatarUrl != null
+                                ? '$_avatarBaseUrl/${user.avatarUrl}'
                                 : null,
                             onSave: _updateUserData,
                             onDelete: _deleteUser,

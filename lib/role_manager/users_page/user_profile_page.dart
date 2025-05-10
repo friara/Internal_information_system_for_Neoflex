@@ -1,20 +1,16 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:news_feed_neoflex/features/auth/auth_repository_impl.dart';
-import 'package:news_feed_neoflex/role_manager/users_page/date_format.dart';
-import 'package:news_feed_neoflex/role_manager/users_page/phone_format.dart';
 import 'package:openapi/openapi.dart';
-import 'dart:typed_data';
-import 'package:get_it/get_it.dart';
-import 'package:dio/dio.dart';
 
 class UserProfilePage extends StatefulWidget {
   final Map<String, String?> userData;
-  final File? initialAvatar;
+  final String? initialAvatarUrl;
+  final File? initialAvatarFile;
   final Function(UserDTO) onSave;
   final Function(int) onDelete;
   final Function(File?) onAvatarChanged;
@@ -22,7 +18,8 @@ class UserProfilePage extends StatefulWidget {
   const UserProfilePage({
     super.key,
     required this.userData,
-    this.initialAvatar,
+    this.initialAvatarUrl,
+    this.initialAvatarFile,
     required this.onSave,
     required this.onDelete,
     required this.onAvatarChanged,
@@ -33,78 +30,50 @@ class UserProfilePage extends StatefulWidget {
 }
 
 class _UserProfilePageState extends State<UserProfilePage> {
-  late TextEditingController _fioController;
+  late TextEditingController _firstNameController;
+  late TextEditingController _lastNameController;
+  late TextEditingController _patronymicController;
   late TextEditingController _phoneController;
   late TextEditingController _positionController;
   late TextEditingController _loginController;
   late TextEditingController _birthDateController;
   String _selectedRole = 'ROLE_USER';
   File? _avatarImage;
-  final ImagePicker _picker = ImagePicker();
-  bool _obscurePassword = true;
+  String? _avatarUrl;
+  bool _isSaving = false;
   Color colorForLabel = const Color.fromARGB(255, 104, 102, 102);
-
-  late String accessToken;
-  late FocusNode _fioFocus;
-  late FocusNode _phoneFocus;
-  late FocusNode _loginFocus;
-
-  static const Map<String, String> _roleDisplayNames = {
-    'ROLE_USER': 'Сотрудник',
-    'ROLE_ADMIN': 'Администратор',
-  };
-
-  static const List<String> _availableRoles = ['ROLE_USER', 'ROLE_ADMIN'];
 
   @override
   void initState() {
     super.initState();
-    _initializeToken();
-    _initializeControllers();
-    _initializeAvatar();
-    _initializeFocusNodes();
-  }
+    // Разбираем ФИО из строки 'fio'
+    final fioParts = (widget.userData['fio'] ?? '').split(' ');
+    _firstNameController =
+        TextEditingController(text: fioParts.isNotEmpty ? fioParts[0] : '');
+    _lastNameController =
+        TextEditingController(text: fioParts.length > 1 ? fioParts[1] : '');
+    _patronymicController =
+        TextEditingController(text: fioParts.length > 2 ? fioParts[2] : '');
 
-  void _initializeToken() {
-    GetIt.I<AuthRepositoryImpl>().getAccessToken().then((token) {
-      accessToken = token ?? '';
-    });
-  }
+    _phoneController =
+        TextEditingController(text: widget.userData['phone'] ?? '');
+    _positionController =
+        TextEditingController(text: widget.userData['position'] ?? '');
+    _loginController =
+        TextEditingController(text: widget.userData['login'] ?? '');
+    _birthDateController =
+        TextEditingController(text: widget.userData['birthDate'] ?? '');
 
-  void _initializeControllers() {
-    _fioController = TextEditingController(text: widget.userData['fio']);
-    _phoneController = TextEditingController(text: widget.userData['phone'] ?? '');
-    _positionController = TextEditingController(text: widget.userData['position']);
-    _loginController = TextEditingController(text: widget.userData['login'] ?? '');
-    _birthDateController = TextEditingController(text: widget.userData['birthDate'] ?? '');
-    
-    final roleFromData = widget.userData['role'];
-    if (roleFromData != null && _availableRoles.contains(roleFromData)) {
-      _selectedRole = roleFromData;
-    }
-  }
-
-  void _initializeAvatar() {
-    final avatarUrl = widget.userData['avatarUrl'];
-    if (avatarUrl != null && avatarUrl.isNotEmpty) {
-      _avatarImage = File(avatarUrl);
-    } else {
-      _avatarImage = widget.initialAvatar;
-    }
-  }
-
-  void _initializeFocusNodes() {
-    _fioFocus = FocusNode();
-    _phoneFocus = FocusNode();
-    _loginFocus = FocusNode();
+    _selectedRole = widget.userData['role'] ?? 'ROLE_USER';
+    _avatarImage = widget.initialAvatarFile;
+    _avatarUrl = widget.initialAvatarUrl ?? widget.userData['avatarUrl'];
   }
 
   @override
   void dispose() {
-    _fioFocus.dispose();
-    _phoneFocus.dispose();
-    _loginFocus.dispose();
-    _fioController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _patronymicController.dispose();
     _phoneController.dispose();
     _positionController.dispose();
     _loginController.dispose();
@@ -112,84 +81,116 @@ class _UserProfilePageState extends State<UserProfilePage> {
     super.dispose();
   }
 
-  void _saveProfile() {
+  Future<void> _saveProfile() async {
+    if (_isSaving) return;
+
+    setState(() => _isSaving = true);
+
     try {
-      if (_fioController.text.isEmpty) throw Exception('ФИО обязательно');
-      if (_loginController.text.isEmpty) throw Exception('Логин обязателен');
+      if (_firstNameController.text.trim().isEmpty ||
+          _lastNameController.text.trim().isEmpty) {
+        _showSnackBar('Имя и фамилия обязательны', isError: true);
+        setState(() => _isSaving = false);
+        return;
+      }
 
-      final parts = _fioController.text.trim().split(RegExp(r'\s+'));
+      if (_loginController.text.trim().isEmpty) {
+        _showSnackBar('Логин обязателен', isError: true);
+        setState(() => _isSaving = false);
+        return;
+      }
+
       Date? birthday;
-
       if (_birthDateController.text.isNotEmpty) {
         try {
           final dateTime = DateTime.parse(_birthDateController.text);
           birthday = Date(dateTime.year, dateTime.month, dateTime.day);
         } catch (e) {
-          debugPrint('Ошибка парсинга даты: $e');
           throw Exception('Некорректный формат даты');
         }
       }
 
+      // Сначала загружаем аватар, если он есть
+      if (_avatarImage != null &&
+          _avatarImage?.path != widget.userData['avatarUrl']) {
+        await _uploadAvatar(_avatarImage!);
+      }
+
       final updatedUser = UserDTO((b) => b
         ..id = int.tryParse(widget.userData['id'] ?? '')
-        ..firstName = parts.isNotEmpty ? parts[0] : null
-        ..lastName = parts.length > 1 ? parts[1] : null
-        ..patronymic = parts.length > 2 ? parts[2] : null
-        ..phoneNumber = _phoneController.text.isNotEmpty ? _phoneController.text : null
+        ..firstName = _firstNameController.text
+        ..lastName = _lastNameController.text
+        ..patronymic = _patronymicController.text.isNotEmpty
+            ? _patronymicController.text
+            : null
+        ..phoneNumber =
+            _phoneController.text.isNotEmpty ? _phoneController.text : null
         ..appointment = _positionController.text
         ..roleName = _selectedRole
         ..login = _loginController.text
         ..birthday = birthday
-        ..avatarUrl = widget.userData['avatarUrl']);
+        ..avatarUrl = _avatarUrl ?? widget.userData['avatarUrl']);
 
-      widget.onSave(updatedUser);
+      await widget.onSave(updatedUser);
+
+      // if (_avatarImage != null &&
+      //     _avatarImage?.path != widget.userData['avatarUrl']) {
+      //   await _uploadAvatar(_avatarImage!);
+      // }
+
       _showSnackBar('Данные успешно сохранены');
     } catch (e) {
       _showSnackBar('Ошибка сохранения: ${e.toString()}', isError: true);
+    } finally {
+      setState(() => _isSaving = false);
+    }
+  }
+
+  Future<void> _uploadAvatar(File imageFile) async {
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+      final bytes = await imageFile.readAsBytes();
+      final uploadAvatarRequest = UploadAvatarRequest((b) => b..file = bytes);
+
+      final response = await GetIt.I<Openapi>()
+          .getUserControllerApi()
+          .uploadAvatar(uploadAvatarRequest: uploadAvatarRequest);
+
+      Navigator.of(context).pop();
+
+      if (response.data != null) {
+        setState(() {
+          _avatarUrl = response.data;
+        });
+        widget.onAvatarChanged(imageFile);
+        _showSnackBar('Аватар обновлен');
+      } else {
+        throw Exception('Не удалось загрузить аватар: ответ сервера пуст');
+      }
+    } catch (e) {
+      Navigator.of(context).pop();
+      _showSnackBar('Ошибка загрузки аватара: ${e.toString()}', isError: true);
+      rethrow;
     }
   }
 
   Future<void> _pickImage() async {
     try {
-      XFile? image;
-      if (Platform.isIOS || Platform.isAndroid) {
-        image = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
-      } else {
-        final result = await FilePicker.platform.pickFiles(type: FileType.image);
-        image = result?.files.first.path != null ? XFile(result!.files.first.path!) : null;
-      }
-      if (image != null) await _uploadAndUpdateAvatar(File(image.path));
-    } catch (e) {
-      _showSnackBar('Ошибка выбора изображения: ${e.toString()}', isError: true);
-    }
-  }
-
-  Future<void> _uploadAndUpdateAvatar(File imageFile) async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
-    );
-
-    try {
-      final bytes = await imageFile.readAsBytes();
-      final uploadRequest = UploadAvatarRequest((b) => b..file = bytes);
-      final response = await GetIt.I<Openapi>()
-          .getUserControllerApi()
-          .uploadAvatar(uploadAvatarRequest: uploadRequest)
-          .timeout(const Duration(seconds: 30));
-
-      if (response.data != null) {
-        setState(() => _avatarImage = imageFile);
-        widget.onSave(UserDTO((b) => b
-          ..id = int.tryParse(widget.userData['id'] ?? '')
-          ..avatarUrl = response.data));
-        _showSnackBar('Аватар обновлен');
+      final pickedFile =
+          await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() {
+          _avatarImage = File(pickedFile.path);
+          _avatarUrl = null;
+        });
       }
     } catch (e) {
-      _showSnackBar('Ошибка загрузки: ${e.toString()}', isError: true);
-    } finally {
-      Navigator.of(context).pop();
+      _showSnackBar('Ошибка выбора изображения: ${e.toString()}',
+          isError: true);
     }
   }
 
@@ -198,234 +199,169 @@ class _UserProfilePageState extends State<UserProfilePage> {
       SnackBar(
         content: Text(message),
         backgroundColor: isError ? Colors.red : Colors.green,
-        duration: const Duration(seconds: 2),
-    ));
+      ),
+    );
   }
 
-  Future<void> _confirmDelete() async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: const Text('Подтверждение удаления'),
-        content: const Text('Вы уверены?'),
-        actions: [
-          TextButton(
-            child: const Text('Нет'),
-            onPressed: () => Navigator.pop(context)),
-          TextButton(
-            child: const Text('Да'),
-            onPressed: () {
-              final userId = int.tryParse(widget.userData['id'] ?? '');
-              if (userId != null) {
-                widget.onDelete(userId);
-                Navigator.pop(context);
-                Navigator.pop(context);
-                _showSnackBar('Пользователь удален');
-              }
-            }),
-        ],
+  Widget _buildAvatar() {
+    final dio = GetIt.I<Dio>();
+    final avatarBaseUrl = dio.options.baseUrl;
+    final avatarUrl = _avatarUrl ?? widget.userData['avatarUrl'];
+
+    if (_avatarImage != null) {
+      return CircleAvatar(
+        radius: 50,
+        backgroundImage: FileImage(_avatarImage!),
+      );
+    } else if (avatarUrl != null && avatarUrl.isNotEmpty) {
+      final fullUrl = avatarUrl.startsWith('http')
+          ? avatarUrl
+          : '$avatarBaseUrl${avatarUrl.startsWith('/') ? '' : '/'}$avatarUrl';
+
+      return CachedNetworkImage(
+        imageUrl: fullUrl,
+        imageBuilder: (context, imageProvider) => CircleAvatar(
+          radius: 50,
+          backgroundImage: imageProvider,
+        ),
+        placeholder: (context, url) => CircleAvatar(
+          radius: 50,
+          child: Icon(Icons.person, size: 50),
+        ),
+        errorWidget: (context, url, error) => CircleAvatar(
+          radius: 50,
+          child: Icon(Icons.error, size: 50),
+        ),
+        httpHeaders: {
+          'Authorization':
+              'Bearer ${GetIt.I<AuthRepositoryImpl>().getAccessToken()}',
+        },
+      );
+    } else {
+      return const CircleAvatar(
+        radius: 50,
+        child: Icon(Icons.person, size: 50),
+      );
+    }
+  }
+
+  Widget _buildTextField(TextEditingController controller, String labelText,
+      {bool isPhone = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextFormField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: labelText,
+          labelStyle: TextStyle(color: colorForLabel),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.purple, width: 2),
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+        ),
+        keyboardType: isPhone ? TextInputType.phone : TextInputType.text,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final dio = GetIt.I<Dio>();
-    String baseUrl = dio.options.baseUrl;
-
-    if (baseUrl.endsWith('/')) {
-      baseUrl = baseUrl.substring(0, baseUrl.length - 1);
-    }
-
-    final avatarUrl = widget.userData['avatarUrl'];
-    String? fullAvatarUrl;
-
-    if (avatarUrl != null && avatarUrl.isNotEmpty) {
-      if (avatarUrl.startsWith('http')) {
-        fullAvatarUrl = avatarUrl;
-      } else {
-        final sanitizedPath = avatarUrl.startsWith('/') 
-            ? avatarUrl.substring(1) 
-            : avatarUrl;
-        fullAvatarUrl = '$baseUrl/$sanitizedPath';
-      }
-    }
-
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(80),
+        preferredSize: const Size.fromHeight(80.0),
         child: Column(
           children: [
             AppBar(
               foregroundColor: Colors.purple,
               title: const Align(
                 alignment: Alignment.center,
-                child: Text("Профиль пользователя")),
+                child: Text("Профиль пользователя"),
+              ),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.pop(context)),
+                onPressed: () => Navigator.pop(context),
+              ),
+              surfaceTintColor: const Color.fromARGB(255, 100, 29, 113),
               actions: [
                 IconButton(
-                  icon: const Icon(Icons.save),
-                  onPressed: _saveProfile),
+                  icon: _isSaving
+                      ? const CircularProgressIndicator()
+                      : const Icon(Icons.save),
+                  onPressed: _isSaving ? null : _saveProfile,
+                ),
               ],
-              surfaceTintColor: const Color.fromARGB(255, 100, 29, 113),
             ),
             const Divider(height: 1, thickness: 1, color: Colors.grey),
           ],
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            const SizedBox(height: 20),
             GestureDetector(
               onTap: _pickImage,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  _buildAvatarWidget(fullAvatarUrl),
-                  if (_avatarImage != null || fullAvatarUrl != null)
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20)),
-                        child: const Icon(Icons.camera_alt, size: 20, color: Colors.purple),
-                      ),
-                    ),
-                ],
-              ),
+              child: _buildAvatar(),
             ),
             const SizedBox(height: 20),
-            _buildTextField(_fioController, _fioFocus, 'ФИО', nextFocus: _phoneFocus),
-            const SizedBox(height: 16),
-            _buildPhoneField(),
-            const SizedBox(height: 16),
-            _buildTextField(_loginController, _loginFocus, 'Логин'),
-            const SizedBox(height: 16),
-            DateInput(controller: _birthDateController, labelText: 'Дата рождения'),
-            const SizedBox(height: 16),
-            _buildRoleDropdown(),
-            const SizedBox(height: 16),
-            _buildTextField(_positionController, null, 'Должность'),
+            _buildTextField(_lastNameController, 'Фамилия'),
+            _buildTextField(_firstNameController, 'Имя'),
+            _buildTextField(_patronymicController, 'Отчество'),
+            _buildTextField(_phoneController, 'Телефон', isPhone: true),
+            _buildTextField(_loginController, 'Логин'),
+            _buildTextField(_birthDateController, 'Дата рождения'),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: DropdownButtonFormField<String>(
+                value: _selectedRole,
+                decoration: InputDecoration(
+                  labelText: 'Роль',
+                  labelStyle: TextStyle(color: colorForLabel),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide:
+                        const BorderSide(color: Colors.purple, width: 2),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+                items: const [
+                  DropdownMenuItem(
+                      value: 'ROLE_USER', child: Text('Сотрудник')),
+                  DropdownMenuItem(
+                      value: 'ROLE_ADMIN', child: Text('Администратор')),
+                ],
+                onChanged: (value) => setState(() => _selectedRole = value!),
+              ),
+            ),
+            _buildTextField(_positionController, 'Должность'),
             const SizedBox(height: 24),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.delete, color: Colors.red),
-              label: const Text('Удалить профиль', style: TextStyle(color: Colors.red)),
+            ElevatedButton(
+              onPressed: () {
+                final userId = int.tryParse(widget.userData['id'] ?? '');
+                if (userId != null) {
+                  widget.onDelete(userId);
+                  Navigator.pop(context);
+                }
+              },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24)),
-              onPressed: _confirmDelete,
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+              ),
+              child: const Text('Удалить профиль'),
             ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildAvatarWidget(String? fullAvatarUrl) {
-    return Container(
-      width: 120,
-      height: 120,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.grey),
-      child: _avatarImage != null
-          ? ClipOval(
-              child: Image.file(_avatarImage!, fit: BoxFit.cover))
-          : fullAvatarUrl != null
-              ? FutureBuilder<String>(
-                  future: GetIt.I<AuthRepositoryImpl>().getAccessToken(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) return _buildPlaceholder();
-                    return ClipOval(
-                      child: CachedNetworkImage(
-                        imageUrl: fullAvatarUrl,
-                        httpHeaders: {'Authorization': 'Bearer ${snapshot.data}'},
-                        placeholder: (context, url) => _buildPlaceholder(),
-                        errorWidget: (context, url, error) {
-                          debugPrint('Ошибка загрузки: $error');
-                          return _buildErrorWidget();
-                        },
-                        fit: BoxFit.cover,
-                      ),
-                    );
-                  })
-              : _buildPlaceholder(),
-    );
-  }
-
-  Widget _buildPlaceholder() => const Icon(Icons.person, size: 60, color: Colors.white);
-  Widget _buildErrorWidget() => const Icon(Icons.error, size: 60, color: Colors.red);
-
-  Widget _buildTextField(
-    TextEditingController controller,
-    FocusNode? focusNode,
-    String label, {
-    FocusNode? nextFocus,
-  }) {
-    return TextField(
-      controller: controller,
-      focusNode: focusNode,
-      textInputAction: nextFocus != null ? TextInputAction.next : null,
-      onSubmitted: (_) => nextFocus != null 
-          ? FocusScope.of(context).requestFocus(nextFocus)
-          : null,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: colorForLabel),
-        focusedBorder: _customBorder(),
-        border: _customBorder(),
-      ),
-    );
-  }
-
-  InputBorder _customBorder() => OutlineInputBorder(
-    borderRadius: BorderRadius.circular(10),
-    borderSide: const BorderSide(color: Colors.purple, width: 2),
-  );
-
-  Widget _buildPhoneField() {
-    return TextField(
-      controller: _phoneController,
-      focusNode: _phoneFocus,
-      textInputAction: TextInputAction.next,
-      onSubmitted: (_) => FocusScope.of(context).requestFocus(_loginFocus),
-      decoration: InputDecoration(
-        labelText: 'Телефон',
-        labelStyle: TextStyle(color: colorForLabel),
-        hintText: '+7 (___) ___-__-__',
-        focusedBorder: _customBorder(),
-        border: _customBorder(),
-      ),
-      keyboardType: TextInputType.phone,
-      inputFormatters: [
-        RuPhoneInputFormatter(),
-        LengthLimitingTextInputFormatter(18)
-      ],
-    );
-  }
-
-  Widget _buildRoleDropdown() {
-    return DropdownButtonFormField<String>(
-      value: _selectedRole,
-      decoration: InputDecoration(
-        labelText: 'Роль',
-        labelStyle: TextStyle(color: colorForLabel),
-        focusedBorder: _customBorder(),
-        border: _customBorder(),
-      ),
-      items: _availableRoles
-          .map((role) => DropdownMenuItem(
-                value: role,
-                child: Text(_roleDisplayNames[role] ?? role)))
-          .toList(),
-      onChanged: (value) => setState(() => _selectedRole = value!),
     );
   }
 }
