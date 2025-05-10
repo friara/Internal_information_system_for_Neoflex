@@ -8,6 +8,8 @@ import 'package:openapi/openapi.dart';
 import 'package:http/http.dart' as http;
 import 'package:news_feed_neoflex/features/auth/auth_repository_impl.dart';
 import 'package:dio/dio.dart';
+import 'package:mime/mime.dart';
+import 'package:http_parser/http_parser.dart';
 
 class ListOfUsers extends StatefulWidget {
   const ListOfUsers({super.key});
@@ -200,36 +202,63 @@ class _ListOfUsersState extends State<ListOfUsers> {
   //   }
   // }
 
-  Future<void> _updateAvatar(UserDTO user, File? avatarFile) async {
-    if (avatarFile == null) return;
+Future<void> _updateAvatar(UserDTO user, File? avatarFile) async {
+  if (avatarFile == null) return;
 
-    try {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(child: CircularProgressIndicator()),
-      );
-      final bytes = await avatarFile.readAsBytes();
-      final uploadRequest = UploadAvatarRequest((b) => b..file = bytes);
+  try {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
 
-      final response =
-          await userApi.uploadAvatar(uploadAvatarRequest: uploadRequest);
-      final newAvatarUrl = response.data;
+    // Определяем MIME-тип и расширение файла
+    final mimeType = lookupMimeType(avatarFile.path) ?? 'image/jpeg';
+      final contentType = MediaType.parse(mimeType);
+      final fileExtension = contentType.subtype;
 
-      Navigator.of(context).pop();
+    // Создаем MultipartFile
+    final multipartFile = await MultipartFile.fromFile(
+      avatarFile.path,
+      filename: 'avatar_${DateTime.now().microsecondsSinceEpoch}.$fileExtension',
+      contentType: contentType,
+    );
 
-      if (newAvatarUrl != null) {
-        final updatedUser = user.rebuild((b) => b..avatarUrl = newAvatarUrl);
-        await _updateUserData(updatedUser);
-        await _loadUsers();
-      }
-    } catch (e) {
-      Navigator.of(context).pop();
+    // Вызываем API через сгенерированный клиент
+    final response = await GetIt.I<Openapi>()
+        .getUserControllerApi()
+        .uploadAvatar(
+          file: multipartFile,
+          headers: {
+            'Authorization': 
+                'Bearer ${GetIt.I<AuthRepositoryImpl>().getAccessToken()}'
+          },
+          onSendProgress: (sent, total) {
+            debugPrint('Отправлено: ${(sent/total*100).toStringAsFixed(1)}%');
+          },
+        );
+
+    Navigator.of(context).pop();
+
+    if (response.statusCode == 200 && response.data != null) {
+      final newAvatarUrl = response.data!.avatarUrl ?? '';
+      final updatedUser = user.rebuild((b) => b..avatarUrl = newAvatarUrl);
+      await _updateUserData(updatedUser);
+      await _loadUsers();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка обновления аватарки: ${e.toString()}')),
+        const SnackBar(content: Text('Аватар успешно обновлён')),
       );
+    } else {
+      throw Exception('${response.statusCode}: ${response.statusMessage}');
     }
+  } catch (e) {
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Ошибка обновления аватара: ${e.toString()}')),
+    );
+    debugPrint('Ошибка загрузки аватара: ${e.toString()}');
   }
+}
 
   Widget _buildAvatarWidget(UserDTO user) {
     final avatarUrl = user.avatarUrl != null

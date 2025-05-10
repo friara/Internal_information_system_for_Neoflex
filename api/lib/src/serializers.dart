@@ -32,7 +32,6 @@ import 'package:openapi/src/model/pageable_object.dart';
 import 'package:openapi/src/model/post_dto.dart';
 import 'package:openapi/src/model/repost_dto.dart';
 import 'package:openapi/src/model/sort_object.dart';
-import 'package:openapi/src/model/upload_avatar_request.dart';
 import 'package:openapi/src/model/user_dto.dart';
 import 'package:openapi/src/model/user_extended_dto.dart';
 import 'package:openapi/src/model/workspace_dto.dart';
@@ -57,12 +56,15 @@ part 'serializers.g.dart';
   PostDTO,
   RepostDTO,
   SortObject,
-  UploadAvatarRequest,
   UserDTO,
   UserExtendedDTO,
   WorkspaceDTO,
 ])
 Serializers serializers = (_$serializers.toBuilder()
+      ..addBuilderFactory(
+        const FullType(BuiltList, [FullType(UserExtendedDTO)]),
+        () => ListBuilder<UserExtendedDTO>(),
+      )
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(DateTime)]),
         () => ListBuilder<DateTime>(),

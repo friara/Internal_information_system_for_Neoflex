@@ -104,7 +104,10 @@ Class | Method | HTTP request | Description
 [*RepostControllerApi*](doc/RepostControllerApi.md) | [**getRepostById**](doc/RepostControllerApi.md#getrepostbyid) | **GET** /api/reposts/{id} | 
 [*UserControllerApi*](doc/UserControllerApi.md) | [**adminCreateUser**](doc/UserControllerApi.md#admincreateuser) | **POST** /api/users | 
 [*UserControllerApi*](doc/UserControllerApi.md) | [**adminDeleteUser**](doc/UserControllerApi.md#admindeleteuser) | **DELETE** /api/users/{id} | 
+[*UserControllerApi*](doc/UserControllerApi.md) | [**adminGetAllUsers**](doc/UserControllerApi.md#admingetallusers) | **GET** /api/users/full | 
+[*UserControllerApi*](doc/UserControllerApi.md) | [**adminGetUser**](doc/UserControllerApi.md#admingetuser) | **GET** /api/users/{id}/full | 
 [*UserControllerApi*](doc/UserControllerApi.md) | [**adminUpdateUser**](doc/UserControllerApi.md#adminupdateuser) | **PUT** /api/users/{id} | 
+[*UserControllerApi*](doc/UserControllerApi.md) | [**adminUploadAvatar**](doc/UserControllerApi.md#adminuploadavatar) | **POST** /api/users/{id}/avatar | 
 [*UserControllerApi*](doc/UserControllerApi.md) | [**getAllUsers**](doc/UserControllerApi.md#getallusers) | **GET** /api/users | 
 [*UserControllerApi*](doc/UserControllerApi.md) | [**getCurrentUser**](doc/UserControllerApi.md#getcurrentuser) | **GET** /api/users/me | 
 [*UserControllerApi*](doc/UserControllerApi.md) | [**getUserById**](doc/UserControllerApi.md#getuserbyid) | **GET** /api/users/{id} | 
@@ -138,7 +141,6 @@ Class | Method | HTTP request | Description
  - [PostDTO](doc/PostDTO.md)
  - [RepostDTO](doc/RepostDTO.md)
  - [SortObject](doc/SortObject.md)
- - [UploadAvatarRequest](doc/UploadAvatarRequest.md)
  - [UserDTO](doc/UserDTO.md)
  - [UserExtendedDTO](doc/UserExtendedDTO.md)
  - [WorkspaceDTO](doc/WorkspaceDTO.md)

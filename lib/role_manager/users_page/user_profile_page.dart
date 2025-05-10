@@ -3,7 +3,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mime/mime.dart';
 import 'package:news_feed_neoflex/features/auth/auth_repository_impl.dart';
 import 'package:openapi/openapi.dart';
 
@@ -46,7 +48,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
   @override
   void initState() {
     super.initState();
-    // Разбираем ФИО из строки 'fio'
     final fioParts = (widget.userData['fio'] ?? '').split(' ');
     _firstNameController =
         TextEditingController(text: fioParts.isNotEmpty ? fioParts[0] : '');
@@ -110,7 +111,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
         }
       }
 
-      // Сначала загружаем аватар, если он есть
       if (_avatarImage != null &&
           _avatarImage?.path != widget.userData['avatarUrl']) {
         await _uploadAvatar(_avatarImage!);
@@ -133,11 +133,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
       await widget.onSave(updatedUser);
 
-      // if (_avatarImage != null &&
-      //     _avatarImage?.path != widget.userData['avatarUrl']) {
-      //   await _uploadAvatar(_avatarImage!);
-      // }
-
       _showSnackBar('Данные успешно сохранены');
     } catch (e) {
       _showSnackBar('Ошибка сохранения: ${e.toString()}', isError: true);
@@ -153,44 +148,69 @@ class _UserProfilePageState extends State<UserProfilePage> {
         barrierDismissible: false,
         builder: (context) => const Center(child: CircularProgressIndicator()),
       );
-      final bytes = await imageFile.readAsBytes();
-      final uploadAvatarRequest = UploadAvatarRequest((b) => b..file = bytes);
+
+      final mimeType = lookupMimeType(imageFile.path) ?? 'image/jpeg';
+      final contentType = MediaType.parse(mimeType);
+      final fileExtension = contentType.subtype;
+
+      final multipartFile = await MultipartFile.fromFile(
+        imageFile.path,
+        filename: 'avatar_${DateTime.now().microsecondsSinceEpoch}.$fileExtension',
+        contentType: contentType,
+      );
 
       final response = await GetIt.I<Openapi>()
           .getUserControllerApi()
-          .uploadAvatar(uploadAvatarRequest: uploadAvatarRequest);
+          .uploadAvatar(
+            file: multipartFile,
+            headers: {
+              'Authorization': 
+                  'Bearer ${GetIt.I<AuthRepositoryImpl>().getAccessToken()}'
+            },
+            onSendProgress: (sent, total) {
+              debugPrint('Отправлено: ${(sent/total*100).toStringAsFixed(1)}%');
+            },
+          );
 
       Navigator.of(context).pop();
 
-      if (response.data != null) {
+      if (response.statusCode == 200 && response.data != null) {
         setState(() {
-          _avatarUrl = response.data;
+          _avatarUrl = response.data!.avatarUrl ?? '';
         });
         widget.onAvatarChanged(imageFile);
-        _showSnackBar('Аватар обновлен');
+        _showSnackBar('Аватар успешно обновлён');
       } else {
-        throw Exception('Не удалось загрузить аватар: ответ сервера пуст');
+        throw Exception('${response.statusCode}: ${response.statusMessage}');
       }
     } catch (e) {
       Navigator.of(context).pop();
-      _showSnackBar('Ошибка загрузки аватара: ${e.toString()}', isError: true);
-      rethrow;
+      _showSnackBar('Ошибка загрузки: ${e.toString()}', isError: true);
+      debugPrint('Ошибка загрузки аватара: ${e.toString()}');
     }
   }
 
   Future<void> _pickImage() async {
     try {
-      final pickedFile =
-          await ImagePicker().pickImage(source: ImageSource.gallery);
+      final pickedFile = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+        maxWidth: 800,
+      );
+      
       if (pickedFile != null) {
+        final mimeType = pickedFile.mimeType ?? lookupMimeType(pickedFile.path);
+        if (mimeType == null || !mimeType.startsWith('image/')) {
+          throw Exception('Недопустимый тип файла');
+        }
+
         setState(() {
           _avatarImage = File(pickedFile.path);
           _avatarUrl = null;
         });
       }
     } catch (e) {
-      _showSnackBar('Ошибка выбора изображения: ${e.toString()}',
-          isError: true);
+      _showSnackBar('Ошибка выбора изображения: ${e.toString()}', isError: true);
     }
   }
 
@@ -224,11 +244,11 @@ class _UserProfilePageState extends State<UserProfilePage> {
           radius: 50,
           backgroundImage: imageProvider,
         ),
-        placeholder: (context, url) => CircleAvatar(
+        placeholder: (context, url) => const CircleAvatar(
           radius: 50,
           child: Icon(Icons.person, size: 50),
         ),
-        errorWidget: (context, url, error) => CircleAvatar(
+        errorWidget: (context, url, error) => const CircleAvatar(
           radius: 50,
           child: Icon(Icons.error, size: 50),
         ),
@@ -325,8 +345,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide:
-                        const BorderSide(color: Colors.purple, width: 2),
+                    borderSide: const BorderSide(color: Colors.purple, width: 2),
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                 ),
