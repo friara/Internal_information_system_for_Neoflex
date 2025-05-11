@@ -317,7 +317,7 @@ class UserControllerApi {
   ///
   /// Parameters:
   /// * [id] 
-  /// * [userExtendedDTO] 
+  /// * [userDTO] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -329,7 +329,7 @@ class UserControllerApi {
   /// Throws [DioException] if API call or serialization fails
   Future<Response<UserDTO>> adminUpdateUser({ 
     required int id,
-    required UserExtendedDTO userExtendedDTO,
+    required UserDTO userDTO,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -354,8 +354,8 @@ class UserControllerApi {
     dynamic _bodyData;
 
     try {
-      const _type = FullType(UserExtendedDTO);
-      _bodyData = _serializers.serialize(userExtendedDTO, specifiedType: _type);
+      const _type = FullType(UserDTO);
+      _bodyData = _serializers.serialize(userDTO, specifiedType: _type);
 
     } catch(error, stackTrace) {
       throw DioException(

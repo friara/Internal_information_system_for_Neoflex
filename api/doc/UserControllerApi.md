@@ -183,7 +183,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **adminUpdateUser**
-> UserDTO adminUpdateUser(id, userExtendedDTO)
+> UserDTO adminUpdateUser(id, userDTO)
 
 
 
@@ -193,10 +193,10 @@ import 'package:openapi/api.dart';
 
 final api = Openapi().getUserControllerApi();
 final int id = 789; // int | 
-final UserExtendedDTO userExtendedDTO = ; // UserExtendedDTO | 
+final UserDTO userDTO = ; // UserDTO | 
 
 try {
-    final response = api.adminUpdateUser(id, userExtendedDTO);
+    final response = api.adminUpdateUser(id, userDTO);
     print(response);
 } catch on DioException (e) {
     print('Exception when calling UserControllerApi->adminUpdateUser: $e\n');
@@ -208,7 +208,7 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **id** | **int**|  | 
- **userExtendedDTO** | [**UserExtendedDTO**](UserExtendedDTO.md)|  | 
+ **userDTO** | [**UserDTO**](UserDTO.md)|  | 
 
 ### Return type
 

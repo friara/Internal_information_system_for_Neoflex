@@ -110,7 +110,7 @@ class _ListOfUsersState extends State<ListOfUsers> {
       final response =
           await GetIt.I<Openapi>().getUserControllerApi().adminUpdateUser(
                 id: updatedUser.id!,
-                userExtendedDTO: UserExtendedDTO((b) => b
+                userDTO: UserDTO((b) => b
                   ..firstName = updatedUser.firstName
                   ..lastName = updatedUser.lastName
                   ..patronymic = updatedUser.patronymic
@@ -118,7 +118,6 @@ class _ListOfUsersState extends State<ListOfUsers> {
                   ..appointment = updatedUser.appointment
                   ..roleName = updatedUser.roleName
                   ..login = updatedUser.login
-                  ..password = 'password' // фиктивное значение
                   ..birthday = updatedUser.birthday),
               );
 
