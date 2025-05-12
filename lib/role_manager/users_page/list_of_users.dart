@@ -10,6 +10,7 @@ import 'package:news_feed_neoflex/features/auth/auth_repository_impl.dart';
 import 'package:dio/dio.dart';
 import 'package:mime/mime.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:flutter/foundation.dart';
 
 class ListOfUsers extends StatefulWidget {
   const ListOfUsers({super.key});
@@ -38,28 +39,68 @@ class _ListOfUsersState extends State<ListOfUsers> {
   @override
   void initState() {
     super.initState();
-    _avatarBaseUrl = dio.options.baseUrl; // Извлекаем базовый URL
+    final dio = GetIt.I<Dio>();
+    _avatarBaseUrl = dio.options.baseUrl;
+
+    // Убедимся, что URL заканчивается на /
+    if (!_avatarBaseUrl.endsWith('/')) {
+      _avatarBaseUrl += '/';
+    }
+
+    // Загружаем токен и настраиваем API
     GetIt.I<AuthRepositoryImpl>().getAccessToken().then((token) {
-      accessToken = token ?? ' ';
+      if (token != null) {
+        setState(() {
+          accessToken = token;
+        });
+        // Добавляем токен в заголовки Dio
+        dio.options.headers['Authorization'] = 'Bearer $token';
+        _loadUsers();
+      } else {
+        setState(() {
+          _errorMessage = 'Требуется авторизация';
+          _isLoading = false;
+        });
+      }
+    }).catchError((e) {
+      setState(() {
+        _errorMessage = 'Ошибка получения токена: ${e.toString()}';
+        _isLoading = false;
+      });
     });
-    _loadUsers();
   }
 
   Future<void> _loadUsers() async {
     try {
-      setState(() => _isLoading = true);
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+
+      debugPrint('Загрузка списка пользователей...');
+      debugPrint('Токен доступа: $accessToken');
+
       final response = await userApi.getAllUsers();
+      debugPrint('Ответ сервера: ${response.statusCode}');
+
       if (response.data != null) {
+        debugPrint('Получено пользователей: ${response.data!.length}');
         setState(() {
           _users = response.data!.toList();
           _filteredUsers = List.from(_users);
         });
+      } else {
+        setState(() {
+          _errorMessage = 'Не удалось загрузить список пользователей';
+        });
+        debugPrint('Пустой ответ от сервера');
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Ошибка загрузки пользователей: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка загрузки: ${e.toString()}')),
-      );
+      debugPrint('Стек вызовов: $stackTrace');
+      setState(() {
+        _errorMessage = 'Ошибка загрузки: ${e.toString()}';
+      });
     } finally {
       setState(() => _isLoading = false);
     }
@@ -201,78 +242,84 @@ class _ListOfUsersState extends State<ListOfUsers> {
   //   }
   // }
 
-Future<void> _updateAvatar(UserDTO user, File? avatarFile) async {
-  if (avatarFile == null) return;
+  Future<void> _updateAvatar(UserDTO user, File? avatarFile) async {
+    if (avatarFile == null) return;
 
-  try {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
-    );
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
 
-    // Определяем MIME-тип и расширение файла
-    final mimeType = lookupMimeType(avatarFile.path) ?? 'image/jpeg';
+      // Определяем MIME-тип и расширение файла
+      final mimeType = lookupMimeType(avatarFile.path) ?? 'image/jpeg';
       final contentType = MediaType.parse(mimeType);
       final fileExtension = contentType.subtype;
 
-    // Создаем MultipartFile
-    final multipartFile = await MultipartFile.fromFile(
-      avatarFile.path,
-      filename: 'avatar_${DateTime.now().microsecondsSinceEpoch}.$fileExtension',
-      contentType: contentType,
-    );
-
-    // Вызываем API через сгенерированный клиент
-    final response = await GetIt.I<Openapi>()
-        .getUserControllerApi()
-        .uploadAvatar(
-          file: multipartFile,
-          headers: {
-            'Authorization': 
-                'Bearer ${GetIt.I<AuthRepositoryImpl>().getAccessToken()}'
-          },
-          onSendProgress: (sent, total) {
-            debugPrint('Отправлено: ${(sent/total*100).toStringAsFixed(1)}%');
-          },
-        );
-
-    Navigator.of(context).pop();
-
-    if (response.statusCode == 200 && response.data != null) {
-      final newAvatarUrl = response.data!.avatarUrl ?? '';
-      final updatedUser = user.rebuild((b) => b..avatarUrl = newAvatarUrl);
-      await _updateUserData(updatedUser);
-      await _loadUsers();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Аватар успешно обновлён')),
+      // Создаем MultipartFile
+      final multipartFile = await MultipartFile.fromFile(
+        avatarFile.path,
+        filename:
+            'avatar_${DateTime.now().microsecondsSinceEpoch}.$fileExtension',
+        contentType: contentType,
       );
-    } else {
-      throw Exception('${response.statusCode}: ${response.statusMessage}');
+
+      // Вызываем API через сгенерированный клиент
+      final response =
+          await GetIt.I<Openapi>().getUserControllerApi().uploadAvatar(
+                file: multipartFile,
+                headers: {
+                  'Authorization':
+                      'Bearer ${GetIt.I<AuthRepositoryImpl>().getAccessToken()}'
+                },
+                onSendProgress: (sent, total) {
+                  debugPrint(
+                      'Отправлено: ${(sent / total * 100).toStringAsFixed(1)}%');
+                },
+              );
+
+      Navigator.of(context).pop();
+
+      if (response.statusCode == 200 && response.data != null) {
+        final newAvatarUrl = response.data!.avatarUrl ?? '';
+        final updatedUser = user.rebuild((b) => b..avatarUrl = newAvatarUrl);
+        await _updateUserData(updatedUser);
+        await _loadUsers();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Аватар успешно обновлён')),
+        );
+      } else {
+        throw Exception('${response.statusCode}: ${response.statusMessage}');
+      }
+    } catch (e) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка обновления аватара: ${e.toString()}')),
+      );
+      debugPrint('Ошибка загрузки аватара: ${e.toString()}');
     }
-  } catch (e) {
-    Navigator.of(context).pop();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Ошибка обновления аватара: ${e.toString()}')),
-    );
-    debugPrint('Ошибка загрузки аватара: ${e.toString()}');
   }
-}
 
   Widget _buildAvatarWidget(UserDTO user) {
     final avatarUrl = user.avatarUrl != null
         ? user.avatarUrl!.startsWith('http')
             ? user.avatarUrl
-            : '$_avatarBaseUrl${user.avatarUrl}'
+            : '$_avatarBaseUrl${user.avatarUrl!.startsWith('/') ? user.avatarUrl!.substring(1) : user.avatarUrl}'
         : null;
+
+    debugPrint('Avatar URL: $avatarUrl');
 
     return avatarUrl != null
         ? ClipOval(
             child: CachedNetworkImage(
-              imageUrl: avatarUrl,
+              imageUrl: avatarUrl!,
               width: 40,
               height: 40,
               fit: BoxFit.cover,
+              httpHeaders: {
+                'Authorization': 'Bearer $accessToken',
+              },
               placeholder: (context, url) => Container(
                 width: 40,
                 height: 40,
@@ -280,7 +327,7 @@ Future<void> _updateAvatar(UserDTO user, File? avatarFile) async {
                 child: const Icon(Icons.person, size: 20, color: Colors.white),
               ),
               errorWidget: (context, url, error) {
-                debugPrint('Failed to load avatar: $url, error: $error');
+                debugPrint('Ошибка загрузки аватара: $error');
                 return Container(
                   width: 40,
                   height: 40,
@@ -288,15 +335,12 @@ Future<void> _updateAvatar(UserDTO user, File? avatarFile) async {
                   child: const Icon(Icons.error, size: 20),
                 );
               },
-              httpHeaders: {
-                'Authorization': 'Bearer $accessToken', // Добавьте если нужно
-              },
             ),
           )
         : Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Colors.grey,
               shape: BoxShape.circle,
             ),
@@ -419,6 +463,7 @@ Future<void> _updateAvatar(UserDTO user, File? avatarFile) async {
                             onDelete: _deleteUser,
                             onAvatarChanged: (file) =>
                                 _updateAvatar(user, file),
+                            isAdmin: true,
                           ),
                         ),
                       );

@@ -1,7 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:news_feed_neoflex/app_routes.dart';
+import 'package:openapi/openapi.dart';
 import 'dart:io';
 import 'personal_chat_page.dart';
 import 'contact_selection_page.dart';
@@ -364,18 +367,16 @@ class ChatPageState extends State<ChatPage> {
                       style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ),
-              ..._allChats
-                  .map((user) => CheckboxListTile(
-                        title: Text(user),
-                        subtitle: const Text('был(а) недавно'),
-                        value: _selectedUsers[user] ?? false,
-                        onChanged: (value) =>
-                            setState(() => _selectedUsers[user] = value!),
-                        secondary: const CircleAvatar(
-                            backgroundImage:
-                                AssetImage("assets/images/imageMyProfile.jpg")),
-                      ))
-                  ,
+              ..._allChats.map((user) => CheckboxListTile(
+                    title: Text(user),
+                    subtitle: const Text('был(а) недавно'),
+                    value: _selectedUsers[user] ?? false,
+                    onChanged: (value) =>
+                        setState(() => _selectedUsers[user] = value!),
+                    secondary: const CircleAvatar(
+                        backgroundImage:
+                            AssetImage("assets/images/imageMyProfile.jpg")),
+                  )),
             ],
           ),
         ),
@@ -393,18 +394,34 @@ class ChatPageState extends State<ChatPage> {
         BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
       ],
       currentIndex: _selectedIndex,
-      onTap: (index) {
+      onTap: (index) async {
         if (index == 0) {
           Navigator.pushNamed(context, '/');
-        } else if (index == 1)
-          // ignore: curly_braces_in_flow_control_structures
+        } else if (index == 1) {
           Navigator.pushNamed(context, '/page1');
-        else if (index == 3)
-          // ignore: curly_braces_in_flow_control_structures
-          Navigator.pushNamed(context, '/page3');
-        else
-          // ignore: curly_braces_in_flow_control_structures
+        } else if (index == 3) {
+          // Проверка прав администратора
+          try {
+            final userApi = GetIt.I<Openapi>().getUserControllerApi();
+            final response = await userApi.getCurrentUser();
+
+            if (response.data != null &&
+                response.data!.roleName == 'ROLE_ADMIN') {
+              Navigator.pushNamed(context, AppRoutes.listOfUsers);
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text('Доступ только для администраторов')),
+              );
+            }
+          } catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Ошибка проверки прав: ${e.toString()}')),
+            );
+          }
+        } else {
           setState(() => _selectedIndex = index);
+        }
       },
       selectedItemColor: const Color(0xFF48036F),
       unselectedItemColor: Colors.grey,

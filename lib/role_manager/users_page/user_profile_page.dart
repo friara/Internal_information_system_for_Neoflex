@@ -16,6 +16,7 @@ class UserProfilePage extends StatefulWidget {
   final Function(UserDTO) onSave;
   final Function(int) onDelete;
   final Function(File?) onAvatarChanged;
+  final bool isAdmin;
 
   const UserProfilePage({
     super.key,
@@ -25,6 +26,7 @@ class UserProfilePage extends StatefulWidget {
     required this.onSave,
     required this.onDelete,
     required this.onAvatarChanged,
+    this.isAdmin = false,
   });
 
   @override
@@ -44,10 +46,18 @@ class _UserProfilePageState extends State<UserProfilePage> {
   String? _avatarUrl;
   bool _isSaving = false;
   Color colorForLabel = const Color.fromARGB(255, 104, 102, 102);
+  int _selectedIndex = 3;
+  bool _isRoleLoaded = false;
 
   @override
   void initState() {
-    super.initState();
+    _initializeData();
+    setState(() {
+      _isRoleLoaded = true;
+    });
+  }
+
+  void _initializeData() {
     final fioParts = (widget.userData['fio'] ?? '').split(' ');
     _firstNameController =
         TextEditingController(text: fioParts.isNotEmpty ? fioParts[0] : '');
@@ -116,6 +126,16 @@ class _UserProfilePageState extends State<UserProfilePage> {
         await _uploadAvatar(_avatarImage!);
       }
 
+      // Для сотрудника используем оригинальные значения должности и роли
+      // Для администратора - текущие значения из полей
+      final position = widget.isAdmin
+          ? _positionController.text
+          : widget.userData['position'] ?? '';
+
+      final role = widget.isAdmin
+          ? _selectedRole
+          : widget.userData['role'] ?? 'ROLE_USER';
+
       final updatedUser = UserDTO((b) => b
         ..id = int.tryParse(widget.userData['id'] ?? '')
         ..firstName = _firstNameController.text
@@ -125,15 +145,13 @@ class _UserProfilePageState extends State<UserProfilePage> {
             : null
         ..phoneNumber =
             _phoneController.text.isNotEmpty ? _phoneController.text : null
-        ..appointment = _positionController.text
-        ..roleName = _selectedRole
+        ..appointment = position
+        ..roleName = role
         ..login = _loginController.text
         ..birthday = birthday
         ..avatarUrl = _avatarUrl ?? widget.userData['avatarUrl']);
 
       await widget.onSave(updatedUser);
-
-      _showSnackBar('Данные успешно сохранены');
     } catch (e) {
       _showSnackBar('Ошибка сохранения: ${e.toString()}', isError: true);
     } finally {
@@ -155,22 +173,23 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
       final multipartFile = await MultipartFile.fromFile(
         imageFile.path,
-        filename: 'avatar_${DateTime.now().microsecondsSinceEpoch}.$fileExtension',
+        filename:
+            'avatar_${DateTime.now().microsecondsSinceEpoch}.$fileExtension',
         contentType: contentType,
       );
 
-      final response = await GetIt.I<Openapi>()
-          .getUserControllerApi()
-          .uploadAvatar(
-            file: multipartFile,
-            headers: {
-              'Authorization': 
-                  'Bearer ${GetIt.I<AuthRepositoryImpl>().getAccessToken()}'
-            },
-            onSendProgress: (sent, total) {
-              debugPrint('Отправлено: ${(sent/total*100).toStringAsFixed(1)}%');
-            },
-          );
+      final response =
+          await GetIt.I<Openapi>().getUserControllerApi().uploadAvatar(
+                file: multipartFile,
+                headers: {
+                  'Authorization':
+                      'Bearer ${GetIt.I<AuthRepositoryImpl>().getAccessToken()}'
+                },
+                onSendProgress: (sent, total) {
+                  debugPrint(
+                      'Отправлено: ${(sent / total * 100).toStringAsFixed(1)}%');
+                },
+              );
 
       Navigator.of(context).pop();
 
@@ -197,7 +216,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
         imageQuality: 85,
         maxWidth: 800,
       );
-      
+
       if (pickedFile != null) {
         final mimeType = pickedFile.mimeType ?? lookupMimeType(pickedFile.path);
         if (mimeType == null || !mimeType.startsWith('image/')) {
@@ -210,7 +229,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
         });
       }
     } catch (e) {
-      _showSnackBar('Ошибка выбора изображения: ${e.toString()}', isError: true);
+      _showSnackBar('Ошибка выбора изображения: ${e.toString()}',
+          isError: true);
     }
   }
 
@@ -266,7 +286,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   Widget _buildTextField(TextEditingController controller, String labelText,
-      {bool isPhone = false}) {
+      {bool isPhone = false, bool readOnly = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
@@ -283,12 +303,20 @@ class _UserProfilePageState extends State<UserProfilePage> {
           ),
         ),
         keyboardType: isPhone ? TextInputType.phone : TextInputType.text,
+        readOnly: readOnly,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!_isRoleLoaded) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(80.0),
@@ -300,10 +328,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 alignment: Alignment.center,
                 child: Text("Профиль пользователя"),
               ),
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.pop(context),
-              ),
+              leading: widget.isAdmin
+                  ? IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: () => Navigator.pop(context),
+                    )
+                  : null,
               surfaceTintColor: const Color.fromARGB(255, 100, 29, 113),
               actions: [
                 IconButton(
@@ -345,7 +375,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.purple, width: 2),
+                    borderSide:
+                        const BorderSide(color: Colors.purple, width: 2),
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                 ),
@@ -355,32 +386,76 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   DropdownMenuItem(
                       value: 'ROLE_ADMIN', child: Text('Администратор')),
                 ],
-                onChanged: (value) => setState(() => _selectedRole = value!),
+                onChanged: widget.isAdmin
+                    ? (value) => setState(() => _selectedRole = value!)
+                    : null,
               ),
             ),
-            _buildTextField(_positionController, 'Должность'),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                final userId = int.tryParse(widget.userData['id'] ?? '');
-                if (userId != null) {
-                  widget.onDelete(userId);
-                  Navigator.pop(context);
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
-              ),
-              child: const Text('Удалить профиль'),
+            _buildTextField(
+              _positionController,
+              'Должность',
+              readOnly: !widget.isAdmin,
             ),
+            if (widget.isAdmin) ...[
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () {
+                  final userId = int.tryParse(widget.userData['id'] ?? '');
+                  if (userId != null) {
+                    widget.onDelete(userId);
+                    Navigator.pop(context);
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+                child: const Text('Удалить профиль'),
+              ),
+            ],
           ],
         ),
       ),
+      bottomNavigationBar: widget.isAdmin
+          ? null
+          : BottomNavigationBar(
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home),
+                  label: '',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.computer),
+                  label: '',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.message_sharp),
+                  label: '',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.person),
+                  label: '',
+                ),
+              ],
+              currentIndex: _selectedIndex,
+              onTap: (index) {
+                if (index == 0) {
+                  Navigator.pushNamed(context, '/');
+                } else if (index == 1) {
+                  Navigator.pushNamed(context, '/page1');
+                } else if (index == 2) {
+                  Navigator.pushNamed(context, '/page2');
+                } else {
+                  setState(() => _selectedIndex = index);
+                }
+              },
+              selectedItemColor: const Color(0xFF48036F),
+              unselectedItemColor: Colors.grey,
+            ),
     );
   }
 }
