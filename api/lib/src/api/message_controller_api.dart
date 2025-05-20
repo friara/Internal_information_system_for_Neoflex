@@ -10,9 +10,7 @@ import 'package:dio/dio.dart';
 
 import 'package:built_collection/built_collection.dart';
 import 'package:openapi/src/api_util.dart';
-import 'package:openapi/src/model/message_create_request.dart';
 import 'package:openapi/src/model/message_dto.dart';
-import 'package:openapi/src/model/message_update_request.dart';
 import 'package:openapi/src/model/page_message_dto.dart';
 
 class MessageControllerApi {
@@ -28,7 +26,8 @@ class MessageControllerApi {
   ///
   /// Parameters:
   /// * [chatId] 
-  /// * [messageCreateRequest] 
+  /// * [text] 
+  /// * [files] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -40,7 +39,8 @@ class MessageControllerApi {
   /// Throws [DioException] if API call or serialization fails
   Future<Response<MessageDTO>> createMessage({ 
     required int chatId,
-    required MessageCreateRequest messageCreateRequest,
+    String? text,
+    BuiltList<MultipartFile>? files,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -58,15 +58,17 @@ class MessageControllerApi {
         'secure': <Map<String, String>>[],
         ...?extra,
       },
-      contentType: 'application/json',
+      contentType: 'multipart/form-data',
       validateStatus: validateStatus,
     );
 
     dynamic _bodyData;
 
     try {
-      const _type = FullType(MessageCreateRequest);
-      _bodyData = _serializers.serialize(messageCreateRequest, specifiedType: _type);
+      _bodyData = FormData.fromMap(<String, dynamic>{
+        if (text != null) r'text': encodeFormParameter(_serializers, text, const FullType(String)),
+        if (files != null) r'files': files.toList(),
+      });
 
     } catch(error, stackTrace) {
       throw DioException(
@@ -340,7 +342,8 @@ class MessageControllerApi {
   /// Parameters:
   /// * [chatId] 
   /// * [messageId] 
-  /// * [updateRequest] 
+  /// * [text] 
+  /// * [files] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -353,7 +356,8 @@ class MessageControllerApi {
   Future<Response<MessageDTO>> updateMessage({ 
     required int chatId,
     required int messageId,
-    required MessageUpdateRequest updateRequest,
+    String? text,
+    BuiltList<MultipartFile>? files,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -371,17 +375,34 @@ class MessageControllerApi {
         'secure': <Map<String, String>>[],
         ...?extra,
       },
+      contentType: 'multipart/form-data',
       validateStatus: validateStatus,
     );
 
-    final _queryParameters = <String, dynamic>{
-      r'updateRequest': encodeQueryParameter(_serializers, updateRequest, const FullType(MessageUpdateRequest)),
-    };
+    dynamic _bodyData;
+
+    try {
+      _bodyData = FormData.fromMap(<String, dynamic>{
+        if (text != null) r'text': encodeFormParameter(_serializers, text, const FullType(String)),
+        if (files != null) r'files': files.toList(),
+      });
+
+    } catch(error, stackTrace) {
+      throw DioException(
+         requestOptions: _options.compose(
+          _dio.options,
+          _path,
+        ),
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
 
     final _response = await _dio.request<Object>(
       _path,
+      data: _bodyData,
       options: _options,
-      queryParameters: _queryParameters,
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,

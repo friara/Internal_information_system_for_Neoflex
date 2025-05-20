@@ -4,8 +4,6 @@
 
 // ignore_for_file: unused_import
 
-import 'dart:typed_data';
-
 import 'package:one_of_serializer/any_of_serializer.dart';
 import 'package:one_of_serializer/one_of_serializer.dart';
 import 'package:built_collection/built_collection.dart';
@@ -17,16 +15,15 @@ import 'package:openapi/src/date_serializer.dart';
 import 'package:openapi/src/model/date.dart';
 
 import 'package:openapi/src/model/booking_dto.dart';
+import 'package:openapi/src/model/booking_request_dto.dart';
 import 'package:openapi/src/model/chat_dto.dart';
 import 'package:openapi/src/model/chat_summary_dto.dart';
 import 'package:openapi/src/model/comment_dto.dart';
 import 'package:openapi/src/model/file_dto.dart';
 import 'package:openapi/src/model/like_dto.dart';
 import 'package:openapi/src/model/media_dto.dart';
-import 'package:openapi/src/model/message_create_request.dart';
 import 'package:openapi/src/model/message_dto.dart';
 import 'package:openapi/src/model/message_notification_dto.dart';
-import 'package:openapi/src/model/message_update_request.dart';
 import 'package:openapi/src/model/page_booking_dto.dart';
 import 'package:openapi/src/model/page_chat_summary_dto.dart';
 import 'package:openapi/src/model/page_like_dto.dart';
@@ -47,16 +44,15 @@ part 'serializers.g.dart';
 
 @SerializersFor([
   BookingDTO,
+  BookingRequestDTO,
   ChatDTO,
   ChatSummaryDTO,
   CommentDTO,
   FileDTO,
   LikeDTO,
   MediaDTO,
-  MessageCreateRequest,
   MessageDTO,
   MessageNotificationDTO,
-  MessageUpdateRequest,
   PageBookingDTO,
   PageChatSummaryDTO,
   PageLikeDTO,

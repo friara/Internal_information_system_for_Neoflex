@@ -12,6 +12,16 @@ void main() {
       // TODO
     });
 
+    // String workspaceName
+    test('to test the property `workspaceName`', () async {
+      // TODO
+    });
+
+    // BuiltList<BookingDTO> currentBookings
+    test('to test the property `currentBookings`', () async {
+      // TODO
+    });
+
     // bool available
     test('to test the property `available`', () async {
       // TODO

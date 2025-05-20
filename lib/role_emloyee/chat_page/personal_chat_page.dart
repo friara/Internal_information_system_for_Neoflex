@@ -12,6 +12,9 @@ import 'package:openapi/openapi.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'message_model.dart';
 import 'file_utils.dart';
+import 'package:dio/dio.dart';
+import 'package:mime/mime.dart';
+import 'package:http_parser/http_parser.dart'; // Добавьте это
 
 class PersonalChatPage extends StatefulWidget {
   final int chatId;
@@ -129,54 +132,109 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
     });
   }
 
-  Future<void> _sendMessage() async {
-    if (_messageController.text.isEmpty && _selectedFiles.isEmpty) return;
 
-    setState(() => _isSending = true);
+Future<void> _sendMessage() async {
+  if (_messageController.text.isEmpty && _selectedFiles.isEmpty) return;
 
-    try {
-      final token = await GetIt.I<AuthRepositoryImpl>().getAccessToken();
-      if (token == null) throw Exception('Нет токена авторизации');
+  setState(() => _isSending = true);
 
-      final messageApi = GetIt.I<Openapi>().getMessageControllerApi();
+  try {
+    final token = await GetIt.I<AuthRepositoryImpl>().getAccessToken();
+    if (token == null) throw Exception('Нет токена авторизации');
 
-      // Подготавливаем файлы в формате Uint8List
-      final files = _selectedFiles
-          .map((file) => File(file.path!).readAsBytesSync())
-          .toList();
+    final messageApi = GetIt.I<Openapi>().getMessageControllerApi();
 
-      // Создаем запрос на создание сообщения
-      final request = MessageCreateRequest(
-        (b) => b
-          ..text = _messageController.text
-          ..files = files.isNotEmpty ? ListBuilder<Uint8List>(files) : null,
-      );
+    // Подготавливаем файлы в формате MultipartFile
+    final files = await Future.wait(
+  _selectedFiles.map((file) async {
+    final fileData = await File(file.path!).readAsBytes();
+    final fileName = file.path!.split('/').last;
+    final mimeType = lookupMimeType(fileName) ?? 'application/octet-stream';
+    
+    return MultipartFile.fromBytes(
+      fileData,
+      filename: fileName,
+      contentType: MediaType.parse(mimeType), // Теперь используем правильный MediaType
+    );
+  }),
+);
 
-      final response = await messageApi.createMessage(
-        chatId: widget.chatId,
-        messageCreateRequest: request,
-        headers: {'Authorization': 'Bearer $token'},
-      );
+    final response = await messageApi.createMessage(
+      chatId: widget.chatId,
+      text: _messageController.text,
+      files: files.isNotEmpty ? BuiltList<MultipartFile>(files) : null,
+      headers: {'Authorization': 'Bearer $token'},
+    );
 
-      if (response.data != null && mounted) {
-        setState(() {
-          _messages.insert(0, response.data!);
-          _messageController.clear();
-          _selectedFiles.clear();
-        });
-        _scrollToBottom();
-      }
-    } catch (e) {
-      debugPrint('Ошибка отправки сообщения: $e');
-      if (mounted) {
-        _showErrorSnackbar('Ошибка отправки сообщения: ${e.toString()}');
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isSending = false);
-      }
+    if (response.data != null && mounted) {
+      setState(() {
+        _messages.insert(0, response.data!);
+        _messageController.clear();
+        _selectedFiles.clear();
+      });
+      _scrollToBottom();
+    }
+  } catch (e) {
+    debugPrint('Ошибка отправки сообщения: $e');
+    if (mounted) {
+      _showErrorSnackbar('Ошибка отправки сообщения: ${e.toString()}');
+    }
+  } finally {
+    if (mounted) {
+      setState(() => _isSending = false);
     }
   }
+}
+
+  // Future<void> _sendMessage() async {
+  //   if (_messageController.text.isEmpty && _selectedFiles.isEmpty) return;
+
+  //   setState(() => _isSending = true);
+
+  //   try {
+  //     final token = await GetIt.I<AuthRepositoryImpl>().getAccessToken();
+  //     if (token == null) throw Exception('Нет токена авторизации');
+
+  //     final messageApi = GetIt.I<Openapi>().getMessageControllerApi();
+
+  //     // Подготавливаем файлы в формате Uint8List
+  //     final files = _selectedFiles
+  //         .map((file) => File(file.path!).readAsBytesSync())
+  //         .toList();
+
+  //     // // Создаем запрос на создание сообщения
+  //     // final request = MessageCreateRequest(
+  //     //   (b) => b
+  //     //     ..text = _messageController.text
+  //     //     ..files = files.isNotEmpty ? ListBuilder<Uint8List>(files) : null,
+  //     // );
+
+  //     final response = await messageApi.createMessage(
+  //       chatId: widget.chatId,
+  //       text: _messageController.text,
+  //       files: files.isNotEmpty ? ListBuilder<Uint8List>(files) : null,
+  //       headers: {'Authorization': 'Bearer $token'},
+  //     );
+
+  //     if (response.data != null && mounted) {
+  //       setState(() {
+  //         _messages.insert(0, response.data!);
+  //         _messageController.clear();
+  //         _selectedFiles.clear();
+  //       });
+  //       _scrollToBottom();
+  //     }
+  //   } catch (e) {
+  //     debugPrint('Ошибка отправки сообщения: $e');
+  //     if (mounted) {
+  //       _showErrorSnackbar('Ошибка отправки сообщения: ${e.toString()}');
+  //     }
+  //   } finally {
+  //     if (mounted) {
+  //       setState(() => _isSending = false);
+  //     }
+  //   }
+  // }
 
   void _showErrorSnackbar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(

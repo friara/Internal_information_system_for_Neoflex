@@ -8,6 +8,7 @@ part of 'serializers.dart';
 
 Serializers _$serializers = (new Serializers().toBuilder()
       ..add(BookingDTO.serializer)
+      ..add(BookingRequestDTO.serializer)
       ..add(ChatDTO.serializer)
       ..add(ChatSummaryDTO.serializer)
       ..add(CommentDTO.serializer)
@@ -15,10 +16,8 @@ Serializers _$serializers = (new Serializers().toBuilder()
       ..add(LikeDTO.serializer)
       ..add(MediaDTO.serializer)
       ..add(MediaDTOMediaTypeEnum.serializer)
-      ..add(MessageCreateRequest.serializer)
       ..add(MessageDTO.serializer)
       ..add(MessageNotificationDTO.serializer)
-      ..add(MessageUpdateRequest.serializer)
       ..add(PageBookingDTO.serializer)
       ..add(PageChatSummaryDTO.serializer)
       ..add(PageLikeDTO.serializer)
@@ -34,6 +33,9 @@ Serializers _$serializers = (new Serializers().toBuilder()
       ..add(UserDTO.serializer)
       ..add(UserExtendedDTO.serializer)
       ..add(WorkspaceDTO.serializer)
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(BookingDTO)]),
+          () => new ListBuilder<BookingDTO>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(BookingDTO)]),
           () => new ListBuilder<BookingDTO>())
@@ -61,12 +63,6 @@ Serializers _$serializers = (new Serializers().toBuilder()
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(String)]),
           () => new ListBuilder<String>())
-      ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(Uint8List)]),
-          () => new ListBuilder<Uint8List>())
-      ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(Uint8List)]),
-          () => new ListBuilder<Uint8List>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(UserDTO)]),
           () => new ListBuilder<UserDTO>())

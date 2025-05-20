@@ -13,18 +13,17 @@ part 'post_response_dto.g.dart';
 /// PostResponseDTO
 ///
 /// Properties:
-/// * [id]
-/// * [createdWhen]
-/// * [text]
-/// * [media]
-/// * [userId]
-/// * [likeCount]
-/// * [commentCount]
-/// * [repostCount]
-/// * [liked]
+/// * [id] 
+/// * [createdWhen] 
+/// * [text] 
+/// * [media] 
+/// * [userId] 
+/// * [likeCount] 
+/// * [commentCount] 
+/// * [repostCount] 
+/// * [liked] 
 @BuiltValue()
-abstract class PostResponseDTO
-    implements Built<PostResponseDTO, PostResponseDTOBuilder> {
+abstract class PostResponseDTO implements Built<PostResponseDTO, PostResponseDTOBuilder> {
   @BuiltValueField(wireName: r'id')
   int? get id;
 
@@ -54,19 +53,16 @@ abstract class PostResponseDTO
 
   PostResponseDTO._();
 
-  factory PostResponseDTO([void updates(PostResponseDTOBuilder b)]) =
-      _$PostResponseDTO;
+  factory PostResponseDTO([void updates(PostResponseDTOBuilder b)]) = _$PostResponseDTO;
 
   @BuiltValueHook(initializeBuilder: true)
   static void _defaults(PostResponseDTOBuilder b) => b;
 
   @BuiltValueSerializer(custom: true)
-  static Serializer<PostResponseDTO> get serializer =>
-      _$PostResponseDTOSerializer();
+  static Serializer<PostResponseDTO> get serializer => _$PostResponseDTOSerializer();
 }
 
-class _$PostResponseDTOSerializer
-    implements PrimitiveSerializer<PostResponseDTO> {
+class _$PostResponseDTOSerializer implements PrimitiveSerializer<PostResponseDTO> {
   @override
   final Iterable<Type> types = const [PostResponseDTO, _$PostResponseDTO];
 
@@ -149,9 +145,7 @@ class _$PostResponseDTOSerializer
     PostResponseDTO object, {
     FullType specifiedType = FullType.unspecified,
   }) {
-    return _serializeProperties(serializers, object,
-            specifiedType: specifiedType)
-        .toList();
+    return _serializeProperties(serializers, object, specifiedType: specifiedType).toList();
   }
 
   void _deserializeProperties(
@@ -257,3 +251,4 @@ class _$PostResponseDTOSerializer
     return result.build();
   }
 }
+

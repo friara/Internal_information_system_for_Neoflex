@@ -7,23 +7,23 @@ void main() {
   final instance = Openapi().getRepostControllerApi();
 
   group(RepostControllerApi, () {
-    //Future<RepostDTO> createRepost(RepostDTO repostDTO) async
+    //Future<RepostDTO> createRepost(int postId, RepostDTO repostDTO) async
     test('test createRepost', () async {
       // TODO
     });
 
-    //Future deleteRepost(int id) async
+    //Future deleteRepost(int postId, int id) async
     test('test deleteRepost', () async {
       // TODO
     });
 
-    //Future<BuiltList<RepostDTO>> getAllReposts() async
-    test('test getAllReposts', () async {
+    //Future<RepostDTO> getRepostById(int postId, int id) async
+    test('test getRepostById', () async {
       // TODO
     });
 
-    //Future<RepostDTO> getRepostById(int id) async
-    test('test getRepostById', () async {
+    //Future<BuiltList<RepostDTO>> getRepostsByPost(int postId) async
+    test('test getRepostsByPost', () async {
       // TODO
     });
 

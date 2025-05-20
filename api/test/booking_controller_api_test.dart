@@ -12,7 +12,7 @@ void main() {
       // TODO
     });
 
-    //Future<BookingDTO> createBooking(BookingDTO bookingDTO) async
+    //Future<BookingDTO> createBooking(BookingRequestDTO bookingRequestDTO) async
     test('test createBooking', () async {
       // TODO
     });

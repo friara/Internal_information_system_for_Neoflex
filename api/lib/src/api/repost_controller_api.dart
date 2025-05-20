@@ -24,6 +24,7 @@ class RepostControllerApi {
   /// 
   ///
   /// Parameters:
+  /// * [postId] 
   /// * [repostDTO] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
@@ -35,6 +36,7 @@ class RepostControllerApi {
   /// Returns a [Future] containing a [Response] with a [RepostDTO] as data
   /// Throws [DioException] if API call or serialization fails
   Future<Response<RepostDTO>> createRepost({ 
+    required int postId,
     required RepostDTO repostDTO,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -43,7 +45,7 @@ class RepostControllerApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/reposts';
+    final _path = r'/api/posts/{postId}/reposts'.replaceAll('{' r'postId' '}', encodeQueryParameter(_serializers, postId, const FullType(int)).toString());
     final _options = Options(
       method: r'POST',
       headers: <String, dynamic>{
@@ -119,6 +121,7 @@ class RepostControllerApi {
   /// 
   ///
   /// Parameters:
+  /// * [postId] 
   /// * [id] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
@@ -130,6 +133,7 @@ class RepostControllerApi {
   /// Returns a [Future]
   /// Throws [DioException] if API call or serialization fails
   Future<Response<void>> deleteRepost({ 
+    required int postId,
     required int id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -138,7 +142,7 @@ class RepostControllerApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/reposts/{id}'.replaceAll('{' r'id' '}', encodeQueryParameter(_serializers, id, const FullType(int)).toString());
+    final _path = r'/api/posts/{postId}/reposts/{id}'.replaceAll('{' r'postId' '}', encodeQueryParameter(_serializers, postId, const FullType(int)).toString()).replaceAll('{' r'id' '}', encodeQueryParameter(_serializers, id, const FullType(int)).toString());
     final _options = Options(
       method: r'DELETE',
       headers: <String, dynamic>{
@@ -162,83 +166,11 @@ class RepostControllerApi {
     return _response;
   }
 
-  /// getAllReposts
-  /// 
-  ///
-  /// Parameters:
-  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
-  /// * [headers] - Can be used to add additional headers to the request
-  /// * [extras] - Can be used to add flags to the request
-  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
-  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
-  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
-  ///
-  /// Returns a [Future] containing a [Response] with a [BuiltList<RepostDTO>] as data
-  /// Throws [DioException] if API call or serialization fails
-  Future<Response<BuiltList<RepostDTO>>> getAllReposts({ 
-    CancelToken? cancelToken,
-    Map<String, dynamic>? headers,
-    Map<String, dynamic>? extra,
-    ValidateStatus? validateStatus,
-    ProgressCallback? onSendProgress,
-    ProgressCallback? onReceiveProgress,
-  }) async {
-    final _path = r'/api/reposts';
-    final _options = Options(
-      method: r'GET',
-      headers: <String, dynamic>{
-        ...?headers,
-      },
-      extra: <String, dynamic>{
-        'secure': <Map<String, String>>[],
-        ...?extra,
-      },
-      validateStatus: validateStatus,
-    );
-
-    final _response = await _dio.request<Object>(
-      _path,
-      options: _options,
-      cancelToken: cancelToken,
-      onSendProgress: onSendProgress,
-      onReceiveProgress: onReceiveProgress,
-    );
-
-    BuiltList<RepostDTO>? _responseData;
-
-    try {
-      final rawResponse = _response.data;
-      _responseData = rawResponse == null ? null : _serializers.deserialize(
-        rawResponse,
-        specifiedType: const FullType(BuiltList, [FullType(RepostDTO)]),
-      ) as BuiltList<RepostDTO>;
-
-    } catch (error, stackTrace) {
-      throw DioException(
-        requestOptions: _response.requestOptions,
-        response: _response,
-        type: DioExceptionType.unknown,
-        error: error,
-        stackTrace: stackTrace,
-      );
-    }
-
-    return Response<BuiltList<RepostDTO>>(
-      data: _responseData,
-      headers: _response.headers,
-      isRedirect: _response.isRedirect,
-      requestOptions: _response.requestOptions,
-      redirects: _response.redirects,
-      statusCode: _response.statusCode,
-      statusMessage: _response.statusMessage,
-      extra: _response.extra,
-    );
-  }
-
   /// getRepostById
   /// 
   ///
   /// Parameters:
+  /// * [postId] 
   /// * [id] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
@@ -250,6 +182,7 @@ class RepostControllerApi {
   /// Returns a [Future] containing a [Response] with a [RepostDTO] as data
   /// Throws [DioException] if API call or serialization fails
   Future<Response<RepostDTO>> getRepostById({ 
+    required int postId,
     required int id,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -258,7 +191,7 @@ class RepostControllerApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/reposts/{id}'.replaceAll('{' r'id' '}', encodeQueryParameter(_serializers, id, const FullType(int)).toString());
+    final _path = r'/api/posts/{postId}/reposts/{id}'.replaceAll('{' r'postId' '}', encodeQueryParameter(_serializers, postId, const FullType(int)).toString()).replaceAll('{' r'id' '}', encodeQueryParameter(_serializers, id, const FullType(int)).toString());
     final _options = Options(
       method: r'GET',
       headers: <String, dynamic>{
@@ -299,6 +232,81 @@ class RepostControllerApi {
     }
 
     return Response<RepostDTO>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// getRepostsByPost
+  /// 
+  ///
+  /// Parameters:
+  /// * [postId] 
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [BuiltList<RepostDTO>] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<BuiltList<RepostDTO>>> getRepostsByPost({ 
+    required int postId,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/api/posts/{postId}/reposts'.replaceAll('{' r'postId' '}', encodeQueryParameter(_serializers, postId, const FullType(int)).toString());
+    final _options = Options(
+      method: r'GET',
+      headers: <String, dynamic>{
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[],
+        ...?extra,
+      },
+      validateStatus: validateStatus,
+    );
+
+    final _response = await _dio.request<Object>(
+      _path,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    BuiltList<RepostDTO>? _responseData;
+
+    try {
+      final rawResponse = _response.data;
+      _responseData = rawResponse == null ? null : _serializers.deserialize(
+        rawResponse,
+        specifiedType: const FullType(BuiltList, [FullType(RepostDTO)]),
+      ) as BuiltList<RepostDTO>;
+
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<BuiltList<RepostDTO>>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,

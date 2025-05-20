@@ -3,6 +3,8 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:built_collection/built_collection.dart';
+import 'package:openapi/src/model/booking_dto.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
@@ -12,11 +14,19 @@ part 'workspace_dto.g.dart';
 ///
 /// Properties:
 /// * [id] 
+/// * [workspaceName] 
+/// * [currentBookings] 
 /// * [available] 
 @BuiltValue()
 abstract class WorkspaceDTO implements Built<WorkspaceDTO, WorkspaceDTOBuilder> {
   @BuiltValueField(wireName: r'id')
   int? get id;
+
+  @BuiltValueField(wireName: r'workspaceName')
+  String? get workspaceName;
+
+  @BuiltValueField(wireName: r'currentBookings')
+  BuiltList<BookingDTO>? get currentBookings;
 
   @BuiltValueField(wireName: r'available')
   bool? get available;
@@ -49,6 +59,20 @@ class _$WorkspaceDTOSerializer implements PrimitiveSerializer<WorkspaceDTO> {
       yield serializers.serialize(
         object.id,
         specifiedType: const FullType(int),
+      );
+    }
+    if (object.workspaceName != null) {
+      yield r'workspaceName';
+      yield serializers.serialize(
+        object.workspaceName,
+        specifiedType: const FullType(String),
+      );
+    }
+    if (object.currentBookings != null) {
+      yield r'currentBookings';
+      yield serializers.serialize(
+        object.currentBookings,
+        specifiedType: const FullType(BuiltList, [FullType(BookingDTO)]),
       );
     }
     if (object.available != null) {
@@ -87,6 +111,20 @@ class _$WorkspaceDTOSerializer implements PrimitiveSerializer<WorkspaceDTO> {
             specifiedType: const FullType(int),
           ) as int;
           result.id = valueDes;
+          break;
+        case r'workspaceName':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(String),
+          ) as String;
+          result.workspaceName = valueDes;
+          break;
+        case r'currentBookings':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(BuiltList, [FullType(BookingDTO)]),
+          ) as BuiltList<BookingDTO>;
+          result.currentBookings.replace(valueDes);
           break;
         case r'available':
           final valueDes = serializers.deserialize(

@@ -60,7 +60,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **createBooking**
-> BookingDTO createBooking(bookingDTO)
+> BookingDTO createBooking(bookingRequestDTO)
 
 
 
@@ -69,10 +69,10 @@ No authorization required
 import 'package:openapi/api.dart';
 
 final api = Openapi().getBookingControllerApi();
-final BookingDTO bookingDTO = ; // BookingDTO | 
+final BookingRequestDTO bookingRequestDTO = ; // BookingRequestDTO | 
 
 try {
-    final response = api.createBooking(bookingDTO);
+    final response = api.createBooking(bookingRequestDTO);
     print(response);
 } catch on DioException (e) {
     print('Exception when calling BookingControllerApi->createBooking: $e\n');
@@ -83,7 +83,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **bookingDTO** | [**BookingDTO**](BookingDTO.md)|  | 
+ **bookingRequestDTO** | [**BookingRequestDTO**](BookingRequestDTO.md)|  | 
 
 ### Return type
 

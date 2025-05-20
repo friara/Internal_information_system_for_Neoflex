@@ -9,14 +9,14 @@ All URIs are relative to *http://localhost:8080*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**createRepost**](RepostControllerApi.md#createrepost) | **POST** /api/reposts | 
-[**deleteRepost**](RepostControllerApi.md#deleterepost) | **DELETE** /api/reposts/{id} | 
-[**getAllReposts**](RepostControllerApi.md#getallreposts) | **GET** /api/reposts | 
-[**getRepostById**](RepostControllerApi.md#getrepostbyid) | **GET** /api/reposts/{id} | 
+[**createRepost**](RepostControllerApi.md#createrepost) | **POST** /api/posts/{postId}/reposts | 
+[**deleteRepost**](RepostControllerApi.md#deleterepost) | **DELETE** /api/posts/{postId}/reposts/{id} | 
+[**getRepostById**](RepostControllerApi.md#getrepostbyid) | **GET** /api/posts/{postId}/reposts/{id} | 
+[**getRepostsByPost**](RepostControllerApi.md#getrepostsbypost) | **GET** /api/posts/{postId}/reposts | 
 
 
 # **createRepost**
-> RepostDTO createRepost(repostDTO)
+> RepostDTO createRepost(postId, repostDTO)
 
 
 
@@ -25,10 +25,11 @@ Method | HTTP request | Description
 import 'package:openapi/api.dart';
 
 final api = Openapi().getRepostControllerApi();
+final int postId = 789; // int | 
 final RepostDTO repostDTO = ; // RepostDTO | 
 
 try {
-    final response = api.createRepost(repostDTO);
+    final response = api.createRepost(postId, repostDTO);
     print(response);
 } catch on DioException (e) {
     print('Exception when calling RepostControllerApi->createRepost: $e\n');
@@ -39,6 +40,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+ **postId** | **int**|  | 
  **repostDTO** | [**RepostDTO**](RepostDTO.md)|  | 
 
 ### Return type
@@ -57,7 +59,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **deleteRepost**
-> deleteRepost(id)
+> deleteRepost(postId, id)
 
 
 
@@ -66,10 +68,11 @@ No authorization required
 import 'package:openapi/api.dart';
 
 final api = Openapi().getRepostControllerApi();
+final int postId = 789; // int | 
 final int id = 789; // int | 
 
 try {
-    api.deleteRepost(id);
+    api.deleteRepost(postId, id);
 } catch on DioException (e) {
     print('Exception when calling RepostControllerApi->deleteRepost: $e\n');
 }
@@ -79,6 +82,7 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+ **postId** | **int**|  | 
  **id** | **int**|  | 
 
 ### Return type
@@ -96,8 +100,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **getAllReposts**
-> BuiltList<RepostDTO> getAllReposts()
+# **getRepostById**
+> RepostDTO getRepostById(postId, id)
 
 
 
@@ -106,21 +110,27 @@ No authorization required
 import 'package:openapi/api.dart';
 
 final api = Openapi().getRepostControllerApi();
+final int postId = 789; // int | 
+final int id = 789; // int | 
 
 try {
-    final response = api.getAllReposts();
+    final response = api.getRepostById(postId, id);
     print(response);
 } catch on DioException (e) {
-    print('Exception when calling RepostControllerApi->getAllReposts: $e\n');
+    print('Exception when calling RepostControllerApi->getRepostById: $e\n');
 }
 ```
 
 ### Parameters
-This endpoint does not need any parameter.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **postId** | **int**|  | 
+ **id** | **int**|  | 
 
 ### Return type
 
-[**BuiltList&lt;RepostDTO&gt;**](RepostDTO.md)
+[**RepostDTO**](RepostDTO.md)
 
 ### Authorization
 
@@ -133,8 +143,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **getRepostById**
-> RepostDTO getRepostById(id)
+# **getRepostsByPost**
+> BuiltList<RepostDTO> getRepostsByPost(postId)
 
 
 
@@ -143,13 +153,13 @@ No authorization required
 import 'package:openapi/api.dart';
 
 final api = Openapi().getRepostControllerApi();
-final int id = 789; // int | 
+final int postId = 789; // int | 
 
 try {
-    final response = api.getRepostById(id);
+    final response = api.getRepostsByPost(postId);
     print(response);
 } catch on DioException (e) {
-    print('Exception when calling RepostControllerApi->getRepostById: $e\n');
+    print('Exception when calling RepostControllerApi->getRepostsByPost: $e\n');
 }
 ```
 
@@ -157,11 +167,11 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **int**|  | 
+ **postId** | **int**|  | 
 
 ### Return type
 
-[**RepostDTO**](RepostDTO.md)
+[**BuiltList&lt;RepostDTO&gt;**](RepostDTO.md)
 
 ### Authorization
 

@@ -7,7 +7,7 @@ void main() {
   final instance = Openapi().getMessageControllerApi();
 
   group(MessageControllerApi, () {
-    //Future<MessageDTO> createMessage(int chatId, MessageCreateRequest messageCreateRequest) async
+    //Future<MessageDTO> createMessage(int chatId, { String text, BuiltList<MultipartFile> files }) async
     test('test createMessage', () async {
       // TODO
     });
@@ -27,7 +27,7 @@ void main() {
       // TODO
     });
 
-    //Future<MessageDTO> updateMessage(int chatId, int messageId, MessageUpdateRequest updateRequest) async
+    //Future<MessageDTO> updateMessage(int chatId, int messageId, { String text, BuiltList<MultipartFile> files }) async
     test('test updateMessage', () async {
       // TODO
     });

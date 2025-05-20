@@ -24,16 +24,15 @@ export 'package:openapi/src/api/user_controller_api.dart';
 export 'package:openapi/src/api/workspace_controller_api.dart';
 
 export 'package:openapi/src/model/booking_dto.dart';
+export 'package:openapi/src/model/booking_request_dto.dart';
 export 'package:openapi/src/model/chat_dto.dart';
 export 'package:openapi/src/model/chat_summary_dto.dart';
 export 'package:openapi/src/model/comment_dto.dart';
 export 'package:openapi/src/model/file_dto.dart';
 export 'package:openapi/src/model/like_dto.dart';
 export 'package:openapi/src/model/media_dto.dart';
-export 'package:openapi/src/model/message_create_request.dart';
 export 'package:openapi/src/model/message_dto.dart';
 export 'package:openapi/src/model/message_notification_dto.dart';
-export 'package:openapi/src/model/message_update_request.dart';
 export 'package:openapi/src/model/page_booking_dto.dart';
 export 'package:openapi/src/model/page_chat_summary_dto.dart';
 export 'package:openapi/src/model/page_like_dto.dart';

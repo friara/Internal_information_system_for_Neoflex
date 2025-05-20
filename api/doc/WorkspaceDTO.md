@@ -9,6 +9,8 @@ import 'package:openapi/api.dart';
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **int** |  | [optional] 
+**workspaceName** | **String** |  | [optional] 
+**currentBookings** | [**BuiltList&lt;BookingDTO&gt;**](BookingDTO.md) |  | [optional] 
 **available** | **bool** |  | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

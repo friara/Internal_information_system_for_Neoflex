@@ -11,6 +11,7 @@ import 'package:dio/dio.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:openapi/src/api_util.dart';
 import 'package:openapi/src/model/booking_dto.dart';
+import 'package:openapi/src/model/booking_request_dto.dart';
 import 'package:openapi/src/model/page_booking_dto.dart';
 import 'package:openapi/src/model/pageable.dart';
 
@@ -108,7 +109,7 @@ class BookingControllerApi {
   /// 
   ///
   /// Parameters:
-  /// * [bookingDTO] 
+  /// * [bookingRequestDTO] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -119,7 +120,7 @@ class BookingControllerApi {
   /// Returns a [Future] containing a [Response] with a [BookingDTO] as data
   /// Throws [DioException] if API call or serialization fails
   Future<Response<BookingDTO>> createBooking({ 
-    required BookingDTO bookingDTO,
+    required BookingRequestDTO bookingRequestDTO,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -144,8 +145,8 @@ class BookingControllerApi {
     dynamic _bodyData;
 
     try {
-      const _type = FullType(BookingDTO);
-      _bodyData = _serializers.serialize(bookingDTO, specifiedType: _type);
+      const _type = FullType(BookingRequestDTO);
+      _bodyData = _serializers.serialize(bookingRequestDTO, specifiedType: _type);
 
     } catch(error, stackTrace) {
       throw DioException(

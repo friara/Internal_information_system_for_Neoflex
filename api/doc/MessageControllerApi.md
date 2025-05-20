@@ -17,7 +17,7 @@ Method | HTTP request | Description
 
 
 # **createMessage**
-> MessageDTO createMessage(chatId, messageCreateRequest)
+> MessageDTO createMessage(chatId, text, files)
 
 
 
@@ -27,10 +27,11 @@ import 'package:openapi/api.dart';
 
 final api = Openapi().getMessageControllerApi();
 final int chatId = 789; // int | 
-final MessageCreateRequest messageCreateRequest = ; // MessageCreateRequest | 
+final String text = text_example; // String | 
+final BuiltList<MultipartFile> files = /path/to/file.txt; // BuiltList<MultipartFile> | 
 
 try {
-    final response = api.createMessage(chatId, messageCreateRequest);
+    final response = api.createMessage(chatId, text, files);
     print(response);
 } catch on DioException (e) {
     print('Exception when calling MessageControllerApi->createMessage: $e\n');
@@ -42,7 +43,8 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **chatId** | **int**|  | 
- **messageCreateRequest** | [**MessageCreateRequest**](MessageCreateRequest.md)|  | 
+ **text** | **String**|  | [optional] 
+ **files** | [**BuiltList&lt;MultipartFile&gt;**](MultipartFile.md)|  | [optional] 
 
 ### Return type
 
@@ -54,7 +56,7 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: application/json
+ - **Content-Type**: multipart/form-data
  - **Accept**: */*
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -192,7 +194,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **updateMessage**
-> MessageDTO updateMessage(chatId, messageId, updateRequest)
+> MessageDTO updateMessage(chatId, messageId, text, files)
 
 
 
@@ -203,10 +205,11 @@ import 'package:openapi/api.dart';
 final api = Openapi().getMessageControllerApi();
 final int chatId = 789; // int | 
 final int messageId = 789; // int | 
-final MessageUpdateRequest updateRequest = ; // MessageUpdateRequest | 
+final String text = text_example; // String | 
+final BuiltList<MultipartFile> files = /path/to/file.txt; // BuiltList<MultipartFile> | 
 
 try {
-    final response = api.updateMessage(chatId, messageId, updateRequest);
+    final response = api.updateMessage(chatId, messageId, text, files);
     print(response);
 } catch on DioException (e) {
     print('Exception when calling MessageControllerApi->updateMessage: $e\n');
@@ -219,7 +222,8 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **chatId** | **int**|  | 
  **messageId** | **int**|  | 
- **updateRequest** | [**MessageUpdateRequest**](.md)|  | 
+ **text** | **String**|  | [optional] 
+ **files** | [**BuiltList&lt;MultipartFile&gt;**](MultipartFile.md)|  | [optional] 
 
 ### Return type
 
@@ -231,7 +235,7 @@ No authorization required
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
+ - **Content-Type**: multipart/form-data
  - **Accept**: */*
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

@@ -100,10 +100,10 @@ Class | Method | HTTP request | Description
 [*PostControllerApi*](doc/PostControllerApi.md) | [**getAllPosts**](doc/PostControllerApi.md#getallposts) | **GET** /api/posts | 
 [*PostControllerApi*](doc/PostControllerApi.md) | [**getPostById**](doc/PostControllerApi.md#getpostbyid) | **GET** /api/posts/{id} | 
 [*PostControllerApi*](doc/PostControllerApi.md) | [**updatePost**](doc/PostControllerApi.md#updatepost) | **PUT** /api/posts/{id} | 
-[*RepostControllerApi*](doc/RepostControllerApi.md) | [**createRepost**](doc/RepostControllerApi.md#createrepost) | **POST** /api/reposts | 
-[*RepostControllerApi*](doc/RepostControllerApi.md) | [**deleteRepost**](doc/RepostControllerApi.md#deleterepost) | **DELETE** /api/reposts/{id} | 
-[*RepostControllerApi*](doc/RepostControllerApi.md) | [**getAllReposts**](doc/RepostControllerApi.md#getallreposts) | **GET** /api/reposts | 
-[*RepostControllerApi*](doc/RepostControllerApi.md) | [**getRepostById**](doc/RepostControllerApi.md#getrepostbyid) | **GET** /api/reposts/{id} | 
+[*RepostControllerApi*](doc/RepostControllerApi.md) | [**createRepost**](doc/RepostControllerApi.md#createrepost) | **POST** /api/posts/{postId}/reposts | 
+[*RepostControllerApi*](doc/RepostControllerApi.md) | [**deleteRepost**](doc/RepostControllerApi.md#deleterepost) | **DELETE** /api/posts/{postId}/reposts/{id} | 
+[*RepostControllerApi*](doc/RepostControllerApi.md) | [**getRepostById**](doc/RepostControllerApi.md#getrepostbyid) | **GET** /api/posts/{postId}/reposts/{id} | 
+[*RepostControllerApi*](doc/RepostControllerApi.md) | [**getRepostsByPost**](doc/RepostControllerApi.md#getrepostsbypost) | **GET** /api/posts/{postId}/reposts | 
 [*UserControllerApi*](doc/UserControllerApi.md) | [**adminCreateUser**](doc/UserControllerApi.md#admincreateuser) | **POST** /api/users | 
 [*UserControllerApi*](doc/UserControllerApi.md) | [**adminDeleteUser**](doc/UserControllerApi.md#admindeleteuser) | **DELETE** /api/users/{id} | 
 [*UserControllerApi*](doc/UserControllerApi.md) | [**adminGetAllUsers**](doc/UserControllerApi.md#admingetallusers) | **GET** /api/users/full | 
@@ -127,16 +127,15 @@ Class | Method | HTTP request | Description
 ## Documentation For Models
 
  - [BookingDTO](doc/BookingDTO.md)
+ - [BookingRequestDTO](doc/BookingRequestDTO.md)
  - [ChatDTO](doc/ChatDTO.md)
  - [ChatSummaryDTO](doc/ChatSummaryDTO.md)
  - [CommentDTO](doc/CommentDTO.md)
  - [FileDTO](doc/FileDTO.md)
  - [LikeDTO](doc/LikeDTO.md)
  - [MediaDTO](doc/MediaDTO.md)
- - [MessageCreateRequest](doc/MessageCreateRequest.md)
  - [MessageDTO](doc/MessageDTO.md)
  - [MessageNotificationDTO](doc/MessageNotificationDTO.md)
- - [MessageUpdateRequest](doc/MessageUpdateRequest.md)
  - [PageBookingDTO](doc/PageBookingDTO.md)
  - [PageChatSummaryDTO](doc/PageChatSummaryDTO.md)
  - [PageLikeDTO](doc/PageLikeDTO.md)

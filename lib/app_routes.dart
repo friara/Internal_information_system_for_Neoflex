@@ -2,11 +2,11 @@ import 'package:built_collection/built_collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:news_feed_neoflex/news_feed_page.dart';
-import 'package:news_feed_neoflex/role_emloyee/book_page.dart';
 import 'package:news_feed_neoflex/role_emloyee/chat_page/chat_page.dart';
 import 'package:news_feed_neoflex/role_manager/users_page/user_profile_page.dart';
 import 'package:openapi/openapi.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
+import 'features/workspaces/presentation/booking_screen.dart';
 
 import 'package:news_feed_neoflex/role_manager/users_page/list_of_users.dart';
 
@@ -35,7 +35,7 @@ class AppRoutes {
   static Map<String, WidgetBuilder> get routes {
     return {
       newsFeed: (context) => const NewsFeed(),
-      bookPage: (context) => const BookPage(),
+      bookPage: (context) => const WorkspacesScreen(),
       chatPage: (context) => const ChatPage(),
       profilePage: (context) {
         final userApi = UserControllerApi(dio, serializers);
