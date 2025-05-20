@@ -8,9 +8,9 @@ part of 'page_booking_dto.dart';
 
 class _$PageBookingDTO extends PageBookingDTO {
   @override
-  final int? totalElements;
-  @override
   final int? totalPages;
+  @override
+  final int? totalElements;
   @override
   final int? size;
   @override
@@ -34,8 +34,8 @@ class _$PageBookingDTO extends PageBookingDTO {
       (new PageBookingDTOBuilder()..update(updates))._build();
 
   _$PageBookingDTO._(
-      {this.totalElements,
-      this.totalPages,
+      {this.totalPages,
+      this.totalElements,
       this.size,
       this.content,
       this.number,
@@ -59,8 +59,8 @@ class _$PageBookingDTO extends PageBookingDTO {
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
     return other is PageBookingDTO &&
-        totalElements == other.totalElements &&
         totalPages == other.totalPages &&
+        totalElements == other.totalElements &&
         size == other.size &&
         content == other.content &&
         number == other.number &&
@@ -75,8 +75,8 @@ class _$PageBookingDTO extends PageBookingDTO {
   @override
   int get hashCode {
     var _$hash = 0;
-    _$hash = $jc(_$hash, totalElements.hashCode);
     _$hash = $jc(_$hash, totalPages.hashCode);
+    _$hash = $jc(_$hash, totalElements.hashCode);
     _$hash = $jc(_$hash, size.hashCode);
     _$hash = $jc(_$hash, content.hashCode);
     _$hash = $jc(_$hash, number.hashCode);
@@ -93,8 +93,8 @@ class _$PageBookingDTO extends PageBookingDTO {
   @override
   String toString() {
     return (newBuiltValueToStringHelper(r'PageBookingDTO')
-          ..add('totalElements', totalElements)
           ..add('totalPages', totalPages)
+          ..add('totalElements', totalElements)
           ..add('size', size)
           ..add('content', content)
           ..add('number', number)
@@ -112,14 +112,14 @@ class PageBookingDTOBuilder
     implements Builder<PageBookingDTO, PageBookingDTOBuilder> {
   _$PageBookingDTO? _$v;
 
+  int? _totalPages;
+  int? get totalPages => _$this._totalPages;
+  set totalPages(int? totalPages) => _$this._totalPages = totalPages;
+
   int? _totalElements;
   int? get totalElements => _$this._totalElements;
   set totalElements(int? totalElements) =>
       _$this._totalElements = totalElements;
-
-  int? _totalPages;
-  int? get totalPages => _$this._totalPages;
-  set totalPages(int? totalPages) => _$this._totalPages = totalPages;
 
   int? _size;
   int? get size => _$this._size;
@@ -167,8 +167,8 @@ class PageBookingDTOBuilder
   PageBookingDTOBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
-      _totalElements = $v.totalElements;
       _totalPages = $v.totalPages;
+      _totalElements = $v.totalElements;
       _size = $v.size;
       _content = $v.content?.toBuilder();
       _number = $v.number;
@@ -202,8 +202,8 @@ class PageBookingDTOBuilder
     try {
       _$result = _$v ??
           new _$PageBookingDTO._(
-            totalElements: totalElements,
             totalPages: totalPages,
+            totalElements: totalElements,
             size: size,
             content: _content?.build(),
             number: number,

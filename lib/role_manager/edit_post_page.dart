@@ -74,16 +74,18 @@ class _EditPostPageState extends State<EditPostPage> {
       debugPrint(
           'Sending text: ${_textController.text}'); // Добавьте это для отладки
 
-      final response = widget.postId == null
-          ? await postApi.createPost(
-              text: _textController.text,
-              files: multipartFiles.isEmpty ? null : multipartFiles,
-            )
-          : await postApi.updatePost(
-              id: widget.postId!,
-              postDTO: PostDTO((b) => b..text = _textController.text),
-              files: multipartFiles.isEmpty ? null : multipartFiles,
-            );
+
+
+final response = widget.postId == null
+    ? await postApi.createPost(
+        text: _textController.text,
+        files: multipartFiles.isEmpty ? null : multipartFiles,
+      )
+    : await postApi.updatePost(
+        id: widget.postId!,
+        text: _textController.text,
+        files: multipartFiles.isEmpty ? null : multipartFiles,
+      );
 
       widget.onSave(_textController.text, _currentImagePaths);
       if (mounted) Navigator.pop(context);

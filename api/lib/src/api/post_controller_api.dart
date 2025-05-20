@@ -338,7 +338,7 @@ class PostControllerApi {
   ///
   /// Parameters:
   /// * [id] 
-  /// * [postDTO] 
+  /// * [text] 
   /// * [files] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
@@ -351,7 +351,7 @@ class PostControllerApi {
   /// Throws [DioException] if API call or serialization fails
   Future<Response<PostDTO>> updatePost({ 
     required int id,
-    PostDTO? postDTO,
+    required String text,
     BuiltList<MultipartFile>? files,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -374,11 +374,14 @@ class PostControllerApi {
       validateStatus: validateStatus,
     );
 
+    final _queryParameters = <String, dynamic>{
+      r'text': encodeQueryParameter(_serializers, text, const FullType(String)),
+    };
+
     dynamic _bodyData;
 
     try {
       _bodyData = FormData.fromMap(<String, dynamic>{
-        if (postDTO != null) r'postDTO': encodeFormParameter(_serializers, postDTO, const FullType(PostDTO)),
         if (files != null) r'files': files.toList(),
       });
 
@@ -387,6 +390,7 @@ class PostControllerApi {
          requestOptions: _options.compose(
           _dio.options,
           _path,
+          queryParameters: _queryParameters,
         ),
         type: DioExceptionType.unknown,
         error: error,
@@ -398,6 +402,7 @@ class PostControllerApi {
       _path,
       data: _bodyData,
       options: _options,
+      queryParameters: _queryParameters,
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
       onReceiveProgress: onReceiveProgress,

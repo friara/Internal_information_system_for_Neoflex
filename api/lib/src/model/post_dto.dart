@@ -3,35 +3,39 @@
 //
 
 // ignore_for_file: unused_element
-import 'package:built_collection/built_collection.dart';
 import 'package:openapi/src/model/media_dto.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
 part 'post_dto.g.dart';
 
-/// PostDTO
+/// DTO для поста
 ///
 /// Properties:
-/// * [id] 
-/// * [createdWhen] 
-/// * [text] 
-/// * [media] 
-/// * [userId] 
+/// * [id] - Уникальный идентификатор поста
+/// * [createdWhen] - Дата и время создания поста
+/// * [text] - Текст поста
+/// * [media] - Список медиа-вложений
+/// * [userId] - Идентификатор автора поста
 @BuiltValue()
 abstract class PostDTO implements Built<PostDTO, PostDTOBuilder> {
+  /// Уникальный идентификатор поста
   @BuiltValueField(wireName: r'id')
   int? get id;
 
+  /// Дата и время создания поста
   @BuiltValueField(wireName: r'createdWhen')
   DateTime? get createdWhen;
 
+  /// Текст поста
   @BuiltValueField(wireName: r'text')
   String? get text;
 
+  /// Список медиа-вложений
   @BuiltValueField(wireName: r'media')
-  BuiltList<MediaDTO>? get media;
+  MediaDTO? get media;
 
+  /// Идентификатор автора поста
   @BuiltValueField(wireName: r'userId')
   int? get userId;
 
@@ -83,7 +87,7 @@ class _$PostDTOSerializer implements PrimitiveSerializer<PostDTO> {
       yield r'media';
       yield serializers.serialize(
         object.media,
-        specifiedType: const FullType(BuiltList, [FullType(MediaDTO)]),
+        specifiedType: const FullType(MediaDTO),
       );
     }
     if (object.userId != null) {
@@ -140,8 +144,8 @@ class _$PostDTOSerializer implements PrimitiveSerializer<PostDTO> {
         case r'media':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(BuiltList, [FullType(MediaDTO)]),
-          ) as BuiltList<MediaDTO>;
+            specifiedType: const FullType(MediaDTO),
+          ) as MediaDTO;
           result.media.replace(valueDes);
           break;
         case r'userId':
