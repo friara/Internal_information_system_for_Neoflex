@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:news_feed_neoflex/app_routes.dart';
 import 'package:news_feed_neoflex/features/auth/auth_repository_impl.dart';
 import 'package:openapi/src/api/post_controller_api.dart';
 import 'package:openapi/src/model/post_dto.dart';
@@ -55,12 +56,12 @@ class _PublicationPageState extends State<PublicationPage> {
     }
   }
 
+  // In PublicationPage
   Future<void> _publishPost() async {
     setState(() => _isLoading = true);
 
     try {
-      // Используем настроенный Dio
-      final postApi = PostControllerApi(_dio, Openapi().serializers);
+      final postApi = GetIt.I<Openapi>().getPostControllerApi();
       final files = await _convertFilesToMultipart();
 
       final response = await postApi.createPost(
@@ -69,13 +70,19 @@ class _PublicationPageState extends State<PublicationPage> {
       );
 
       if (mounted) {
-        Navigator.pop(context, {
-          'success': true,
-          'post': response.data,
-        });
+        // Navigate back to NewsFeed with success result
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.newsFeed,
+          (route) => false,
+        );
       }
-    } catch (e) {
-      // Обработка ошибок
+    } on DioException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка публикации: ${e.message}')),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

@@ -821,126 +821,121 @@ class NewsFeedState extends State<NewsFeed> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(12.0),
-              child: isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : filteredPosts.isEmpty
-                      ? const Center(
-                          child: Text(
-                              'Нет постов, соответствующих вашему запросу'))
-                      : ListView.builder(
-                          itemCount: filteredPosts.length,
-                          itemBuilder: (context, index) {
-                            final post = filteredPosts[index];
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        '${post.createdWhen.day}.${post.createdWhen.month}.${post.createdWhen.year}',
-                                        style:
-                                            const TextStyle(color: Colors.grey),
-                                      ),
-                                      Row(
-                                        children: [
-                                          const Icon(Icons.remove_red_eye,
-                                              size: 16, color: Colors.grey),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            '${post.views}',
-                                            style: const TextStyle(
-                                                color: Colors.grey),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+              child: filteredPosts.isEmpty
+                  ? const Center(
+                      child: Text('Нет постов, соответствующих вашему запросу'))
+                  : ListView.builder(
+                      itemCount: filteredPosts.length,
+                      itemBuilder: (context, index) {
+                        final post = filteredPosts[index];
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    '${post.createdWhen.day}.${post.createdWhen.month}.${post.createdWhen.year}',
+                                    style: const TextStyle(color: Colors.grey),
                                   ),
-                                ),
-                                Center(
-                                  child: Container(
-                                    width: double.infinity,
-                                    height: 500,
-                                    margin:
-                                        const EdgeInsets.symmetric(vertical: 5),
-                                    child: HorizontalImageSlider(
-                                      imageUrls: post.imageUrls,
-                                    ),
-                                  ),
-                                ),
-                                Row(
-                                  children: [
-                                    IconButton(
-                                      icon: Icon(
-                                        post.isLiked
-                                            ? Icons.favorite
-                                            : Icons.favorite_border,
-                                        color: post.isLiked ? Colors.red : null,
-                                      ),
-                                      onPressed: () => toggleLike(index),
-                                    ),
-                                    Text('${post.likesCount}'),
-                                    const SizedBox(width: 10),
-                                    IconButton(
-                                      icon: const Icon(Icons.message),
-                                      onPressed: () =>
-                                          toggleCommentInput(index),
-                                    ),
-                                    if (_isAdmin)
-                                      IconButton(
-                                        icon: const Icon(Icons.edit),
-                                        onPressed: () => _navigateToEditPost(
-                                            context, post, index),
-                                      ),
-                                  ],
-                                ),
-                                if (showCommentInput.length > index &&
-                                    showCommentInput[index]) ...[
-                                  for (var comment in post.comments)
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0),
-                                      child: Text('- $comment'),
-                                    ),
                                   Row(
                                     children: [
-                                      Expanded(
-                                        child: TextField(
-                                          controller: _controller,
-                                          onSubmitted: (value) =>
-                                              addComment(index, value),
-                                          decoration: const InputDecoration(
-                                              labelText:
-                                                  'Напишите комментарий...'),
-                                        ),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.send),
-                                        onPressed: () {
-                                          String commentText =
-                                              _controller.text.trim();
-                                          addComment(index, commentText);
-                                        },
+                                      const Icon(Icons.remove_red_eye,
+                                          size: 16, color: Colors.grey),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        '${post.views}',
+                                        style:
+                                            const TextStyle(color: Colors.grey),
                                       ),
                                     ],
                                   ),
                                 ],
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    post.text,
-                                    textAlign: TextAlign.left,
-                                  ),
+                              ),
+                            ),
+                            Center(
+                              child: Container(
+                                width: double.infinity,
+                                height: 500,
+                                margin: const EdgeInsets.symmetric(vertical: 5),
+                                child: HorizontalImageSlider(
+                                  imageUrls: post.imageUrls,
+                                  dio: GetIt.I<Dio>(),
+                                  authRepo: GetIt.I<AuthRepositoryImpl>(),
                                 ),
-                                const SizedBox(height: 50),
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                IconButton(
+                                  icon: Icon(
+                                    post.isLiked
+                                        ? Icons.favorite
+                                        : Icons.favorite_border,
+                                    color: post.isLiked ? Colors.red : null,
+                                  ),
+                                  onPressed: () => toggleLike(index),
+                                ),
+                                Text('${post.likesCount}'),
+                                const SizedBox(width: 10),
+                                IconButton(
+                                  icon: const Icon(Icons.message),
+                                  onPressed: () => toggleCommentInput(index),
+                                ),
+                                if (_isAdmin)
+                                  IconButton(
+                                    icon: const Icon(Icons.edit),
+                                    onPressed: () => _navigateToEditPost(
+                                        context, post, index),
+                                  ),
                               ],
-                            );
-                          },
-                        ),
+                            ),
+                            if (showCommentInput.length > index &&
+                                showCommentInput[index]) ...[
+                              for (var comment in post.comments)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                  child: Text('- $comment'),
+                                ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: TextField(
+                                      controller: _controller,
+                                      onSubmitted: (value) =>
+                                          addComment(index, value),
+                                      decoration: const InputDecoration(
+                                          labelText: 'Напишите комментарий...'),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.send),
+                                    onPressed: () {
+                                      String commentText =
+                                          _controller.text.trim();
+                                      addComment(index, commentText);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                post.text,
+                                textAlign: TextAlign.left,
+                              ),
+                            ),
+                            const SizedBox(height: 50),
+                          ],
+                        );
+                      },
+                    ),
             ),
           ),
         ],

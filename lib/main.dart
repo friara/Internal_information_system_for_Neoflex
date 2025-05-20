@@ -8,7 +8,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/auth_repository_impl.dart';
 
-void main() {
+void main() async {
   // Инициализация Flutter
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -18,6 +18,10 @@ void main() {
 
   // Настройка локатора сервисов
   setupLocator();
+
+  // Очищаем токены при каждом запуске (для тестирования)
+  final authRepo = AuthRepositoryImpl(storage: MobileSecureStorage());
+  await authRepo.logout(); // Удаляем все сохраненные токены
 
   runApp(
     MultiBlocProvider(
