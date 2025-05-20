@@ -364,30 +364,46 @@ class NewsFeedState extends State<NewsFeed> {
             },
             onDelete: () async {
               try {
+                final token =
+                    await GetIt.I<AuthRepositoryImpl>().getAccessToken();
+                if (token == null) {
+                  throw Exception('Необходима авторизация');
+                }
+
                 if (post.id != null) {
                   final postApi = GetIt.I<Openapi>().getPostControllerApi();
                   await postApi.deletePost(id: post.id!);
+
                   setState(() {
                     posts.removeAt(index);
                     filteredPosts.removeAt(index);
+                    showCommentInput.removeAt(index);
                   });
+
+                  if (mounted) Navigator.pop(context);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Пост успешно удален')),
+                  );
                 }
               } catch (e) {
-                print('Error deleting post: $e');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Ошибка удаления: ${e.toString()}')),
-                );
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Ошибка удаления: ${e.toString()}')),
+                  );
+                }
+                rethrow;
               }
             },
           ),
         ),
       );
+      // После возврата с экрана редактирования обновляем список
+      await loadPosts();
     } catch (e, stackTrace) {
-      debugPrint('Ошибка при редактировании поста: $e');
-      debugPrint('Стек вызовов: $stackTrace');
+      debugPrint('Ошибка при редактировании поста: $e\n$stackTrace');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text('Ошибка при открытии редактора: ${e.toString()}')),
+        SnackBar(content: Text('Ошибка: ${e.toString()}')),
       );
     }
   }
