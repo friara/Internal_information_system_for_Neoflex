@@ -13,8 +13,6 @@ import 'personal_chat_page.dart';
 import 'contact_selection_page.dart';
 import 'package:news_feed_neoflex/features/auth/auth_repository_impl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:news_feed_neoflex/features/auth/auth_repository_impl.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 
 class ChatPage extends StatefulWidget {
@@ -45,27 +43,10 @@ class ChatPageState extends State<ChatPage> {
   bool _isRoleLoaded = false;
   String? _currentUserRole;
 
-late String _avatarBaseUrl;
-  late String accessToken;
-
-late String _avatarBaseUrl;
-  late String accessToken;
 
   @override
   void initState() {
     super.initState();
-    final dio = GetIt.I<Dio>();
-    _avatarBaseUrl = dio.options.baseUrl;
-    if (!_avatarBaseUrl.endsWith('/')) {
-      _avatarBaseUrl += '/';
-    }
-    GetIt.I<AuthRepositoryImpl>().getAccessToken().then((token) {
-      if (token != null) {
-        setState(() {
-          accessToken = token;
-        });
-      }
-    });
     final dio = GetIt.I<Dio>();
     _avatarBaseUrl = dio.options.baseUrl;
     if (!_avatarBaseUrl.endsWith('/')) {
@@ -481,6 +462,8 @@ late String _avatarBaseUrl;
                     MaterialPageRoute(
                       builder: (context) => ContactSelectionPage(
                         users: _allUsers,
+                        avatarBaseUrl: _avatarBaseUrl,
+                        accessToken: accessToken,
                       ),
                     ),
                   );

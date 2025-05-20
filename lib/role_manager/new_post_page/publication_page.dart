@@ -12,6 +12,7 @@ import 'package:openapi/src/api/post_controller_api.dart';
 import 'package:openapi/src/model/post_dto.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:openapi/openapi.dart'; // Добавляем импорт для serializers
+import 'package:path/path.dart' as p;
 
 class PublicationPage extends StatefulWidget {
   final List<File> selectedImages;
@@ -134,9 +135,10 @@ class _PublicationPageState extends State<PublicationPage> {
 
         debugPrint('Processing file path: $path');
 
-        final fileName = path
-            .split('/')
-            .last; // Используем '/' вместо Platform.pathSeparator для совместимости
+        // final fileName = path
+        //     .split('/')
+        //     .last; // Используем '/' вместо Platform.pathSeparator для совместимости
+        final fileName = p.basename(file.path);
         final mimeType = lookupMimeType(fileName) ?? 'application/octet-stream';
 
         debugPrint('File: $fileName, MIME type: $mimeType');
