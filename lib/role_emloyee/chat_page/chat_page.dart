@@ -13,6 +13,9 @@ import 'personal_chat_page.dart';
 import 'contact_selection_page.dart';
 import 'package:news_feed_neoflex/features/auth/auth_repository_impl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:news_feed_neoflex/features/auth/auth_repository_impl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -42,9 +45,27 @@ class ChatPageState extends State<ChatPage> {
   bool _isRoleLoaded = false;
   String? _currentUserRole;
 
+late String _avatarBaseUrl;
+  late String accessToken;
+
+late String _avatarBaseUrl;
+  late String accessToken;
+
   @override
   void initState() {
     super.initState();
+    final dio = GetIt.I<Dio>();
+    _avatarBaseUrl = dio.options.baseUrl;
+    if (!_avatarBaseUrl.endsWith('/')) {
+      _avatarBaseUrl += '/';
+    }
+    GetIt.I<AuthRepositoryImpl>().getAccessToken().then((token) {
+      if (token != null) {
+        setState(() {
+          accessToken = token;
+        });
+      }
+    });
     final dio = GetIt.I<Dio>();
     _avatarBaseUrl = dio.options.baseUrl;
     if (!_avatarBaseUrl.endsWith('/')) {
@@ -473,73 +494,89 @@ class ChatPageState extends State<ChatPage> {
   }
 
   Widget _buildGroupCreationOverlay() {
-    return Positioned.fill(
-      child: Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => setState(() => _showGroupCreation = false),
+  return Positioned.fill(
+    child: Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => setState(() => _showGroupCreation = false),
+        ),
+        actions: [
+          TextButton(
+            onPressed: _createGroup,
+            child: const Text('Создать'),
           ),
-          actions: [
-            TextButton(
-              onPressed: _createGroup,
-              child: const Text('Создать'),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 16),
+            GestureDetector(
+              onTap: _pickImage,
+              child: CircleAvatar(
+                radius: 50,
+                backgroundColor: Colors.grey[200],
+                backgroundImage: 
+                    _groupImage != null ? FileImage(_groupImage!) : null,
+                child: _groupImage == null
+                    ? const Icon(Icons.camera_alt, size: 40)
+                    : null,
+              ),
             ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                controller: _groupNameController,
+                decoration: 
+                    const InputDecoration(hintText: 'Название группы'),
+              ),
+            ),
+            const Divider(),
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text('Участники',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+            ),
+            ..._allUsers.map((user) => CheckboxListTile(
+              title: Text('${user.firstName} ${user.lastName}'),
+              subtitle: Text(user.appointment ?? ''),
+              value: _selectedUsers[user.id!] ?? false,
+              onChanged: (value) =>
+                  setState(() => _selectedUsers[user.id!] = value!),
+              secondary: CircleAvatar(
+                radius: 20,
+                child: user.avatarUrl != null
+                    ? ClipOval(
+                        child: CachedNetworkImage(
+                          imageUrl: user.avatarUrl!.startsWith('http')
+                              ? user.avatarUrl!
+                              : '$_avatarBaseUrl${user.avatarUrl!.startsWith('/') 
+                                  ? user.avatarUrl!.substring(1) 
+                                  : user.avatarUrl}',
+                          httpHeaders: 
+                              {'Authorization': 'Bearer $accessToken'},
+                          placeholder: (context, url) => Container(
+                            color: Colors.grey,
+                            child: const Icon(Icons.person, size: 20),
+                          ),
+                          errorWidget: (context, url, error) => 
+                              const Icon(Icons.error, size: 20),
+                          fit: BoxFit.cover,
+                          width: 40,
+                          height: 40,
+                        ),
+                      )
+                    : const Icon(Icons.person),
+              ),
+            )),
           ],
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              const SizedBox(height: 16),
-              GestureDetector(
-                onTap: _pickImage,
-                child: CircleAvatar(
-                  radius: 50,
-                  backgroundColor: Colors.grey[200],
-                  backgroundImage:
-                      _groupImage != null ? FileImage(_groupImage!) : null,
-                  child: _groupImage == null
-                      ? const Icon(Icons.camera_alt, size: 40)
-                      : null,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: TextField(
-                  controller: _groupNameController,
-                  decoration:
-                      const InputDecoration(hintText: 'Название группы'),
-                ),
-              ),
-              const Divider(),
-              const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text('Участники',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                ),
-              ),
-              ..._allUsers.map((user) => CheckboxListTile(
-                    title: Text('${user.firstName} ${user.lastName}'),
-                    subtitle: Text(user.appointment ?? ''),
-                    value: _selectedUsers[user.id!] ?? false,
-                    onChanged: (value) =>
-                        setState(() => _selectedUsers[user.id!] = value!),
-                    secondary: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Icon(Icons.person),
-                    ),
-                  )),
-            ],
-          ),
-        ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
