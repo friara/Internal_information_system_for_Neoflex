@@ -376,8 +376,20 @@ class ChatPageState extends State<ChatPage> {
                     ? const Center(child: CircularProgressIndicator())
                     : ListView.builder(
                         itemCount: filteredChats.length,
-                        itemBuilder: (context, index) =>
-                            _buildChatTile(filteredChats[index]),
+                        itemBuilder: (context, index) => ListTile(
+                          title: Text(filteredChats[index].chatName ?? 'Чат'),
+                          subtitle: Text(
+                              filteredChats[index].lastMessagePreview ?? ''),
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PersonalChatPage(
+                                chatId: filteredChats[index].id!,
+                                currentUserId: _currentUserId!,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
               ),
             ],
@@ -410,35 +422,6 @@ class ChatPageState extends State<ChatPage> {
         onTap: _onItemTapped,
         selectedItemColor: const Color(0xFF48036F),
         unselectedItemColor: Colors.grey,
-      ),
-    );
-  }
-
-  Widget _buildChatTile(ChatSummaryDTO chat) {
-    final isGroup = chat.chatType == 'GROUP';
-    final chatName = chat.chatName ?? (isGroup ? 'Группа' : 'Чат');
-
-    return ListTile(
-      leading: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Icon(
-          isGroup ? Icons.group : Icons.person,
-          color: Colors.grey[600],
-        ),
-      ),
-      title: Text(chatName),
-      subtitle: Text(chat.lastMessagePreview ?? ''),
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PersonalChatPage(
-              chatId: chat.id!, currentUserId: _currentUserId!),
-        ),
       ),
     );
   }
