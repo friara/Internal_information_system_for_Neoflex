@@ -58,7 +58,7 @@ class HorizontalImageSlider extends StatelessWidget {
 
             return CachedNetworkImage(
               imageUrl: fullUrl,
-              fit: BoxFit.cover,
+              fit: BoxFit.contain,
               httpHeaders: {
                 'Authorization': 'Bearer $token',
               },

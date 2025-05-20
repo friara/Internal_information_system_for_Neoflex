@@ -227,69 +227,6 @@ class NewsFeedState extends State<NewsFeed> {
     }
   }
 
-  // Future<void> loadPosts() async {
-  //   if (!mounted) return;
-
-  //   setState(() {
-  //     isLoading = true;
-  //   });
-
-  //   print('Starting to load posts...');
-
-  //   try {
-  //     final postApi = GetIt.I<Openapi>().getPostControllerApi();
-  //     final response = await postApi.getAllPosts().catchError((error) async {
-  //       if (error is DioException && error.response?.statusCode == 401) {
-  //         // Попытка обновить токен
-  //         await _refreshToken();
-  //         // Повторный запрос после обновления токена
-  //         return await postApi.getAllPosts();
-  //       }
-  //       throw error;
-  //     });
-
-  //     print('Response status: ${response.statusCode}');
-  //     print('Response data length: ${response.data?.length ?? 0}');
-
-  //     if (response.data == null) {
-  //       print('No posts data received');
-  //       throw Exception('No posts data received');
-  //     }
-
-  //     List<Post> newPosts = [];
-  //     for (var postDto in response.data!) {
-  //       print('Processing post with ID: ${postDto.id}'); // Добавлено
-  //       print('Post text: ${postDto.text}'); // Добавлено
-  //       print('Media URLs count: ${postDto.mediaUrls?.length ?? 0}');
-  //       newPosts.add(Post.fromDto(postDto));
-  //       showCommentInput.add(false);
-  //     }
-
-  //     print('Successfully loaded ${newPosts.length} posts');
-
-  //     setState(() {
-  //       posts = newPosts;
-  //       filteredPosts = List.from(newPosts);
-  //       _applySort();
-  //       isLoading = false;
-  //     });
-  //   } on DioException catch (e) {
-  //     print('DioError loading posts: ${e.message}');
-  //     print('Response data: ${e.response?.data}');
-  //     if (e.response?.statusCode == 401) {
-  //       _handleInvalidToken();
-  //     }
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //   } catch (e) {
-  //     print('Error loading posts: $e');
-  //     setState(() {
-  //       isLoading = false;
-  //     });
-  //   }
-  // }
-
   Future<void> _refreshToken() async {
     try {
       // Здесь должна быть логика обновления токена
@@ -321,11 +258,9 @@ class NewsFeedState extends State<NewsFeed> {
 
   void toggleCommentInput(int index) {
     setState(() {
-      // Check if the index is within the bounds of the list
       if (index < showCommentInput.length) {
         showCommentInput[index] = !showCommentInput[index];
       } else {
-        // If index is out of bounds, extend list and set to true
         showCommentInput.length = index + 1;
         showCommentInput[index] = true;
       }

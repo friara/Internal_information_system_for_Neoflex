@@ -1,7 +1,14 @@
 import 'dart:io';
-
+import 'package:built_collection/built_collection.dart';
+import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mime/mime.dart';
+import 'package:openapi/openapi.dart';
 
 class EditPostPage extends StatefulWidget {
   final int? postId; // Добавляем параметр postId
@@ -28,6 +35,7 @@ class _EditPostPageState extends State<EditPostPage> {
   late TextEditingController _titleController;
   late List<String> _currentImagePaths;
   final ImagePicker _picker = ImagePicker();
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -43,13 +51,130 @@ class _EditPostPageState extends State<EditPostPage> {
     super.dispose();
   }
 
+  Future<void> _savePost() async {
+    setState(() => _isLoading = true);
+    try {
+      final postApi = GetIt.I<Openapi>().getPostControllerApi();
+      final files = await _convertFilesToMultipart();
+
+      // Логирование перед отправкой
+      debugPrint('Saving post with text: ${_textController.text}');
+      debugPrint('Files count: ${files.length}');
+      for (final file in files) {
+        debugPrint('File: ${file.filename}, type: ${file.contentType}');
+      }
+
+      if (widget.postId == null) {
+        // Создание нового поста
+        final response = await postApi.createPost(
+          text: _textController.text,
+          files: files.isEmpty ? null : files,
+        );
+        debugPrint('Post created: ${response.data}');
+      } else {
+        // Обновление существующего поста
+        final response = await postApi.updatePost(
+          id: widget.postId!,
+          postDTO: PostDTO((b) => b..text = _textController.text),
+          files: files.isEmpty ? null : files,
+        );
+        debugPrint('Post updated: ${response.data}');
+      }
+
+      widget.onSave(_textController.text, _currentImagePaths);
+      if (mounted) Navigator.pop(context);
+    } on DioException catch (e) {
+      debugPrint('Error saving post: ${e.response?.data}');
+      debugPrint('Request: ${e.requestOptions.data}');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                'Ошибка сохранения: ${e.response?.data?['details'] ?? e.message}'),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Unexpected error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Неизвестная ошибка: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<BuiltList<MultipartFile>> _convertFilesToMultipart() async {
+    final files = <MultipartFile>[];
+
+    for (final path in _currentImagePaths) {
+      if (path.startsWith('http')) continue;
+
+      try {
+        final file = File(path);
+        if (!await file.exists()) continue;
+
+        // Получаем имя файла из пути
+        final fileName = path
+            .split(RegExp(r'[\\/]'))
+            .last; // Улучшенное извлечение имени файла
+
+        // Определяем MIME-тип с использованием пакета mime
+        final mimeType = lookupMimeType(fileName) ?? 'application/octet-stream';
+        debugPrint('File: $fileName, MIME type: $mimeType');
+
+        // Читаем файл как байты
+        final fileBytes = await file.readAsBytes();
+
+        // Создаем MultipartFile
+        files.add(MultipartFile.fromBytes(
+          fileBytes,
+          filename: fileName,
+          contentType: MediaType.parse(mimeType),
+        ));
+      } catch (e) {
+        debugPrint('Error processing file $path: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Ошибка обработки файла $path')),
+          );
+        }
+      }
+    }
+
+    return BuiltList(files);
+  }
+
+  // String _getMimeType(String fileName) {
+  //   final extension = fileName.split('.').last.toLowerCase();
+  //   switch (extension) {
+  //     case 'jpg':
+  //     case 'jpeg':
+  //       return 'image/jpeg';
+  //     case 'png':
+  //       return 'image/png';
+  //     case 'gif':
+  //       return 'image/gif';
+  //     default:
+  //       return 'application/octet-stream';
+  //   }
+  // }
+
   Future<void> _addNewImage() async {
-    // final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    // if (image != null) {
-    //   setState(() {
-    //     _currentImagePaths.add(image.path);
-    //   });
-    // }
+    final pickedFiles = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      allowMultiple: true,
+    );
+
+    if (pickedFiles != null) {
+      setState(() {
+        _currentImagePaths.addAll(
+          pickedFiles.paths.map((path) => path!).toList(),
+        );
+      });
+    }
   }
 
   Future<void> _confirmDelete() async {

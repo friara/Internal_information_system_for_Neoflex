@@ -2,7 +2,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 import 'package:news_feed_neoflex/app_routes.dart';
 import 'package:news_feed_neoflex/features/auth/auth_repository_impl.dart';
 import 'package:openapi/src/api/post_controller_api.dart';
@@ -27,11 +30,14 @@ class PublicationPage extends StatefulWidget {
 class _PublicationPageState extends State<PublicationPage> {
   final List<PlatformFile> _selectedFiles = [];
   bool _isLoading = false;
+  List<String> _currentImagePaths = [];
   final Dio _dio = Dio();
 
   @override
   void initState() {
     super.initState();
+    _currentImagePaths =
+        widget.selectedImages.map((file) => file.path).toList();
     _initializeDio(); // Инициализируем Dio при создании
   }
 
@@ -52,25 +58,38 @@ class _PublicationPageState extends State<PublicationPage> {
     if (result != null) {
       setState(() {
         _selectedFiles.addAll(result.files);
+        _currentImagePaths.addAll(result.files.map((f) => f.path!).toList());
       });
     }
   }
 
-  // In PublicationPage
   Future<void> _publishPost() async {
     setState(() => _isLoading = true);
 
     try {
+      final token = await GetIt.I<AuthRepositoryImpl>().getAccessToken();
+      if (token == null) {
+        throw Exception('No access token');
+      }
+
       final postApi = GetIt.I<Openapi>().getPostControllerApi();
       final files = await _convertFilesToMultipart();
 
+      // Логирование перед отправкой
+      debugPrint('Sending post with text: ${widget.text}');
+      debugPrint('Files count: ${files.length}');
+      for (final file in files) {
+        debugPrint('File: ${file.filename}, type: ${file.contentType}');
+      }
+
       final response = await postApi.createPost(
         text: widget.text,
-        files: files,
+        files: files.isEmpty ? null : files, // Отправляем null если файлов нет
       );
 
+      debugPrint('Post created successfully: ${response.data}');
+
       if (mounted) {
-        // Navigate back to NewsFeed with success result
         Navigator.pushNamedAndRemoveUntil(
           context,
           AppRoutes.newsFeed,
@@ -78,38 +97,84 @@ class _PublicationPageState extends State<PublicationPage> {
         );
       }
     } on DioException catch (e) {
+      debugPrint('DioError: ${e.message}');
+      debugPrint('Response: ${e.response?.data}');
+      debugPrint('Headers: ${e.response?.headers}');
+      debugPrint('Request: ${e.requestOptions.data}');
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка публикации: ${e.message}')),
+          SnackBar(
+            content: Text(
+                'Ошибка публикации: ${e.response?.data?['details'] ?? e.message}'),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Неизвестная ошибка: $e')),
         );
       }
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      setState(() => _isLoading = false);
     }
   }
 
   Future<BuiltList<MultipartFile>> _convertFilesToMultipart() async {
     final files = <MultipartFile>[];
 
-    for (final image in widget.selectedImages) {
-      final file = await MultipartFile.fromFile(
-        image.path,
-        filename: image.path.split('/').last,
-      );
-      files.add(file);
+    for (final path in _currentImagePaths) {
+      if (path.startsWith('http')) continue;
+
+      try {
+        final file = File(path);
+        if (!await file.exists()) continue;
+
+        debugPrint('Processing file path: $path');
+
+        final fileName = path
+            .split('/')
+            .last; // Используем '/' вместо Platform.pathSeparator для совместимости
+        final mimeType = lookupMimeType(fileName) ?? 'application/octet-stream';
+
+        debugPrint('File: $fileName, MIME type: $mimeType');
+
+        final fileBytes = await file.readAsBytes();
+
+        files.add(MultipartFile.fromBytes(
+          fileBytes,
+          filename: fileName,
+          contentType: MediaType.parse(mimeType),
+        ));
+      } catch (e) {
+        debugPrint('Error processing file $path: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Ошибка обработки файла $path')),
+          );
+        }
+      }
     }
 
-    for (final platformFile in _selectedFiles) {
-      final file = await MultipartFile.fromFile(
-        platformFile.path!,
-        filename: platformFile.name,
-      );
-      files.add(file);
-    }
-
-    return BuiltList<MultipartFile>(
-        files); // Создаем BuiltList напрямую из списка
+    return BuiltList(files);
   }
+
+  // String _getMimeType(String path) {
+  //   final extension = path.split('.').last.toLowerCase();
+  //   switch (extension) {
+  //     case 'jpg':
+  //     case 'jpeg':
+  //       return 'image/jpeg'; // Изменено с image/jpg на image/jpeg
+  //     case 'png':
+  //       return 'image/png';
+  //     case 'gif':
+  //       return 'image/gif';
+  //     default:
+  //       return 'application/octet-stream';
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
