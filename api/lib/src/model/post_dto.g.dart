@@ -10,7 +10,7 @@ class _$PostDTO extends PostDTO {
   @override
   final int? id;
   @override
-  final DateTime createdWhen;
+  final DateTime? createdWhen;
   @override
   final String? text;
   @override
@@ -21,12 +21,8 @@ class _$PostDTO extends PostDTO {
   factory _$PostDTO([void Function(PostDTOBuilder)? updates]) =>
       (new PostDTOBuilder()..update(updates))._build();
 
-  _$PostDTO._(
-      {this.id, required this.createdWhen, this.text, this.media, this.userId})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        createdWhen, r'PostDTO', 'createdWhen');
-  }
+  _$PostDTO._({this.id, this.createdWhen, this.text, this.media, this.userId})
+      : super._();
 
   @override
   PostDTO rebuild(void Function(PostDTOBuilder) updates) =>
@@ -131,8 +127,7 @@ class PostDTOBuilder implements Builder<PostDTO, PostDTOBuilder> {
       _$result = _$v ??
           new _$PostDTO._(
             id: id,
-            createdWhen: BuiltValueNullFieldError.checkNotNull(
-                createdWhen, r'PostDTO', 'createdWhen'),
+            createdWhen: createdWhen,
             text: text,
             media: _media?.build(),
             userId: userId,

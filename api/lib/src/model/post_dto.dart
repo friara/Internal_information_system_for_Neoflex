@@ -24,7 +24,7 @@ abstract class PostDTO implements Built<PostDTO, PostDTOBuilder> {
   int? get id;
 
   @BuiltValueField(wireName: r'createdWhen')
-  DateTime get createdWhen;
+  DateTime? get createdWhen;
 
   @BuiltValueField(wireName: r'text')
   String? get text;
@@ -65,11 +65,13 @@ class _$PostDTOSerializer implements PrimitiveSerializer<PostDTO> {
         specifiedType: const FullType(int),
       );
     }
-    yield r'createdWhen';
-    yield serializers.serialize(
-      object.createdWhen,
-      specifiedType: const FullType(DateTime),
-    );
+    if (object.createdWhen != null) {
+      yield r'createdWhen';
+      yield serializers.serialize(
+        object.createdWhen,
+        specifiedType: const FullType(DateTime),
+      );
+    }
     if (object.text != null) {
       yield r'text';
       yield serializers.serialize(

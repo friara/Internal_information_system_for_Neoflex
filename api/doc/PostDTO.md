@@ -9,7 +9,7 @@ import 'package:openapi/api.dart';
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **int** |  | [optional] 
-**createdWhen** | [**DateTime**](DateTime.md) |  | 
+**createdWhen** | [**DateTime**](DateTime.md) |  | [optional] 
 **text** | **String** |  | [optional] 
 **media** | [**BuiltList&lt;MediaDTO&gt;**](MediaDTO.md) |  | [optional] 
 **userId** | **int** |  | [optional] 

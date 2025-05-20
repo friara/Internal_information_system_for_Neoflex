@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/services.dart';
+import 'package:news_feed_neoflex/app_routes.dart';
+import 'package:news_feed_neoflex/role_manager/users_page/user_profile_page.dart';
 import 'package:path_drawing/path_drawing.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:xml/xml.dart';
@@ -200,6 +202,7 @@ class BookingDialog extends StatefulWidget {
   @override
   State<BookingDialog> createState() => _BookingDialogState();
 }
+
 Future<TimeOfDay?> showCustomTimePicker({
   required BuildContext context,
   required TimeOfDay initialTime,
@@ -401,7 +404,8 @@ class _BookingDialogState extends State<BookingDialog> {
 
             if (endDateTime.isBefore(startDateTime)) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Окончание должно быть после начала')),
+                const SnackBar(
+                    content: Text('Окончание должно быть после начала')),
               );
               return;
             }
@@ -426,7 +430,6 @@ class _BookingDialogState extends State<BookingDialog> {
   }
 }
 
-
 class WorkspacesScreen extends StatefulWidget {
   const WorkspacesScreen({super.key});
 
@@ -436,17 +439,152 @@ class WorkspacesScreen extends StatefulWidget {
 
 class _WorkspacesScreenState extends State<WorkspacesScreen> {
   final _repository = getIt<WorkspaceRepository>();
+  int _selectedIndex = 1;
+  bool _isAdmin = false;
+  bool _isRoleLoaded = false;
+  String? _currentUserRole;
 
   Future<void> _refreshData() async {
     await _repository.refreshWorkspaces();
     setState(() {});
   }
 
+  Future<void> _loadUserRole() async {
+    try {
+      final userApi = GetIt.I<Openapi>().getUserControllerApi();
+      final response = await userApi.getCurrentUser();
+
+      if (response.data == null || response.data!.roleName == null) {
+        throw Exception('User data or role is null');
+      }
+
+      setState(() {
+        _currentUserRole = response.data!.roleName!.toUpperCase().trim();
+        _isAdmin = _currentUserRole == 'ROLE_ADMIN';
+        _isRoleLoaded = true;
+      });
+    } catch (e) {
+      debugPrint('Error loading user role: $e');
+      setState(() => _isRoleLoaded = true);
+    }
+  }
+
+  void _onItemTapped(int index) async {
+    if (index == _selectedIndex) return;
+
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    switch (index) {
+      case 0:
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.newsFeed,
+          (route) => false,
+        );
+        break;
+      case 1:
+        // Уже на этом экране
+        break;
+      case 2:
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.chatPage,
+          (route) => false,
+        );
+        break;
+      case 3:
+        if (_isAdmin) {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            AppRoutes.listOfUsers,
+            (route) => false,
+          );
+        } else {
+          try {
+            final userApi = GetIt.I<Openapi>().getUserControllerApi();
+            final response = await userApi.getCurrentUser();
+            if (response.data != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => UserProfilePage(
+                    userData: {
+                      'id': response.data!.id?.toString() ?? '',
+                      'fio':
+                          '${response.data!.firstName ?? ''} ${response.data!.lastName ?? ''} ${response.data!.patronymic ?? ''}',
+                      'phone': response.data!.phoneNumber ?? '',
+                      'position': response.data!.appointment ?? '',
+                      'role': response.data!.roleName ?? 'ROLE_USER',
+                      'login': response.data!.login ?? '',
+                      'birthDate': response.data!.birthday?.toString() ?? '',
+                      'avatarUrl': response.data!.avatarUrl ?? '',
+                    },
+                    onSave: (updatedUser) async {
+                      try {
+                        await GetIt.I<Openapi>()
+                            .getUserControllerApi()
+                            .updateCurrentUser(userDTO: updatedUser);
+
+                        final updatedResponse = await userApi.getCurrentUser();
+                        if (updatedResponse.data != null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Профиль успешно обновлен')),
+                          );
+                        }
+                      } catch (e) {
+                        debugPrint('API Error: $e');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content:
+                                  Text('Ошибка сохранения: ${e.toString()}')),
+                        );
+                        rethrow;
+                      }
+                    },
+                    onDelete: (userId) {
+                      // Логика удаления
+                    },
+                    onAvatarChanged: (file) {
+                      // Логика обновления аватара
+                    },
+                    isAdmin: false,
+                  ),
+                ),
+              );
+            }
+          } catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text('Ошибка загрузки профиля: ${e.toString()}')),
+            );
+          }
+        }
+        break;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserRole();
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (!_isRoleLoaded) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text('Выбор рабочего места'),
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -465,6 +603,30 @@ class _WorkspacesScreenState extends State<WorkspacesScreen> {
             if (result == true) _refreshData();
           }),
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.computer),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.message_sharp),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: '',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        selectedItemColor: const Color(0xFF48036F),
+        unselectedItemColor: Colors.grey,
       ),
     );
   }
