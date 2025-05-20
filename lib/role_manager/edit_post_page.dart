@@ -204,8 +204,23 @@ final response = widget.postId == null
     );
 
     if (confirmed == true) {
-      widget.onDelete();
-      Navigator.pop(context);
+      setState(() => _isLoading = true);
+      try {
+        // 1. Удаляем сам пост (сервер должен позаботиться о каскадном удалении)
+        await widget.onDelete();
+
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Ошибка удаления: ${e.toString()}')),
+          );
+        }
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
     }
   }
 
