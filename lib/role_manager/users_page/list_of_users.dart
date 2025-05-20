@@ -432,9 +432,9 @@ class _ListOfUsersState extends State<ListOfUsers> {
                   final user = _filteredUsers[index];
                   final userFio =
                       '${user.firstName ?? ''} ${user.lastName ?? ''} ${user.patronymic ?? ''}';
-                  final avatarUrl = user.avatarUrl != null
-                      ? '$_avatarBaseUrl/${user.avatarUrl}'
-                      : null;
+final avatarUrl = user.avatarUrl != null
+    ? Uri.parse(_avatarBaseUrl).resolve(user.avatarUrl!).toString()
+    : null;
                   return ListTile(
                     title: Text(userFio),
                     // subtitle: Text(
@@ -456,9 +456,7 @@ class _ListOfUsersState extends State<ListOfUsers> {
                               'birthDate': user.birthday?.toString() ?? '',
                               'avatarUrl': avatarUrl ?? '',
                             },
-                            initialAvatarUrl: user.avatarUrl != null
-                                ? '$_avatarBaseUrl/${user.avatarUrl}'
-                                : null,
+                            initialAvatarUrl: user.avatarUrl,
                             onSave: _updateUserData,
                             onDelete: _deleteUser,
                             onAvatarChanged: (file) =>
