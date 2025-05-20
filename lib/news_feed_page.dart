@@ -44,8 +44,6 @@ class NewsFeedState extends State<NewsFeed> {
     super.initState();
     filteredPosts = [];
     _initializeApp();
-    // _loadUserRole();
-    // loadPosts();
   }
 
   Future<void> _initializeApp() async {
@@ -55,11 +53,9 @@ class NewsFeedState extends State<NewsFeed> {
       return;
     }
 
-    // Настраиваем Dio
     final dio = GetIt.I<Dio>();
     dio.options.headers['Authorization'] = 'Bearer $token';
 
-    // Затем загружаем данные
     await Future.wait([
       _loadUserRole(),
       loadPosts(),
@@ -96,63 +92,12 @@ class NewsFeedState extends State<NewsFeed> {
       if (e.response?.statusCode == 401) {
         _handleInvalidToken();
       } else {
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   SnackBar(content: Text('Ошибка загрузки роли: ${e.message}')),
-        // );
         debugPrint('Error loading user role: ${e.message}');
       }
     } catch (e) {
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(content: Text('Ошибка: $e')),
-      // );
       debugPrint('Unexpected error: $e');
     }
-    // finally {
-    //   if (mounted) {
-    //     setState(() {
-    //       _isRoleLoaded = true;
-    //     });
-    //   }
-    // }
   }
-
-  // Future<void> _loadUserRole() async {
-  //   try {
-  //     setState(() {
-  //       _isRoleLoaded = false;
-  //     });
-
-  //     final userApi = GetIt.I<Openapi>().getUserControllerApi();
-  //     final response = await userApi.getCurrentUser();
-
-  //     if (response.data == null || response.data!.roleName == null) {
-  //       throw Exception('User data or role is null');
-  //     }
-
-  //     if (mounted) {
-  //       setState(() {
-  //         _currentUserRole = response.data!.roleName!.toUpperCase().trim();
-  //         _isAdmin = _currentUserRole == 'ROLE_ADMIN';
-  //         _isRoleLoaded = true;
-  //         print('User role loaded: $_currentUserRole, isAdmin: $_isAdmin');
-  //       });
-  //     }
-  //   } on DioException catch (e) {
-  //     print('DioError loading user role: ${e.message}');
-  //     if (e.response?.statusCode == 401) {
-  //       // Токен невалиден - нужно разлогинить
-  //       _handleInvalidToken();
-  //     }
-  //   } catch (e) {
-  //     print('Error loading user role: $e');
-  //   } finally {
-  //     if (mounted && !_isRoleLoaded) {
-  //       setState(() {
-  //         _isRoleLoaded = true; // Чтобы не заблокировать UI
-  //       });
-  //     }
-  //   }
-  // }
 
   void _handleInvalidToken() {
     Navigator.pushNamedAndRemoveUntil(
@@ -171,14 +116,11 @@ class NewsFeedState extends State<NewsFeed> {
     });
 
     try {
-      // 1. Получаем токен
       final token = await GetIt.I<AuthRepositoryImpl>().getAccessToken();
 
-      // 2. Настраиваем Dio
       final dio = GetIt.I<Dio>();
       dio.options.headers['Authorization'] = 'Bearer $token';
 
-      // 3. Делаем запрос
       final postApi = GetIt.I<Openapi>().getPostControllerApi();
       final response = await postApi.getAllPosts(
         sortBy: _sortBy,
@@ -186,12 +128,10 @@ class NewsFeedState extends State<NewsFeed> {
         size: 100,
       );
 
-      // 4. Проверяем ответ
       if (response.statusCode != 200 || response.data == null) {
         throw Exception('Server returned ${response.statusCode}');
       }
 
-      // 5. Обрабатываем данные
       final pageResponse = response.data!;
       final postDTOs = pageResponse.content ?? BuiltList<PostResponseDTO>();
 
@@ -396,7 +336,7 @@ class NewsFeedState extends State<NewsFeed> {
 
   void _navigateToEditPost(BuildContext context, Post post, int index) async {
     try {
-      final result = await Navigator.push(
+      await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => EditPostPage(
@@ -405,30 +345,18 @@ class NewsFeedState extends State<NewsFeed> {
             initialImagePaths: post.imageUrls,
             onSave: (newText, newImages) async {
               try {
-                final postApi = GetIt.I<Openapi>().getPostControllerApi();
-                final files = newImages
-                    .map((path) => MultipartFile.fromFileSync(path))
-                    .toList();
+                // Обновляем локальное состояние
+                setState(() {
+                  posts[index].text = newText;
+                  posts[index].imageUrls = newImages;
+                  filteredPosts[index].text = newText;
+                  filteredPosts[index].imageUrls = newImages;
+                });
 
-                if (post.id == null) {
-                  // Создание нового поста
-                  await postApi.createPost(
-                    text: newText,
-                    files: BuiltList(files),
-                  );
-                } else {
-                  // Обновление существующего поста
-                  await postApi.updatePost(
-                    id: post.id!,
-                    postDTO: PostDTO((b) => b..text = newText),
-                    files: BuiltList(files),
-                  );
-                }
-
-                // Обновляем список постов после изменения
+                // Обновляем данные с сервера
                 await loadPosts();
               } catch (e) {
-                print('Error saving post: $e');
+                print('Error updating post: $e');
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Ошибка сохранения: ${e.toString()}')),
                 );
