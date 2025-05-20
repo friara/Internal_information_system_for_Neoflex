@@ -432,9 +432,11 @@ class _ListOfUsersState extends State<ListOfUsers> {
                   final user = _filteredUsers[index];
                   final userFio =
                       '${user.firstName ?? ''} ${user.lastName ?? ''} ${user.patronymic ?? ''}';
-final avatarUrl = user.avatarUrl != null
-    ? Uri.parse(_avatarBaseUrl).resolve(user.avatarUrl!).toString()
-    : null;
+                  final avatarUrl = user.avatarUrl != null
+                      ? Uri.parse(_avatarBaseUrl)
+                          .resolve(user.avatarUrl!)
+                          .toString()
+                      : null;
                   return ListTile(
                     title: Text(userFio),
                     // subtitle: Text(
@@ -473,6 +475,7 @@ final avatarUrl = user.avatarUrl != null
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
           BottomNavigationBarItem(icon: Icon(Icons.computer), label: ''),

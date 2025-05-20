@@ -876,6 +876,7 @@ class NewsFeedState extends State<NewsFeed> {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),

@@ -605,6 +605,7 @@ class _WorkspacesScreenState extends State<WorkspacesScreen> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),

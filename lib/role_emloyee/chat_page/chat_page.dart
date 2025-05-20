@@ -387,6 +387,7 @@ class ChatPageState extends State<ChatPage> {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),

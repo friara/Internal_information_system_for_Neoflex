@@ -423,6 +423,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       bottomNavigationBar: widget.isAdmin
           ? null
           : BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
               items: const [
                 BottomNavigationBarItem(
                   icon: Icon(Icons.home),
