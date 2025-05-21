@@ -58,21 +58,7 @@ class _EditPostPageState extends State<EditPostPage> {
       final postApi = GetIt.I<Openapi>().getPostControllerApi();
       final multipartFiles = await _convertFilesToMultipart();
 
-      // 1. Создаем FormData вручную, чтобы убедиться в правильной структуре
-      final formData = FormData();
-
-      // 2. Добавляем текст как часть FormData
-      formData.fields.add(MapEntry('text', _textController.text));
-
-      // 3. Добавляем файлы
-      if (multipartFiles.isNotEmpty) {
-        for (final file in multipartFiles) {
-          formData.files.add(MapEntry('files', file));
-        }
-      }
-
-      debugPrint(
-          'Sending text: ${_textController.text}'); // Добавьте это для отладки
+      debugPrint('Sending text: ${_textController.text}');
 
       final response = widget.postId == null
           ? await postApi.createPost(
@@ -81,7 +67,7 @@ class _EditPostPageState extends State<EditPostPage> {
             )
           : await postApi.updatePost(
               id: widget.postId!,
-              postDTO: PostDTO((b) => b..text = _textController.text),
+              text: _textController.text,
               files: multipartFiles.isEmpty ? null : multipartFiles,
             );
 
