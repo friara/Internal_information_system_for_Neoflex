@@ -14,9 +14,9 @@ part 'pageable_object.g.dart';
 /// Properties:
 /// * [offset] 
 /// * [sort] 
-/// * [pageSize] 
 /// * [paged] 
 /// * [pageNumber] 
+/// * [pageSize] 
 /// * [unpaged] 
 @BuiltValue()
 abstract class PageableObject implements Built<PageableObject, PageableObjectBuilder> {
@@ -26,14 +26,14 @@ abstract class PageableObject implements Built<PageableObject, PageableObjectBui
   @BuiltValueField(wireName: r'sort')
   SortObject? get sort;
 
-  @BuiltValueField(wireName: r'pageSize')
-  int? get pageSize;
-
   @BuiltValueField(wireName: r'paged')
   bool? get paged;
 
   @BuiltValueField(wireName: r'pageNumber')
   int? get pageNumber;
+
+  @BuiltValueField(wireName: r'pageSize')
+  int? get pageSize;
 
   @BuiltValueField(wireName: r'unpaged')
   bool? get unpaged;
@@ -75,13 +75,6 @@ class _$PageableObjectSerializer implements PrimitiveSerializer<PageableObject> 
         specifiedType: const FullType(SortObject),
       );
     }
-    if (object.pageSize != null) {
-      yield r'pageSize';
-      yield serializers.serialize(
-        object.pageSize,
-        specifiedType: const FullType(int),
-      );
-    }
     if (object.paged != null) {
       yield r'paged';
       yield serializers.serialize(
@@ -93,6 +86,13 @@ class _$PageableObjectSerializer implements PrimitiveSerializer<PageableObject> 
       yield r'pageNumber';
       yield serializers.serialize(
         object.pageNumber,
+        specifiedType: const FullType(int),
+      );
+    }
+    if (object.pageSize != null) {
+      yield r'pageSize';
+      yield serializers.serialize(
+        object.pageSize,
         specifiedType: const FullType(int),
       );
     }
@@ -140,13 +140,6 @@ class _$PageableObjectSerializer implements PrimitiveSerializer<PageableObject> 
           ) as SortObject;
           result.sort.replace(valueDes);
           break;
-        case r'pageSize':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(int),
-          ) as int;
-          result.pageSize = valueDes;
-          break;
         case r'paged':
           final valueDes = serializers.deserialize(
             value,
@@ -160,6 +153,13 @@ class _$PageableObjectSerializer implements PrimitiveSerializer<PageableObject> 
             specifiedType: const FullType(int),
           ) as int;
           result.pageNumber = valueDes;
+          break;
+        case r'pageSize':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(int),
+          ) as int;
+          result.pageSize = valueDes;
           break;
         case r'unpaged':
           final valueDes = serializers.deserialize(

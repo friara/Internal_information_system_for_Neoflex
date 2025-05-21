@@ -18,15 +18,6 @@ class HorizontalImageSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (imageUrls.isEmpty) {
-      return Container(
-        color: Colors.grey[200],
-        child: const Center(
-          child: Icon(Icons.image, size: 50, color: Colors.grey),
-        ),
-      );
-    }
-
     return FutureBuilder<String?>(
       future: authRepo.getAccessToken(),
       builder: (context, snapshot) {

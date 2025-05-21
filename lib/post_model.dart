@@ -39,19 +39,4 @@ class Post {
       isLiked: dto.liked ?? false,
     );
   }
-  // factory Post.fromResponseDto(PostResponseDTO dto) {
-  //   return Post(
-  //     id: dto.id,
-  //     createdWhen: dto.createdWhen ?? DateTime.now(),
-  //     text: dto.text ?? '',
-  //     imageUrls: dto.media
-  //             ?.where((m) =>
-  //                 m.mediaType == MediaDTOMediaTypeEnum.IMAGE &&
-  //                 (m.downloadUrl?.isNotEmpty ?? false))
-  //             .map((m) => m.downloadUrl!)
-  //             .toList() ??
-  //         [],
-  //     userId: dto.userId ?? 0,
-  //   );
-  // }
 }

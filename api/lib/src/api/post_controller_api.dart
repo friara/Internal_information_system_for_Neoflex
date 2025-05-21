@@ -339,6 +339,7 @@ class PostControllerApi {
   /// Parameters:
   /// * [id] 
   /// * [text] 
+  /// * [isMediaUpdated] 
   /// * [files] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
@@ -352,6 +353,7 @@ class PostControllerApi {
   Future<Response<PostDTO>> updatePost({ 
     required int id,
     required String text,
+    required bool isMediaUpdated,
     BuiltList<MultipartFile>? files,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -376,6 +378,7 @@ class PostControllerApi {
 
     final _queryParameters = <String, dynamic>{
       r'text': encodeQueryParameter(_serializers, text, const FullType(String)),
+      r'isMediaUpdated': encodeQueryParameter(_serializers, isMediaUpdated, const FullType(bool)),
     };
 
     dynamic _bodyData;

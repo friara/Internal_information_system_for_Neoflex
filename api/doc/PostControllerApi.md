@@ -186,7 +186,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **updatePost**
-> PostDTO updatePost(id, text, files)
+> PostDTO updatePost(id, text, isMediaUpdated, files)
 
 
 
@@ -197,10 +197,11 @@ import 'package:openapi/api.dart';
 final api = Openapi().getPostControllerApi();
 final int id = 789; // int | 
 final String text = text_example; // String | 
+final bool isMediaUpdated = true; // bool | 
 final BuiltList<MultipartFile> files = /path/to/file.txt; // BuiltList<MultipartFile> | 
 
 try {
-    final response = api.updatePost(id, text, files);
+    final response = api.updatePost(id, text, isMediaUpdated, files);
     print(response);
 } catch on DioException (e) {
     print('Exception when calling PostControllerApi->updatePost: $e\n');
@@ -213,6 +214,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **id** | **int**|  | 
  **text** | **String**|  | 
+ **isMediaUpdated** | **bool**|  | 
  **files** | [**BuiltList&lt;MultipartFile&gt;**](MultipartFile.md)|  | [optional] 
 
 ### Return type

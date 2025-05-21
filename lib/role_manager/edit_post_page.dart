@@ -68,9 +68,15 @@ class _EditPostPageState extends State<EditPostPage> {
           : await postApi.updatePost(
               id: widget.postId!,
               text: _textController.text,
-              files: multipartFiles.isEmpty ? null : multipartFiles,
+              isMediaUpdated: _currentImagePaths.length !=
+                      widget.initialImagePaths.length ||
+                  !_checkIfImagesSame(),
+              files: _currentImagePaths.isEmpty
+                  ? BuiltList<MultipartFile>() // Пустой список, если нет файлов
+                  : multipartFiles,
             );
 
+      // Обновляем локальное состояние после успешного сохранения
       widget.onSave(_textController.text, _currentImagePaths);
       if (mounted) Navigator.pop(context);
     } catch (e, stackTrace) {
@@ -89,34 +95,14 @@ class _EditPostPageState extends State<EditPostPage> {
   Future<BuiltList<MultipartFile>> _convertFilesToMultipart() async {
     final files = <MultipartFile>[];
 
-    debugPrint('All image paths before processing: $_currentImagePaths');
-
-    // Загружаем существующие файлы с сервера, если они есть
     for (final path in _currentImagePaths) {
       try {
-        // Для URL изображений - загружаем их с сервера
+        // Пропускаем URL изображений - сервер уже имеет эти файлы
         if (path.startsWith('http') || path.startsWith('/')) {
-          debugPrint('Processing URL path: $path');
-
-          final dio = GetIt.I<Dio>();
-          final response = await dio.get(
-            path.startsWith('/') ? '${dio.options.baseUrl}$path' : path,
-            options: Options(responseType: ResponseType.bytes),
-          );
-
-          final fileName = path.split('/').last;
-          final mimeType =
-              lookupMimeType(fileName) ?? 'application/octet-stream';
-
-          files.add(MultipartFile.fromBytes(
-            response.data as List<int>,
-            filename: fileName,
-            contentType: MediaType.parse(mimeType),
-          ));
           continue;
         }
 
-        // Для локальных файлов
+        // Обработка локальных файлов
         debugPrint('Processing local file: $path');
         final file = File(path);
         if (!await file.exists()) {
@@ -146,6 +132,85 @@ class _EditPostPageState extends State<EditPostPage> {
     debugPrint('Total files prepared for upload: ${files.length}');
     return BuiltList(files);
   }
+
+  bool _checkIfImagesSame() {
+    if (_currentImagePaths.length != widget.initialImagePaths.length) {
+      return false;
+    }
+
+    for (int i = 0; i < _currentImagePaths.length; i++) {
+      if (_currentImagePaths[i] != widget.initialImagePaths[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  // Future<BuiltList<MultipartFile>> _convertFilesToMultipart() async {
+  //   final files = <MultipartFile>[];
+
+  //   if (_currentImagePaths.isEmpty) {
+  //     return BuiltList(files); // Возвращаем пустой список
+  //   }
+
+  //   debugPrint('All image paths before processing: $_currentImagePaths');
+
+  //   // Загружаем существующие файлы с сервера, если они есть
+  //   for (final path in _currentImagePaths) {
+  //     try {
+  //       // Для URL изображений - загружаем их с сервера
+  //       if (path.startsWith('http') || path.startsWith('/')) {
+  //         debugPrint('Processing URL path: $path');
+
+  //         final dio = GetIt.I<Dio>();
+  //         final response = await dio.get(
+  //           path.startsWith('/') ? '${dio.options.baseUrl}$path' : path,
+  //           options: Options(responseType: ResponseType.bytes),
+  //         );
+
+  //         final fileName = path.split('/').last;
+  //         final mimeType =
+  //             lookupMimeType(fileName) ?? 'application/octet-stream';
+
+  //         files.add(MultipartFile.fromBytes(
+  //           response.data as List<int>,
+  //           filename: fileName,
+  //           contentType: MediaType.parse(mimeType),
+  //         ));
+  //         continue;
+  //       }
+
+  //       // Для локальных файлов
+  //       debugPrint('Processing local file: $path');
+  //       final file = File(path);
+  //       if (!await file.exists()) {
+  //         debugPrint('File does not exist: $path');
+  //         continue;
+  //       }
+
+  //       final fileName = p.basename(file.path);
+  //       final mimeType = lookupMimeType(fileName) ?? 'application/octet-stream';
+  //       final fileBytes = await file.readAsBytes();
+
+  //       files.add(MultipartFile.fromBytes(
+  //         fileBytes,
+  //         filename: fileName,
+  //         contentType: MediaType.parse(mimeType),
+  //       ));
+  //     } catch (e) {
+  //       debugPrint('Error processing file $path: $e');
+  //       if (mounted) {
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(content: Text('Ошибка обработки файла $path')),
+  //         );
+  //       }
+  //     }
+  //   }
+
+  //   debugPrint('Total files prepared for upload: ${files.length}');
+  //   return BuiltList(files);
+  // }
 
   Future<void> _addNewImage() async {
     final result = await FilePicker.platform.pickFiles(
