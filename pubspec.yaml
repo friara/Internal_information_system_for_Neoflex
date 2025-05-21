@@ -45,6 +45,7 @@ dependencies:
   intl: ^0.20.2
   vector_math: ^2.1.4
   path: ^1.9.1
+  time_range_picker: ^2.3.0
 
 dev_dependencies:
   flutter_test:

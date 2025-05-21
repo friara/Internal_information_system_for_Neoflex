@@ -9,6 +9,15 @@ part of 'page_user_dto.dart';
 class _$PageUserDTO extends PageUserDTO {
   @override
   final int? totalPages;
+<<<<<<< Updated upstream
+=======
+  @override
+  final int? totalElements;
+  @override
+  final bool? first;
+  @override
+  final bool? last;
+>>>>>>> Stashed changes
   @override
   final int? totalElements;
   @override
@@ -20,10 +29,13 @@ class _$PageUserDTO extends PageUserDTO {
   @override
   final SortObject? sort;
   @override
+<<<<<<< Updated upstream
   final bool? first;
   @override
   final bool? last;
   @override
+=======
+>>>>>>> Stashed changes
   final int? numberOfElements;
   @override
   final PageableObject? pageable;
@@ -36,12 +48,20 @@ class _$PageUserDTO extends PageUserDTO {
   _$PageUserDTO._(
       {this.totalPages,
       this.totalElements,
+<<<<<<< Updated upstream
+=======
+      this.first,
+      this.last,
+>>>>>>> Stashed changes
       this.size,
       this.content,
       this.number,
       this.sort,
+<<<<<<< Updated upstream
       this.first,
       this.last,
+=======
+>>>>>>> Stashed changes
       this.numberOfElements,
       this.pageable,
       this.empty})
@@ -60,12 +80,20 @@ class _$PageUserDTO extends PageUserDTO {
     return other is PageUserDTO &&
         totalPages == other.totalPages &&
         totalElements == other.totalElements &&
+<<<<<<< Updated upstream
+=======
+        first == other.first &&
+        last == other.last &&
+>>>>>>> Stashed changes
         size == other.size &&
         content == other.content &&
         number == other.number &&
         sort == other.sort &&
+<<<<<<< Updated upstream
         first == other.first &&
         last == other.last &&
+=======
+>>>>>>> Stashed changes
         numberOfElements == other.numberOfElements &&
         pageable == other.pageable &&
         empty == other.empty;
@@ -76,12 +104,20 @@ class _$PageUserDTO extends PageUserDTO {
     var _$hash = 0;
     _$hash = $jc(_$hash, totalPages.hashCode);
     _$hash = $jc(_$hash, totalElements.hashCode);
+<<<<<<< Updated upstream
+=======
+    _$hash = $jc(_$hash, first.hashCode);
+    _$hash = $jc(_$hash, last.hashCode);
+>>>>>>> Stashed changes
     _$hash = $jc(_$hash, size.hashCode);
     _$hash = $jc(_$hash, content.hashCode);
     _$hash = $jc(_$hash, number.hashCode);
     _$hash = $jc(_$hash, sort.hashCode);
+<<<<<<< Updated upstream
     _$hash = $jc(_$hash, first.hashCode);
     _$hash = $jc(_$hash, last.hashCode);
+=======
+>>>>>>> Stashed changes
     _$hash = $jc(_$hash, numberOfElements.hashCode);
     _$hash = $jc(_$hash, pageable.hashCode);
     _$hash = $jc(_$hash, empty.hashCode);
@@ -94,12 +130,20 @@ class _$PageUserDTO extends PageUserDTO {
     return (newBuiltValueToStringHelper(r'PageUserDTO')
           ..add('totalPages', totalPages)
           ..add('totalElements', totalElements)
+<<<<<<< Updated upstream
+=======
+          ..add('first', first)
+          ..add('last', last)
+>>>>>>> Stashed changes
           ..add('size', size)
           ..add('content', content)
           ..add('number', number)
           ..add('sort', sort)
+<<<<<<< Updated upstream
           ..add('first', first)
           ..add('last', last)
+=======
+>>>>>>> Stashed changes
           ..add('numberOfElements', numberOfElements)
           ..add('pageable', pageable)
           ..add('empty', empty))
@@ -119,6 +163,17 @@ class PageUserDTOBuilder implements Builder<PageUserDTO, PageUserDTOBuilder> {
   set totalElements(int? totalElements) =>
       _$this._totalElements = totalElements;
 
+<<<<<<< Updated upstream
+=======
+  bool? _first;
+  bool? get first => _$this._first;
+  set first(bool? first) => _$this._first = first;
+
+  bool? _last;
+  bool? get last => _$this._last;
+  set last(bool? last) => _$this._last = last;
+
+>>>>>>> Stashed changes
   int? _size;
   int? get size => _$this._size;
   set size(int? size) => _$this._size = size;
@@ -136,6 +191,7 @@ class PageUserDTOBuilder implements Builder<PageUserDTO, PageUserDTOBuilder> {
   SortObjectBuilder get sort => _$this._sort ??= new SortObjectBuilder();
   set sort(SortObjectBuilder? sort) => _$this._sort = sort;
 
+<<<<<<< Updated upstream
   bool? _first;
   bool? get first => _$this._first;
   set first(bool? first) => _$this._first = first;
@@ -144,6 +200,8 @@ class PageUserDTOBuilder implements Builder<PageUserDTO, PageUserDTOBuilder> {
   bool? get last => _$this._last;
   set last(bool? last) => _$this._last = last;
 
+=======
+>>>>>>> Stashed changes
   int? _numberOfElements;
   int? get numberOfElements => _$this._numberOfElements;
   set numberOfElements(int? numberOfElements) =>
@@ -167,12 +225,20 @@ class PageUserDTOBuilder implements Builder<PageUserDTO, PageUserDTOBuilder> {
     if ($v != null) {
       _totalPages = $v.totalPages;
       _totalElements = $v.totalElements;
+<<<<<<< Updated upstream
+=======
+      _first = $v.first;
+      _last = $v.last;
+>>>>>>> Stashed changes
       _size = $v.size;
       _content = $v.content?.toBuilder();
       _number = $v.number;
       _sort = $v.sort?.toBuilder();
+<<<<<<< Updated upstream
       _first = $v.first;
       _last = $v.last;
+=======
+>>>>>>> Stashed changes
       _numberOfElements = $v.numberOfElements;
       _pageable = $v.pageable?.toBuilder();
       _empty = $v.empty;
@@ -202,12 +268,20 @@ class PageUserDTOBuilder implements Builder<PageUserDTO, PageUserDTOBuilder> {
           new _$PageUserDTO._(
             totalPages: totalPages,
             totalElements: totalElements,
+<<<<<<< Updated upstream
+=======
+            first: first,
+            last: last,
+>>>>>>> Stashed changes
             size: size,
             content: _content?.build(),
             number: number,
             sort: _sort?.build(),
+<<<<<<< Updated upstream
             first: first,
             last: last,
+=======
+>>>>>>> Stashed changes
             numberOfElements: numberOfElements,
             pageable: _pageable?.build(),
             empty: empty,

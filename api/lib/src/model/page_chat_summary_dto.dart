@@ -17,12 +17,20 @@ part 'page_chat_summary_dto.g.dart';
 /// Properties:
 /// * [totalPages] 
 /// * [totalElements] 
+<<<<<<< Updated upstream
+=======
+/// * [first] 
+/// * [last] 
+>>>>>>> Stashed changes
 /// * [size] 
 /// * [content] 
 /// * [number] 
 /// * [sort] 
+<<<<<<< Updated upstream
 /// * [first] 
 /// * [last] 
+=======
+>>>>>>> Stashed changes
 /// * [numberOfElements] 
 /// * [pageable] 
 /// * [empty] 
@@ -30,6 +38,18 @@ part 'page_chat_summary_dto.g.dart';
 abstract class PageChatSummaryDTO implements Built<PageChatSummaryDTO, PageChatSummaryDTOBuilder> {
   @BuiltValueField(wireName: r'totalPages')
   int? get totalPages;
+<<<<<<< Updated upstream
+=======
+
+  @BuiltValueField(wireName: r'totalElements')
+  int? get totalElements;
+
+  @BuiltValueField(wireName: r'first')
+  bool? get first;
+
+  @BuiltValueField(wireName: r'last')
+  bool? get last;
+>>>>>>> Stashed changes
 
   @BuiltValueField(wireName: r'totalElements')
   int? get totalElements;
@@ -46,12 +66,15 @@ abstract class PageChatSummaryDTO implements Built<PageChatSummaryDTO, PageChatS
   @BuiltValueField(wireName: r'sort')
   SortObject? get sort;
 
+<<<<<<< Updated upstream
   @BuiltValueField(wireName: r'first')
   bool? get first;
 
   @BuiltValueField(wireName: r'last')
   bool? get last;
 
+=======
+>>>>>>> Stashed changes
   @BuiltValueField(wireName: r'numberOfElements')
   int? get numberOfElements;
 
@@ -86,9 +109,33 @@ class _$PageChatSummaryDTOSerializer implements PrimitiveSerializer<PageChatSumm
   }) sync* {
     if (object.totalPages != null) {
       yield r'totalPages';
+<<<<<<< Updated upstream
+=======
       yield serializers.serialize(
         object.totalPages,
         specifiedType: const FullType(int),
+      );
+    }
+    if (object.totalElements != null) {
+      yield r'totalElements';
+      yield serializers.serialize(
+        object.totalElements,
+        specifiedType: const FullType(int),
+      );
+    }
+    if (object.first != null) {
+      yield r'first';
+>>>>>>> Stashed changes
+      yield serializers.serialize(
+        object.first,
+        specifiedType: const FullType(bool),
+      );
+    }
+    if (object.last != null) {
+      yield r'last';
+      yield serializers.serialize(
+        object.last,
+        specifiedType: const FullType(bool),
       );
     }
     if (object.totalElements != null) {
@@ -126,6 +173,7 @@ class _$PageChatSummaryDTOSerializer implements PrimitiveSerializer<PageChatSumm
         specifiedType: const FullType(SortObject),
       );
     }
+<<<<<<< Updated upstream
     if (object.first != null) {
       yield r'first';
       yield serializers.serialize(
@@ -140,6 +188,8 @@ class _$PageChatSummaryDTOSerializer implements PrimitiveSerializer<PageChatSumm
         specifiedType: const FullType(bool),
       );
     }
+=======
+>>>>>>> Stashed changes
     if (object.numberOfElements != null) {
       yield r'numberOfElements';
       yield serializers.serialize(
@@ -185,11 +235,35 @@ class _$PageChatSummaryDTOSerializer implements PrimitiveSerializer<PageChatSumm
       final value = serializedList[i + 1];
       switch (key) {
         case r'totalPages':
+<<<<<<< Updated upstream
+=======
           final valueDes = serializers.deserialize(
             value,
             specifiedType: const FullType(int),
           ) as int;
           result.totalPages = valueDes;
+          break;
+        case r'totalElements':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(int),
+          ) as int;
+          result.totalElements = valueDes;
+          break;
+        case r'first':
+>>>>>>> Stashed changes
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(bool),
+          ) as bool;
+          result.first = valueDes;
+          break;
+        case r'last':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(bool),
+          ) as bool;
+          result.last = valueDes;
           break;
         case r'totalElements':
           final valueDes = serializers.deserialize(
@@ -226,6 +300,7 @@ class _$PageChatSummaryDTOSerializer implements PrimitiveSerializer<PageChatSumm
           ) as SortObject;
           result.sort.replace(valueDes);
           break;
+<<<<<<< Updated upstream
         case r'first':
           final valueDes = serializers.deserialize(
             value,
@@ -240,6 +315,8 @@ class _$PageChatSummaryDTOSerializer implements PrimitiveSerializer<PageChatSumm
           ) as bool;
           result.last = valueDes;
           break;
+=======
+>>>>>>> Stashed changes
         case r'numberOfElements':
           final valueDes = serializers.deserialize(
             value,

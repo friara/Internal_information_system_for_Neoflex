@@ -42,6 +42,24 @@ class WorkspaceRepository {
     }
   }
 
+  Future<List<WorkspaceDTO>> getAvailableWorkspaces(DateTime start, DateTime end) async {
+    try {
+      final response = await _apiWorkspace.getAvailableWorkspaces(
+        start: start.toUtc(),
+        end: end.toUtc()
+      );
+      return response.data!.map((dto) => WorkspaceDTO(
+        (b) => b
+          ..id = dto.id
+          ..workspaceName = dto.workspaceName
+          ..currentBookings.replace(dto.currentBookings ?? [])
+          ..available = dto.available
+      )).toList();
+    } catch (e) {
+      throw Exception('Failed to load available workspaces: $e');
+    }
+  }
+
 Future<void> bookWorkspace(String id, DateTime startTime, DateTime endTime) async {
   try {
     final workspaceId = int.parse(id);

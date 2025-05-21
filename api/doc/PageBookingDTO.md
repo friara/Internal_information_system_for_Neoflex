@@ -10,12 +10,20 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **totalPages** | **int** |  | [optional] 
 **totalElements** | **int** |  | [optional] 
+<<<<<<< Updated upstream
+=======
+**first** | **bool** |  | [optional] 
+**last** | **bool** |  | [optional] 
+>>>>>>> Stashed changes
 **size** | **int** |  | [optional] 
 **content** | [**BuiltList&lt;BookingDTO&gt;**](BookingDTO.md) |  | [optional] 
 **number** | **int** |  | [optional] 
 **sort** | [**SortObject**](SortObject.md) |  | [optional] 
+<<<<<<< Updated upstream
 **first** | **bool** |  | [optional] 
 **last** | **bool** |  | [optional] 
+=======
+>>>>>>> Stashed changes
 **numberOfElements** | **int** |  | [optional] 
 **pageable** | [**PageableObject**](PageableObject.md) |  | [optional] 
 **empty** | **bool** |  | [optional] 
