@@ -9,55 +9,12 @@ All URIs are relative to *http://localhost:8080*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**checkAvailability**](BookingControllerApi.md#checkavailability) | **GET** /api/bookings/availability/{workspaceId} | 
 [**createBooking**](BookingControllerApi.md#createbooking) | **POST** /api/bookings | 
 [**deleteBooking**](BookingControllerApi.md#deletebooking) | **DELETE** /api/bookings/{id} | 
 [**getAllBookings**](BookingControllerApi.md#getallbookings) | **GET** /api/bookings | 
 [**getBookingById**](BookingControllerApi.md#getbookingbyid) | **GET** /api/bookings/{id} | 
+[**getBookings**](BookingControllerApi.md#getbookings) | **GET** /api/bookings/me | 
 
-
-# **checkAvailability**
-> BuiltList<DateTime> checkAvailability(workspaceId, date)
-
-
-
-### Example
-```dart
-import 'package:openapi/api.dart';
-
-final api = Openapi().getBookingControllerApi();
-final int workspaceId = 789; // int | 
-final DateTime date = 2013-10-20T19:20:30+01:00; // DateTime | 
-
-try {
-    final response = api.checkAvailability(workspaceId, date);
-    print(response);
-} catch on DioException (e) {
-    print('Exception when calling BookingControllerApi->checkAvailability: $e\n');
-}
-```
-
-### Parameters
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **workspaceId** | **int**|  | 
- **date** | **DateTime**|  | 
-
-### Return type
-
-[**BuiltList&lt;DateTime&gt;**](DateTime.md)
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: */*
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **createBooking**
 > BookingDTO createBooking(bookingRequestDTO)
@@ -210,6 +167,47 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**BookingDTO**](BookingDTO.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getBookings**
+> PageBookingDTO getBookings(pageable)
+
+
+
+### Example
+```dart
+import 'package:openapi/api.dart';
+
+final api = Openapi().getBookingControllerApi();
+final Pageable pageable = ; // Pageable | 
+
+try {
+    final response = api.getBookings(pageable);
+    print(response);
+} catch on DioException (e) {
+    print('Exception when calling BookingControllerApi->getBookings: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **pageable** | [**Pageable**](.md)|  | 
+
+### Return type
+
+[**PageBookingDTO**](PageBookingDTO.md)
 
 ### Authorization
 

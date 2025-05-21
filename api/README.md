@@ -48,14 +48,13 @@ import 'package:openapi/openapi.dart';
 
 
 final api = Openapi().getBookingControllerApi();
-final int workspaceId = 789; // int | 
-final DateTime date = 2013-10-20T19:20:30+01:00; // DateTime | 
+final BookingRequestDTO bookingRequestDTO = ; // BookingRequestDTO | 
 
 try {
-    final response = await api.checkAvailability(workspaceId, date);
+    final response = await api.createBooking(bookingRequestDTO);
     print(response);
 } catch on DioException (e) {
-    print("Exception when calling BookingControllerApi->checkAvailability: $e\n");
+    print("Exception when calling BookingControllerApi->createBooking: $e\n");
 }
 
 ```
@@ -66,11 +65,11 @@ All URIs are relative to *http://localhost:8080*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
-[*BookingControllerApi*](doc/BookingControllerApi.md) | [**checkAvailability**](doc/BookingControllerApi.md#checkavailability) | **GET** /api/bookings/availability/{workspaceId} | 
 [*BookingControllerApi*](doc/BookingControllerApi.md) | [**createBooking**](doc/BookingControllerApi.md#createbooking) | **POST** /api/bookings | 
 [*BookingControllerApi*](doc/BookingControllerApi.md) | [**deleteBooking**](doc/BookingControllerApi.md#deletebooking) | **DELETE** /api/bookings/{id} | 
 [*BookingControllerApi*](doc/BookingControllerApi.md) | [**getAllBookings**](doc/BookingControllerApi.md#getallbookings) | **GET** /api/bookings | 
 [*BookingControllerApi*](doc/BookingControllerApi.md) | [**getBookingById**](doc/BookingControllerApi.md#getbookingbyid) | **GET** /api/bookings/{id} | 
+[*BookingControllerApi*](doc/BookingControllerApi.md) | [**getBookings**](doc/BookingControllerApi.md#getbookings) | **GET** /api/bookings/me | 
 [*ChatControllerApi*](doc/ChatControllerApi.md) | [**createChat**](doc/ChatControllerApi.md#createchat) | **POST** /api/chats | 
 [*ChatControllerApi*](doc/ChatControllerApi.md) | [**deleteChat**](doc/ChatControllerApi.md#deletechat) | **DELETE** /api/chats/{id} | 
 [*ChatControllerApi*](doc/ChatControllerApi.md) | [**getChatById**](doc/ChatControllerApi.md#getchatbyid) | **GET** /api/chats/{id} | 

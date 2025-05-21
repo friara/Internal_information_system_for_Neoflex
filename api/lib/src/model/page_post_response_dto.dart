@@ -15,44 +15,36 @@ part 'page_post_response_dto.g.dart';
 /// PagePostResponseDTO
 ///
 /// Properties:
-/// * [totalPages] 
 /// * [totalElements] 
-<<<<<<< Updated upstream
-=======
+/// * [totalPages] 
+/// * [numberOfElements] 
+/// * [pageable] 
 /// * [first] 
 /// * [last] 
->>>>>>> Stashed changes
 /// * [size] 
 /// * [content] 
 /// * [number] 
 /// * [sort] 
-<<<<<<< Updated upstream
-/// * [first] 
-/// * [last] 
-=======
->>>>>>> Stashed changes
-/// * [numberOfElements] 
-/// * [pageable] 
 /// * [empty] 
 @BuiltValue()
 abstract class PagePostResponseDTO implements Built<PagePostResponseDTO, PagePostResponseDTOBuilder> {
-  @BuiltValueField(wireName: r'totalPages')
-  int? get totalPages;
-<<<<<<< Updated upstream
-=======
-
   @BuiltValueField(wireName: r'totalElements')
   int? get totalElements;
+
+  @BuiltValueField(wireName: r'totalPages')
+  int? get totalPages;
+
+  @BuiltValueField(wireName: r'numberOfElements')
+  int? get numberOfElements;
+
+  @BuiltValueField(wireName: r'pageable')
+  PageableObject? get pageable;
 
   @BuiltValueField(wireName: r'first')
   bool? get first;
 
   @BuiltValueField(wireName: r'last')
   bool? get last;
->>>>>>> Stashed changes
-
-  @BuiltValueField(wireName: r'totalElements')
-  int? get totalElements;
 
   @BuiltValueField(wireName: r'size')
   int? get size;
@@ -65,21 +57,6 @@ abstract class PagePostResponseDTO implements Built<PagePostResponseDTO, PagePos
 
   @BuiltValueField(wireName: r'sort')
   SortObject? get sort;
-
-<<<<<<< Updated upstream
-  @BuiltValueField(wireName: r'first')
-  bool? get first;
-
-  @BuiltValueField(wireName: r'last')
-  bool? get last;
-
-=======
->>>>>>> Stashed changes
-  @BuiltValueField(wireName: r'numberOfElements')
-  int? get numberOfElements;
-
-  @BuiltValueField(wireName: r'pageable')
-  PageableObject? get pageable;
 
   @BuiltValueField(wireName: r'empty')
   bool? get empty;
@@ -107,15 +84,6 @@ class _$PagePostResponseDTOSerializer implements PrimitiveSerializer<PagePostRes
     PagePostResponseDTO object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
-    if (object.totalPages != null) {
-      yield r'totalPages';
-<<<<<<< Updated upstream
-=======
-      yield serializers.serialize(
-        object.totalPages,
-        specifiedType: const FullType(int),
-      );
-    }
     if (object.totalElements != null) {
       yield r'totalElements';
       yield serializers.serialize(
@@ -123,9 +91,29 @@ class _$PagePostResponseDTOSerializer implements PrimitiveSerializer<PagePostRes
         specifiedType: const FullType(int),
       );
     }
+    if (object.totalPages != null) {
+      yield r'totalPages';
+      yield serializers.serialize(
+        object.totalPages,
+        specifiedType: const FullType(int),
+      );
+    }
+    if (object.numberOfElements != null) {
+      yield r'numberOfElements';
+      yield serializers.serialize(
+        object.numberOfElements,
+        specifiedType: const FullType(int),
+      );
+    }
+    if (object.pageable != null) {
+      yield r'pageable';
+      yield serializers.serialize(
+        object.pageable,
+        specifiedType: const FullType(PageableObject),
+      );
+    }
     if (object.first != null) {
       yield r'first';
->>>>>>> Stashed changes
       yield serializers.serialize(
         object.first,
         specifiedType: const FullType(bool),
@@ -136,13 +124,6 @@ class _$PagePostResponseDTOSerializer implements PrimitiveSerializer<PagePostRes
       yield serializers.serialize(
         object.last,
         specifiedType: const FullType(bool),
-      );
-    }
-    if (object.totalElements != null) {
-      yield r'totalElements';
-      yield serializers.serialize(
-        object.totalElements,
-        specifiedType: const FullType(int),
       );
     }
     if (object.size != null) {
@@ -171,37 +152,6 @@ class _$PagePostResponseDTOSerializer implements PrimitiveSerializer<PagePostRes
       yield serializers.serialize(
         object.sort,
         specifiedType: const FullType(SortObject),
-      );
-    }
-<<<<<<< Updated upstream
-    if (object.first != null) {
-      yield r'first';
-      yield serializers.serialize(
-        object.first,
-        specifiedType: const FullType(bool),
-      );
-    }
-    if (object.last != null) {
-      yield r'last';
-      yield serializers.serialize(
-        object.last,
-        specifiedType: const FullType(bool),
-      );
-    }
-=======
->>>>>>> Stashed changes
-    if (object.numberOfElements != null) {
-      yield r'numberOfElements';
-      yield serializers.serialize(
-        object.numberOfElements,
-        specifiedType: const FullType(int),
-      );
-    }
-    if (object.pageable != null) {
-      yield r'pageable';
-      yield serializers.serialize(
-        object.pageable,
-        specifiedType: const FullType(PageableObject),
       );
     }
     if (object.empty != null) {
@@ -234,15 +184,6 @@ class _$PagePostResponseDTOSerializer implements PrimitiveSerializer<PagePostRes
       final key = serializedList[i] as String;
       final value = serializedList[i + 1];
       switch (key) {
-        case r'totalPages':
-<<<<<<< Updated upstream
-=======
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(int),
-          ) as int;
-          result.totalPages = valueDes;
-          break;
         case r'totalElements':
           final valueDes = serializers.deserialize(
             value,
@@ -250,8 +191,28 @@ class _$PagePostResponseDTOSerializer implements PrimitiveSerializer<PagePostRes
           ) as int;
           result.totalElements = valueDes;
           break;
+        case r'totalPages':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(int),
+          ) as int;
+          result.totalPages = valueDes;
+          break;
+        case r'numberOfElements':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(int),
+          ) as int;
+          result.numberOfElements = valueDes;
+          break;
+        case r'pageable':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(PageableObject),
+          ) as PageableObject;
+          result.pageable.replace(valueDes);
+          break;
         case r'first':
->>>>>>> Stashed changes
           final valueDes = serializers.deserialize(
             value,
             specifiedType: const FullType(bool),
@@ -264,13 +225,6 @@ class _$PagePostResponseDTOSerializer implements PrimitiveSerializer<PagePostRes
             specifiedType: const FullType(bool),
           ) as bool;
           result.last = valueDes;
-          break;
-        case r'totalElements':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(int),
-          ) as int;
-          result.totalElements = valueDes;
           break;
         case r'size':
           final valueDes = serializers.deserialize(
@@ -299,37 +253,6 @@ class _$PagePostResponseDTOSerializer implements PrimitiveSerializer<PagePostRes
             specifiedType: const FullType(SortObject),
           ) as SortObject;
           result.sort.replace(valueDes);
-          break;
-<<<<<<< Updated upstream
-        case r'first':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(bool),
-          ) as bool;
-          result.first = valueDes;
-          break;
-        case r'last':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(bool),
-          ) as bool;
-          result.last = valueDes;
-          break;
-=======
->>>>>>> Stashed changes
-        case r'numberOfElements':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(int),
-          ) as int;
-          result.numberOfElements = valueDes;
-          break;
-        case r'pageable':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(PageableObject),
-          ) as PageableObject;
-          result.pageable.replace(valueDes);
           break;
         case r'empty':
           final valueDes = serializers.deserialize(

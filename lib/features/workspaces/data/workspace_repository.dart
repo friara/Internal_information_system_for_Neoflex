@@ -78,4 +78,27 @@ Future<void> bookWorkspace(String id, DateTime startTime, DateTime endTime) asyn
   }
 }
 
+  // Future<List<BookingDTO>> getBookings() async {
+  //     final pageable = Pageable((b) => b..page = 0..size = 10);
+  //     final response = await _apiBooking.getBookings(pageable: pageable);
+  //     return response.data?.content?.map((e) => e as BookingDTO).toList() ?? [];
+  // }
+
+  Future<List<BookingDTO>> getBookings() async {
+  final pageable = Pageable((b) => b..page = 0..size = 10);
+  var response = await _apiBooking.getBookings(pageable: pageable);
+  
+  return response.data?.content?.map((e) => BookingDTO(
+    (b) => b
+      ..id = e.id
+      ..workspaceId = e.workspaceId
+      ..userId = e.userId
+      ..bookingStart = e.bookingStart?.toLocal()
+      ..bookingEnd = e.bookingEnd?.toLocal()
+  )).toList() ?? [];
+}
+
+  Future<void> cancelBooking(int bookingId) async {
+      await _apiBooking.deleteBooking(id: bookingId);
+  }
 }

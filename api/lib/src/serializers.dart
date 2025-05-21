@@ -79,10 +79,6 @@ Serializers serializers = (_$serializers.toBuilder()
         () => ListBuilder<UserExtendedDTO>(),
       )
       ..addBuilderFactory(
-        const FullType(BuiltList, [FullType(DateTime)]),
-        () => ListBuilder<DateTime>(),
-      )
-      ..addBuilderFactory(
         const FullType(BuiltList, [FullType(MessageNotificationDTO)]),
         () => ListBuilder<MessageNotificationDTO>(),
       )
