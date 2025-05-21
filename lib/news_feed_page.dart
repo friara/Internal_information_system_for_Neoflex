@@ -5,15 +5,18 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl/intl.dart';
 import 'package:news_feed_neoflex/app_routes.dart';
 import 'package:news_feed_neoflex/features/auth/auth_repository_impl.dart';
 import 'package:news_feed_neoflex/features/auth/presentation/screens/login_screen.dart';
 import 'package:news_feed_neoflex/horizontal_image_slider.dart';
 import 'package:news_feed_neoflex/post_model.dart';
 import 'package:news_feed_neoflex/role_manager/edit_post_page.dart';
-import 'package:news_feed_neoflex/role_manager/new_post_page/new_post_page.dart';
+import 'package:news_feed_neoflex/role_manager/new_post_page/publication_page.dart';
 import 'package:news_feed_neoflex/role_manager/users_page/user_profile_page.dart';
 import 'package:openapi/openapi.dart';
+import 'package:universal_html/html.dart' as html;
+import 'package:cached_network_image/cached_network_image.dart';
 
 class NewsFeed extends StatefulWidget {
   const NewsFeed({super.key});
@@ -38,6 +41,10 @@ class NewsFeedState extends State<NewsFeed> {
   bool _isAdmin = false;
   String? _errorMessage;
   bool _isLoading = false;
+  final CommentControllerApi _commentApi =
+      GetIt.I<Openapi>().getCommentControllerApi();
+  final LikeControllerApi _likeApi = GetIt.I<Openapi>().getLikeControllerApi();
+  int? _currentUserId;
 
   @override
   void initState() {
@@ -86,6 +93,7 @@ class NewsFeedState extends State<NewsFeed> {
       setState(() {
         _currentUserRole = response.data!.roleName?.toUpperCase().trim();
         _isAdmin = _currentUserRole == 'ROLE_ADMIN';
+        _currentUserId = response.data!.id?.toInt();
         _isRoleLoaded = true;
       });
     } on DioException catch (e) {
@@ -107,6 +115,67 @@ class NewsFeedState extends State<NewsFeed> {
     );
   }
 
+  // Future<void> loadPosts() async {
+  //   if (!mounted) return;
+
+  //   setState(() {
+  //     _isLoading = true;
+  //     _errorMessage = null;
+  //   });
+
+  //   try {
+  //     final token = await GetIt.I<AuthRepositoryImpl>().getAccessToken();
+
+  //     final dio = GetIt.I<Dio>();
+  //     dio.options.headers['Authorization'] = 'Bearer $token';
+
+  //     final postApi = GetIt.I<Openapi>().getPostControllerApi();
+  //     final response = await postApi.getAllPosts(
+  //       sortBy: _sortBy,
+  //       page: 0,
+  //       size: 100,
+  //     );
+
+  //     if (response.statusCode != 200 || response.data == null) {
+  //       throw Exception('Server returned ${response.statusCode}');
+  //     }
+
+  //     final pageResponse = response.data!;
+  //     final postDTOs = pageResponse.content ?? BuiltList<PostResponseDTO>();
+
+  //     // Создаем изменяемый список
+  //     final newPosts =
+  //         postDTOs.map((dto) => Post.fromResponseDto(dto)).toList();
+
+  //     setState(() {
+  //       posts = newPosts;
+  //       filteredPosts = [...newPosts]; // Создаем новый изменяемый список
+  //       showCommentInput = List.generate(newPosts.length, (index) => false);
+  //     });
+  //   } on DioException catch (e) {
+  //     debugPrint('DioError: ${e.message}');
+  //     debugPrint('Response: ${e.response}');
+
+  //     setState(() {
+  //       _errorMessage = 'Ошибка загрузки: ${e.message}';
+  //     });
+
+  //     if (e.response?.statusCode == 401) {
+  //       _handleInvalidToken();
+  //     }
+  //   } catch (e, stack) {
+  //     debugPrint('Error: $e');
+  //     debugPrint('Stack: $stack');
+  //     setState(() {
+  //       _errorMessage = 'Неизвестная ошибка';
+  //     });
+  //   } finally {
+  //     if (mounted) {
+  //       setState(() => _isLoading = false);
+  //     }
+  //   }
+  // }
+
   Future<void> loadPosts() async {
     if (!mounted) return;
 
@@ -117,11 +186,12 @@ class NewsFeedState extends State<NewsFeed> {
 
     try {
       final token = await GetIt.I<AuthRepositoryImpl>().getAccessToken();
-
       final dio = GetIt.I<Dio>();
       dio.options.headers['Authorization'] = 'Bearer $token';
 
       final postApi = GetIt.I<Openapi>().getPostControllerApi();
+      final userApi = GetIt.I<Openapi>().getUserControllerApi();
+
       final response = await postApi.getAllPosts(
         sortBy: _sortBy,
         page: 0,
@@ -135,28 +205,96 @@ class NewsFeedState extends State<NewsFeed> {
       final pageResponse = response.data!;
       final postDTOs = pageResponse.content ?? BuiltList<PostResponseDTO>();
 
-      final newPosts =
-          postDTOs.map((dto) => Post.fromResponseDto(dto)).toList();
+      final newPosts = await Future.wait(postDTOs.map((dto) async {
+        final post = Post.fromResponseDto(dto);
+
+        // Используем значение liked из основного ответа
+        if (_currentUserId != null) {
+          post.isLiked = dto.liked ?? false;
+        }
+
+        // Загружаем комментарии с информацией о пользователях
+        // Загружаем комментарии с информацией о пользователях
+        try {
+          final commentsResponse =
+              await _commentApi.getComments(postId: post.id!);
+          if (commentsResponse.data != null) {
+            post.comments =
+                await Future.wait(commentsResponse.data!.map((c) async {
+              // Если userId null, возвращаем анонимный комментарий
+              if (c.userId == null) {
+                return Comment(
+                  id: c.id ?? -1,
+                  text: c.text ?? 'Без текста',
+                  userId: -1,
+                  userAvatar: '',
+                  userName: 'Аноним',
+                  createdAt: c.createdWhen?.toLocal() ?? DateTime.now(),
+                );
+              }
+
+              try {
+                // Загружаем данные пользователя
+                final userResponse = await userApi.getUserById(id: c.userId!);
+                final user = userResponse.data;
+
+                // Формируем URL аватарки
+                String avatarUrl = '';
+                if (user?.avatarUrl != null && user!.avatarUrl!.isNotEmpty) {
+                  if (user.avatarUrl!.startsWith('http')) {
+                    avatarUrl = user.avatarUrl!;
+                  } else {
+                    avatarUrl =
+                        '${dio.options.baseUrl}${user.avatarUrl!.startsWith('/') ? user.avatarUrl!.substring(1) : user.avatarUrl}';
+                  }
+                }
+
+                return Comment(
+                  id: c.id ?? -1,
+                  text: c.text ?? 'Без текста',
+                  userId: c.userId!,
+                  userAvatar: avatarUrl,
+                  userName: user != null
+                      ? '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim()
+                      : 'Аноним',
+                  createdAt: c.createdWhen?.toLocal() ?? DateTime.now(),
+                );
+              } catch (e) {
+                debugPrint('Error loading user data for comment: $e');
+                return Comment(
+                  id: c.id ?? -1,
+                  text: c.text ?? 'Без текста',
+                  userId: c.userId ?? -1,
+                  userAvatar: '',
+                  userName: 'Аноним',
+                  createdAt: c.createdWhen?.toLocal() ?? DateTime.now(),
+                );
+              }
+            }).toList());
+          }
+        } catch (e) {
+          debugPrint('Error loading comments: $e');
+          post.comments = [];
+        }
+
+        return post;
+      }));
 
       setState(() {
         posts = newPosts;
-        filteredPosts = List.from(newPosts);
-        showCommentInput = List.filled(newPosts.length, false);
+        filteredPosts = [...newPosts];
+        showCommentInput = List.generate(newPosts.length, (index) => false);
       });
     } on DioException catch (e) {
       debugPrint('DioError: ${e.message}');
-      debugPrint('Response: ${e.response}');
-
       setState(() {
         _errorMessage = 'Ошибка загрузки: ${e.message}';
       });
-
       if (e.response?.statusCode == 401) {
         _handleInvalidToken();
       }
     } catch (e, stack) {
-      debugPrint('Error: $e');
-      debugPrint('Stack: $stack');
+      debugPrint('Error: $e\n$stack');
       setState(() {
         _errorMessage = 'Неизвестная ошибка';
       });
@@ -187,12 +325,58 @@ class NewsFeedState extends State<NewsFeed> {
     }
   }
 
-  void addComment(int index, String comment) {
-    if (comment.isNotEmpty) {
-      setState(() {
-        filteredPosts[index].comments.add(comment);
-        _controller.clear();
-      });
+  Future<void> addComment(int index, String comment) async {
+    if (comment.isEmpty || _currentUserId == null) return;
+
+    try {
+      final post = filteredPosts[index];
+      final response = await _commentApi.createComment(
+        postId: post.id!,
+        commentDTO: CommentDTO((b) => b..text = comment),
+      );
+
+      if (response.data != null) {
+        // Получаем данные текущего пользователя
+        final userApi = GetIt.I<Openapi>().getUserControllerApi();
+        final userResponse = await userApi.getCurrentUser();
+        final user = userResponse.data;
+
+        // Формируем URL аватарки
+        String avatarUrl = '';
+        if (user?.avatarUrl != null && user!.avatarUrl!.isNotEmpty) {
+          final dio = GetIt.I<Dio>();
+          if (user.avatarUrl!.startsWith('http')) {
+            avatarUrl = user.avatarUrl!;
+          } else {
+            avatarUrl =
+                '${dio.options.baseUrl}${user.avatarUrl!.startsWith('/') ? user.avatarUrl!.substring(1) : user.avatarUrl}';
+          }
+        }
+
+        setState(() {
+          filteredPosts[index].comments.add(Comment(
+                id: response.data!.id!,
+                text: response.data!.text ?? comment,
+                userId: _currentUserId!,
+                userAvatar: avatarUrl,
+                userName: user != null
+                    ? '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim()
+                    : 'Аноним',
+                createdAt:
+                    response.data!.createdWhen?.toLocal() ?? DateTime.now(),
+              ));
+          _controller.clear();
+        });
+      }
+    } catch (e) {
+      debugPrint('Error adding comment: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Ошибка: не удалось добавить комментарий'),
+          ),
+        );
+      }
     }
   }
 
@@ -207,11 +391,77 @@ class NewsFeedState extends State<NewsFeed> {
     });
   }
 
-  void toggleLike(int index) {
+  Future<void> toggleLike(int index) async {
+    if (!mounted) return;
+
+    final post = filteredPosts[index];
+    if (post.id == null || _currentUserId == null) {
+      debugPrint('Invalid post or user ID');
+      return;
+    }
+
     setState(() {
-      filteredPosts[index].isLiked = !filteredPosts[index].isLiked;
-      filteredPosts[index].likesCount += filteredPosts[index].isLiked ? 1 : -1;
+      _isLoading = true;
     });
+
+    try {
+      if (post.isLiked) {
+        // Пробуем удалить лайк
+        final response = await _likeApi.deleteLike(
+          postId: post.id!,
+          userId: _currentUserId!,
+        );
+
+        if (response.statusCode == 200 || response.statusCode == 204) {
+          setState(() {
+            filteredPosts[index].isLiked = false;
+            filteredPosts[index].likesCount--;
+          });
+        } else {
+          debugPrint('Failed to remove like: ${response.statusCode}');
+          throw Exception('Failed to remove like: ${response.statusCode}');
+        }
+      } else {
+        // Пробуем добавить лайк
+        final response = await _likeApi.createLike(postId: post.id!);
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          setState(() {
+            filteredPosts[index].isLiked = true;
+            filteredPosts[index].likesCount++;
+          });
+        } else {
+          debugPrint('Failed to add like: ${response.statusCode}');
+          throw Exception('Failed to add like: ${response.statusCode}');
+        }
+      }
+    } on DioException catch (e) {
+      debugPrint('Error toggling like: ${e.message}');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Ошибка: не удалось ${post.isLiked ? 'удалить' : 'поставить'} лайк',
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Unexpected error toggling like: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Произошла ошибка при изменении лайка'),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   void _onItemTapped(int index) async {
@@ -313,8 +563,8 @@ class NewsFeedState extends State<NewsFeed> {
             : b.createdWhen.compareTo(a.createdWhen));
       } else if (_sortBy == 'popularity') {
         filteredPosts.sort((a, b) => _sortAscending
-            ? (a.likesCount + a.views).compareTo(b.likesCount + b.views)
-            : (b.likesCount + b.views).compareTo(a.likesCount + a.views));
+            ? (a.likesCount).compareTo(b.likesCount)
+            : (b.likesCount).compareTo(a.likesCount));
       }
     });
   }
@@ -342,24 +592,35 @@ class NewsFeedState extends State<NewsFeed> {
           builder: (context) => EditPostPage(
             postId: post.id,
             initialText: post.text,
-            initialImagePaths: post.imageUrls,
+            initialImagePaths: [...post.imageUrls], // Создаем копию списка
             onSave: (newText, newImages) async {
               try {
                 // Обновляем локальное состояние
                 setState(() {
                   posts[index].text = newText;
-                  posts[index].imageUrls = newImages;
+                  posts[index].imageUrls = [
+                    ...newImages
+                  ]; // Создаем копию списка
                   filteredPosts[index].text = newText;
-                  filteredPosts[index].imageUrls = newImages;
+                  filteredPosts[index].imageUrls = [
+                    ...newImages
+                  ]; // Создаем копию списка
                 });
-
                 // Обновляем данные с сервера
                 await loadPosts();
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Данные успешно сохранены')),
+                  );
+                }
               } catch (e) {
-                print('Error updating post: $e');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Ошибка сохранения: ${e.toString()}')),
-                );
+                debugPrint('Error updating post: $e');
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text('Ошибка сохранения: ${e.toString()}')),
+                  );
+                }
               }
             },
             onDelete: () async {
@@ -374,19 +635,23 @@ class NewsFeedState extends State<NewsFeed> {
                   final postApi = GetIt.I<Openapi>().getPostControllerApi();
                   await postApi.deletePost(id: post.id!);
 
+                  // Удаляем пост из локального состояния
                   setState(() {
-                    posts.removeAt(index);
-                    filteredPosts.removeAt(index);
-                    showCommentInput.removeAt(index);
+                    posts.removeAt(index); // Теперь это работает
+                    filteredPosts.removeAt(index); // Теперь это работает
+                    if (showCommentInput.length > index) {
+                      showCommentInput.removeAt(index);
+                    }
                   });
 
-                  if (mounted) Navigator.pop(context);
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Пост успешно удален')),
-                  );
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Пост успешно удален')),
+                    );
+                  }
                 }
               } catch (e) {
+                debugPrint('Error deleting post: $e');
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Ошибка удаления: ${e.toString()}')),
@@ -398,14 +663,57 @@ class NewsFeedState extends State<NewsFeed> {
           ),
         ),
       );
-      // После возврата с экрана редактирования обновляем список
-      await loadPosts();
     } catch (e, stackTrace) {
       debugPrint('Ошибка при редактировании поста: $e\n$stackTrace');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка: ${e.toString()}')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка: ${e.toString()}')),
+        );
+      }
     }
+  }
+
+  Widget _buildCommentsDialog(int index) {
+    final post = filteredPosts[index];
+    return AlertDialog(
+      title: const Text('Комментарии'),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: post.comments.isEmpty
+            ? const Center(child: Text('Нет комментариев'))
+            : ListView.builder(
+                shrinkWrap: true,
+                itemCount: post.comments.length,
+                itemBuilder: (context, commentIndex) {
+                  final comment = post.comments[commentIndex];
+                  return ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor:
+                          Colors.grey, // Серый фон если нет аватарки
+                      backgroundImage: comment.userAvatar.isNotEmpty
+                          ? CachedNetworkImageProvider(comment.userAvatar)
+                          : null,
+                      child: comment.userAvatar.isEmpty
+                          ? const Icon(Icons.person, color: Colors.white)
+                          : null,
+                    ),
+                    title: Text(comment.userName),
+                    subtitle: Text(comment.text),
+                    trailing: Text(
+                      DateFormat('dd.MM.yyyy HH:mm').format(comment.createdAt),
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  );
+                },
+              ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Закрыть'),
+        ),
+      ],
+    );
   }
 
   Widget _buildFilterControls() {
@@ -670,7 +978,7 @@ class NewsFeedState extends State<NewsFeed> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => NewPostPage()),
+                  MaterialPageRoute(builder: (context) => PublicationPage()),
                 );
               },
             ),
@@ -721,33 +1029,23 @@ class NewsFeedState extends State<NewsFeed> {
                                     '${post.createdWhen.day}.${post.createdWhen.month}.${post.createdWhen.year}',
                                     style: const TextStyle(color: Colors.grey),
                                   ),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.remove_red_eye,
-                                          size: 16, color: Colors.grey),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '${post.views}',
-                                        style:
-                                            const TextStyle(color: Colors.grey),
-                                      ),
-                                    ],
-                                  ),
                                 ],
                               ),
                             ),
-                            Center(
-                              child: Container(
-                                width: double.infinity,
-                                height: 500,
-                                margin: const EdgeInsets.symmetric(vertical: 5),
-                                child: HorizontalImageSlider(
-                                  imageUrls: post.imageUrls,
-                                  dio: GetIt.I<Dio>(),
-                                  authRepo: GetIt.I<AuthRepositoryImpl>(),
+                            if (post.imageUrls.isNotEmpty)
+                              Center(
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 500,
+                                  margin:
+                                      const EdgeInsets.symmetric(vertical: 5),
+                                  child: HorizontalImageSlider(
+                                    imageUrls: post.imageUrls,
+                                    dio: GetIt.I<Dio>(),
+                                    authRepo: GetIt.I<AuthRepositoryImpl>(),
+                                  ),
                                 ),
                               ),
-                            ),
                             Row(
                               children: [
                                 IconButton(
@@ -755,7 +1053,8 @@ class NewsFeedState extends State<NewsFeed> {
                                     post.isLiked
                                         ? Icons.favorite
                                         : Icons.favorite_border,
-                                    color: post.isLiked ? Colors.red : null,
+                                    color:
+                                        post.isLiked ? Colors.red : Colors.grey,
                                   ),
                                   onPressed: () => toggleLike(index),
                                 ),
@@ -763,7 +1062,18 @@ class NewsFeedState extends State<NewsFeed> {
                                 const SizedBox(width: 10),
                                 IconButton(
                                   icon: const Icon(Icons.message),
-                                  onPressed: () => toggleCommentInput(index),
+                                  onPressed: () {
+                                    // Always show comments dialog if there are comments
+                                    if (post.comments.isNotEmpty) {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) =>
+                                            _buildCommentsDialog(index),
+                                      );
+                                    }
+                                    // Toggle comment input regardless
+                                    toggleCommentInput(index);
+                                  },
                                 ),
                                 if (_isAdmin)
                                   IconButton(
@@ -779,7 +1089,8 @@ class NewsFeedState extends State<NewsFeed> {
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 8.0),
-                                  child: Text('- $comment'),
+                                  child: Text(
+                                      '- ${comment.text}'), // Было просто '- $comment'
                                 ),
                               Row(
                                 children: [
@@ -789,7 +1100,8 @@ class NewsFeedState extends State<NewsFeed> {
                                       onSubmitted: (value) =>
                                           addComment(index, value),
                                       decoration: const InputDecoration(
-                                          labelText: 'Напишите комментарий...'),
+                                        labelText: 'Напишите комментарий...',
+                                      ),
                                     ),
                                   ),
                                   IconButton(
@@ -810,7 +1122,7 @@ class NewsFeedState extends State<NewsFeed> {
                                 textAlign: TextAlign.left,
                               ),
                             ),
-                            const SizedBox(height: 50),
+                            SizedBox(height: 50),
                           ],
                         );
                       },

@@ -71,9 +71,7 @@ class _EditPostPageState extends State<EditPostPage> {
               isMediaUpdated: _currentImagePaths.length !=
                       widget.initialImagePaths.length ||
                   !_checkIfImagesSame(),
-              files: _currentImagePaths.isEmpty
-                  ? BuiltList<MultipartFile>() // Пустой список, если нет файлов
-                  : multipartFiles,
+              files: multipartFiles,
             );
 
       // Обновляем локальное состояние после успешного сохранения
@@ -97,12 +95,29 @@ class _EditPostPageState extends State<EditPostPage> {
 
     for (final path in _currentImagePaths) {
       try {
-        // Пропускаем URL изображений - сервер уже имеет эти файлы
+        // Для URL изображений - загружаем их с сервера
         if (path.startsWith('http') || path.startsWith('/')) {
+          debugPrint('Processing URL path: $path');
+
+          final dio = GetIt.I<Dio>();
+          final response = await dio.get(
+            path.startsWith('/') ? '${dio.options.baseUrl}$path' : path,
+            options: Options(responseType: ResponseType.bytes),
+          );
+
+          final fileName = path.split('/').last;
+          final mimeType =
+              lookupMimeType(fileName) ?? 'application/octet-stream';
+
+          files.add(MultipartFile.fromBytes(
+            response.data as List<int>,
+            filename: fileName,
+            contentType: MediaType.parse(mimeType),
+          ));
           continue;
         }
 
-        // Обработка локальных файлов
+        // Для локальных файлов
         debugPrint('Processing local file: $path');
         final file = File(path);
         if (!await file.exists()) {
@@ -255,9 +270,10 @@ class _EditPostPageState extends State<EditPostPage> {
     if (confirmed == true) {
       setState(() => _isLoading = true);
       try {
-        // 1. Удаляем сам пост (сервер должен позаботиться о каскадном удалении)
+        // Вызываем onDelete и ждем его завершения
         await widget.onDelete();
 
+        // После успешного удаления закрываем экран редактирования
         if (mounted) {
           Navigator.pop(context);
         }
@@ -266,9 +282,8 @@ class _EditPostPageState extends State<EditPostPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Ошибка удаления: ${e.toString()}')),
           );
+          setState(() => _isLoading = false);
         }
-      } finally {
-        if (mounted) setState(() => _isLoading = false);
       }
     }
   }
