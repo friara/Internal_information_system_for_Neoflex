@@ -25,7 +25,7 @@ abstract class ChatDTO implements Built<ChatDTO, ChatDTOBuilder> {
   int? get id;
 
   @BuiltValueField(wireName: r'chatType')
-  String? get chatType;
+  String get chatType;
 
   @BuiltValueField(wireName: r'chatName')
   String? get chatName;
@@ -37,7 +37,7 @@ abstract class ChatDTO implements Built<ChatDTO, ChatDTOBuilder> {
   int get createdBy;
 
   @BuiltValueField(wireName: r'participantIds')
-  BuiltList<int>? get participantIds;
+  BuiltList<int> get participantIds;
 
   @BuiltValueField(wireName: r'otherUserId')
   int? get otherUserId;
@@ -72,13 +72,11 @@ class _$ChatDTOSerializer implements PrimitiveSerializer<ChatDTO> {
         specifiedType: const FullType(int),
       );
     }
-    if (object.chatType != null) {
-      yield r'chatType';
-      yield serializers.serialize(
-        object.chatType,
-        specifiedType: const FullType(String),
-      );
-    }
+    yield r'chatType';
+    yield serializers.serialize(
+      object.chatType,
+      specifiedType: const FullType(String),
+    );
     if (object.chatName != null) {
       yield r'chatName';
       yield serializers.serialize(
@@ -98,13 +96,11 @@ class _$ChatDTOSerializer implements PrimitiveSerializer<ChatDTO> {
       object.createdBy,
       specifiedType: const FullType(int),
     );
-    if (object.participantIds != null) {
-      yield r'participantIds';
-      yield serializers.serialize(
-        object.participantIds,
-        specifiedType: const FullType(BuiltList, [FullType(int)]),
-      );
-    }
+    yield r'participantIds';
+    yield serializers.serialize(
+      object.participantIds,
+      specifiedType: const FullType(BuiltList, [FullType(int)]),
+    );
     if (object.otherUserId != null) {
       yield r'otherUserId';
       yield serializers.serialize(

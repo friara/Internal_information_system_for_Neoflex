@@ -52,6 +52,9 @@ Serializers _$serializers = (new Serializers().toBuilder()
           const FullType(BuiltList, const [const FullType(MediaDTO)]),
           () => new ListBuilder<MediaDTO>())
       ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(MediaDTO)]),
+          () => new ListBuilder<MediaDTO>())
+      ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(MessageDTO)]),
           () => new ListBuilder<MessageDTO>())
       ..addBuilderFactory(

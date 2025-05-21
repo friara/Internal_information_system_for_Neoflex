@@ -136,7 +136,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getAvailableWorkspaces**
-> BuiltList<WorkspaceDTO> getAvailableWorkspaces()
+> BuiltList<WorkspaceDTO> getAvailableWorkspaces(start, end)
 
 
 
@@ -145,9 +145,11 @@ No authorization required
 import 'package:openapi/api.dart';
 
 final api = Openapi().getWorkspaceControllerApi();
+final DateTime start = 2013-10-20T19:20:30+01:00; // DateTime | 
+final DateTime end = 2013-10-20T19:20:30+01:00; // DateTime | 
 
 try {
-    final response = api.getAvailableWorkspaces();
+    final response = api.getAvailableWorkspaces(start, end);
     print(response);
 } catch on DioException (e) {
     print('Exception when calling WorkspaceControllerApi->getAvailableWorkspaces: $e\n');
@@ -155,7 +157,11 @@ try {
 ```
 
 ### Parameters
-This endpoint does not need any parameter.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **start** | **DateTime**|  | 
+ **end** | **DateTime**|  | 
 
 ### Return type
 

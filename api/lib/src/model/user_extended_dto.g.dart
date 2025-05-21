@@ -28,7 +28,7 @@ class _$UserExtendedDTO extends UserExtendedDTO {
   @override
   final String? phoneNumber;
   @override
-  final String? password;
+  final String password;
 
   factory _$UserExtendedDTO([void Function(UserExtendedDTOBuilder)? updates]) =>
       (new UserExtendedDTOBuilder()..update(updates))._build();
@@ -44,8 +44,11 @@ class _$UserExtendedDTO extends UserExtendedDTO {
       this.birthday,
       this.avatarUrl,
       this.phoneNumber,
-      this.password})
-      : super._();
+      required this.password})
+      : super._() {
+    BuiltValueNullFieldError.checkNotNull(
+        password, r'UserExtendedDTO', 'password');
+  }
 
   @override
   UserExtendedDTO rebuild(void Function(UserExtendedDTOBuilder) updates) =>
@@ -206,7 +209,8 @@ class UserExtendedDTOBuilder
           birthday: birthday,
           avatarUrl: avatarUrl,
           phoneNumber: phoneNumber,
-          password: password,
+          password: BuiltValueNullFieldError.checkNotNull(
+              password, r'UserExtendedDTO', 'password'),
         );
     replace(_$result);
     return _$result;

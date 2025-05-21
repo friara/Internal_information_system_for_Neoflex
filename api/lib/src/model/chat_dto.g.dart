@@ -10,7 +10,7 @@ class _$ChatDTO extends ChatDTO {
   @override
   final int? id;
   @override
-  final String? chatType;
+  final String chatType;
   @override
   final String? chatName;
   @override
@@ -18,7 +18,7 @@ class _$ChatDTO extends ChatDTO {
   @override
   final int createdBy;
   @override
-  final BuiltList<int>? participantIds;
+  final BuiltList<int> participantIds;
   @override
   final int? otherUserId;
 
@@ -27,14 +27,17 @@ class _$ChatDTO extends ChatDTO {
 
   _$ChatDTO._(
       {this.id,
-      this.chatType,
+      required this.chatType,
       this.chatName,
       this.createdWhen,
       required this.createdBy,
-      this.participantIds,
+      required this.participantIds,
       this.otherUserId})
       : super._() {
+    BuiltValueNullFieldError.checkNotNull(chatType, r'ChatDTO', 'chatType');
     BuiltValueNullFieldError.checkNotNull(createdBy, r'ChatDTO', 'createdBy');
+    BuiltValueNullFieldError.checkNotNull(
+        participantIds, r'ChatDTO', 'participantIds');
   }
 
   @override
@@ -130,7 +133,7 @@ class ChatDTOBuilder implements Builder<ChatDTO, ChatDTOBuilder> {
       _chatName = $v.chatName;
       _createdWhen = $v.createdWhen;
       _createdBy = $v.createdBy;
-      _participantIds = $v.participantIds?.toBuilder();
+      _participantIds = $v.participantIds.toBuilder();
       _otherUserId = $v.otherUserId;
       _$v = null;
     }
@@ -157,19 +160,20 @@ class ChatDTOBuilder implements Builder<ChatDTO, ChatDTOBuilder> {
       _$result = _$v ??
           new _$ChatDTO._(
             id: id,
-            chatType: chatType,
+            chatType: BuiltValueNullFieldError.checkNotNull(
+                chatType, r'ChatDTO', 'chatType'),
             chatName: chatName,
             createdWhen: createdWhen,
             createdBy: BuiltValueNullFieldError.checkNotNull(
                 createdBy, r'ChatDTO', 'createdBy'),
-            participantIds: _participantIds?.build(),
+            participantIds: participantIds.build(),
             otherUserId: otherUserId,
           );
     } catch (_) {
       late String _$failedField;
       try {
         _$failedField = 'participantIds';
-        _participantIds?.build();
+        participantIds.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
             r'ChatDTO', _$failedField, e.toString());

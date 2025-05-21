@@ -56,7 +56,7 @@ abstract class UserExtendedDTO implements Built<UserExtendedDTO, UserExtendedDTO
   String? get phoneNumber;
 
   @BuiltValueField(wireName: r'password')
-  String? get password;
+  String get password;
 
   UserExtendedDTO._();
 
@@ -151,13 +151,11 @@ class _$UserExtendedDTOSerializer implements PrimitiveSerializer<UserExtendedDTO
         specifiedType: const FullType(String),
       );
     }
-    if (object.password != null) {
-      yield r'password';
-      yield serializers.serialize(
-        object.password,
-        specifiedType: const FullType(String),
-      );
-    }
+    yield r'password';
+    yield serializers.serialize(
+      object.password,
+      specifiedType: const FullType(String),
+    );
   }
 
   @override
