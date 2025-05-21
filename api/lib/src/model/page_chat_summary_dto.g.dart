@@ -12,6 +12,10 @@ class _$PageChatSummaryDTO extends PageChatSummaryDTO {
   @override
   final int? totalElements;
   @override
+  final bool? first;
+  @override
+  final bool? last;
+  @override
   final int? size;
   @override
   final BuiltList<ChatSummaryDTO>? content;
@@ -19,10 +23,6 @@ class _$PageChatSummaryDTO extends PageChatSummaryDTO {
   final int? number;
   @override
   final SortObject? sort;
-  @override
-  final bool? first;
-  @override
-  final bool? last;
   @override
   final int? numberOfElements;
   @override
@@ -37,12 +37,12 @@ class _$PageChatSummaryDTO extends PageChatSummaryDTO {
   _$PageChatSummaryDTO._(
       {this.totalPages,
       this.totalElements,
+      this.first,
+      this.last,
       this.size,
       this.content,
       this.number,
       this.sort,
-      this.first,
-      this.last,
       this.numberOfElements,
       this.pageable,
       this.empty})
@@ -63,12 +63,12 @@ class _$PageChatSummaryDTO extends PageChatSummaryDTO {
     return other is PageChatSummaryDTO &&
         totalPages == other.totalPages &&
         totalElements == other.totalElements &&
+        first == other.first &&
+        last == other.last &&
         size == other.size &&
         content == other.content &&
         number == other.number &&
         sort == other.sort &&
-        first == other.first &&
-        last == other.last &&
         numberOfElements == other.numberOfElements &&
         pageable == other.pageable &&
         empty == other.empty;
@@ -79,12 +79,12 @@ class _$PageChatSummaryDTO extends PageChatSummaryDTO {
     var _$hash = 0;
     _$hash = $jc(_$hash, totalPages.hashCode);
     _$hash = $jc(_$hash, totalElements.hashCode);
+    _$hash = $jc(_$hash, first.hashCode);
+    _$hash = $jc(_$hash, last.hashCode);
     _$hash = $jc(_$hash, size.hashCode);
     _$hash = $jc(_$hash, content.hashCode);
     _$hash = $jc(_$hash, number.hashCode);
     _$hash = $jc(_$hash, sort.hashCode);
-    _$hash = $jc(_$hash, first.hashCode);
-    _$hash = $jc(_$hash, last.hashCode);
     _$hash = $jc(_$hash, numberOfElements.hashCode);
     _$hash = $jc(_$hash, pageable.hashCode);
     _$hash = $jc(_$hash, empty.hashCode);
@@ -97,12 +97,12 @@ class _$PageChatSummaryDTO extends PageChatSummaryDTO {
     return (newBuiltValueToStringHelper(r'PageChatSummaryDTO')
           ..add('totalPages', totalPages)
           ..add('totalElements', totalElements)
+          ..add('first', first)
+          ..add('last', last)
           ..add('size', size)
           ..add('content', content)
           ..add('number', number)
           ..add('sort', sort)
-          ..add('first', first)
-          ..add('last', last)
           ..add('numberOfElements', numberOfElements)
           ..add('pageable', pageable)
           ..add('empty', empty))
@@ -123,6 +123,14 @@ class PageChatSummaryDTOBuilder
   set totalElements(int? totalElements) =>
       _$this._totalElements = totalElements;
 
+  bool? _first;
+  bool? get first => _$this._first;
+  set first(bool? first) => _$this._first = first;
+
+  bool? _last;
+  bool? get last => _$this._last;
+  set last(bool? last) => _$this._last = last;
+
   int? _size;
   int? get size => _$this._size;
   set size(int? size) => _$this._size = size;
@@ -140,14 +148,6 @@ class PageChatSummaryDTOBuilder
   SortObjectBuilder? _sort;
   SortObjectBuilder get sort => _$this._sort ??= new SortObjectBuilder();
   set sort(SortObjectBuilder? sort) => _$this._sort = sort;
-
-  bool? _first;
-  bool? get first => _$this._first;
-  set first(bool? first) => _$this._first = first;
-
-  bool? _last;
-  bool? get last => _$this._last;
-  set last(bool? last) => _$this._last = last;
 
   int? _numberOfElements;
   int? get numberOfElements => _$this._numberOfElements;
@@ -172,12 +172,12 @@ class PageChatSummaryDTOBuilder
     if ($v != null) {
       _totalPages = $v.totalPages;
       _totalElements = $v.totalElements;
+      _first = $v.first;
+      _last = $v.last;
       _size = $v.size;
       _content = $v.content?.toBuilder();
       _number = $v.number;
       _sort = $v.sort?.toBuilder();
-      _first = $v.first;
-      _last = $v.last;
       _numberOfElements = $v.numberOfElements;
       _pageable = $v.pageable?.toBuilder();
       _empty = $v.empty;
@@ -207,12 +207,12 @@ class PageChatSummaryDTOBuilder
           new _$PageChatSummaryDTO._(
             totalPages: totalPages,
             totalElements: totalElements,
+            first: first,
+            last: last,
             size: size,
             content: _content?.build(),
             number: number,
             sort: _sort?.build(),
-            first: first,
-            last: last,
             numberOfElements: numberOfElements,
             pageable: _pageable?.build(),
             empty: empty,
