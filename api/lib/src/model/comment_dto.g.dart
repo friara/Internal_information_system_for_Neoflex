@@ -18,7 +18,7 @@ class _$CommentDTO extends CommentDTO {
   @override
   final String? text;
   @override
-  final String? answerToComm;
+  final int? answerToComm;
 
   factory _$CommentDTO([void Function(CommentDTOBuilder)? updates]) =>
       (new CommentDTOBuilder()..update(updates))._build();
@@ -100,9 +100,9 @@ class CommentDTOBuilder implements Builder<CommentDTO, CommentDTOBuilder> {
   String? get text => _$this._text;
   set text(String? text) => _$this._text = text;
 
-  String? _answerToComm;
-  String? get answerToComm => _$this._answerToComm;
-  set answerToComm(String? answerToComm) => _$this._answerToComm = answerToComm;
+  int? _answerToComm;
+  int? get answerToComm => _$this._answerToComm;
+  set answerToComm(int? answerToComm) => _$this._answerToComm = answerToComm;
 
   CommentDTOBuilder() {
     CommentDTO._defaults(this);

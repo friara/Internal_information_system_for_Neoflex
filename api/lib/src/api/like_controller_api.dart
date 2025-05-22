@@ -101,7 +101,6 @@ class LikeControllerApi {
   ///
   /// Parameters:
   /// * [postId] 
-  /// * [userId] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -113,7 +112,6 @@ class LikeControllerApi {
   /// Throws [DioException] if API call or serialization fails
   Future<Response<void>> deleteLike({ 
     required int postId,
-    required int userId,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -121,7 +119,7 @@ class LikeControllerApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/posts/{postId}/likes/{userId}'.replaceAll('{' r'postId' '}', encodeQueryParameter(_serializers, postId, const FullType(int)).toString()).replaceAll('{' r'userId' '}', encodeQueryParameter(_serializers, userId, const FullType(int)).toString());
+    final _path = r'/api/posts/{postId}/likes'.replaceAll('{' r'postId' '}', encodeQueryParameter(_serializers, postId, const FullType(int)).toString());
     final _options = Options(
       method: r'DELETE',
       headers: <String, dynamic>{
