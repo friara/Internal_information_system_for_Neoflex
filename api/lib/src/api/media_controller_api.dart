@@ -12,7 +12,6 @@ import 'dart:typed_data';
 import 'package:openapi/src/api_util.dart';
 
 class MediaControllerApi {
-
   final Dio _dio;
 
   final Serializers _serializers;
@@ -20,10 +19,10 @@ class MediaControllerApi {
   const MediaControllerApi(this._dio, this._serializers);
 
   /// downloadMedia
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [filename] 
+  /// * [filename]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -33,7 +32,7 @@ class MediaControllerApi {
   ///
   /// Returns a [Future] containing a [Response] with a [Uint8List] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<Uint8List>> downloadMedia({ 
+  Future<Response<Uint8List>> downloadMedia({
     required String filename,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
@@ -42,7 +41,10 @@ class MediaControllerApi {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    final _path = r'/api/media/{filename}'.replaceAll('{' r'filename' '}', encodeQueryParameter(_serializers, filename, const FullType(String)).toString());
+    final _path = r'/api/media/{filename}'.replaceAll(
+        '{' r'filename' '}',
+        encodeQueryParameter(_serializers, filename, const FullType(String))
+            .toString());
     final _options = Options(
       method: r'GET',
       responseType: ResponseType.bytes,
@@ -69,7 +71,6 @@ class MediaControllerApi {
     try {
       final rawResponse = _response.data;
       _responseData = rawResponse == null ? null : rawResponse as Uint8List;
-
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -91,5 +92,4 @@ class MediaControllerApi {
       extra: _response.extra,
     );
   }
-
 }

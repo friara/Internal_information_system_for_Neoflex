@@ -33,8 +33,9 @@ class NewsFeedState extends State<NewsFeed> {
   List<bool> showCommentInput = [];
   bool isLoading = false;
   String _sortBy = 'date';
-  bool _sortAscending = true;
+  bool _sortAscending = false;
   bool _showFilters = false;
+
   DateTime? _selectedDate;
   String? _currentUserRole;
   bool _isRoleLoaded = false;
@@ -50,6 +51,9 @@ class NewsFeedState extends State<NewsFeed> {
   bool _postCreationMessageShown = false;
   bool _showCommentsPanel = false;
   int? _currentPostIndex;
+  Comment? _replyingTo; // Комментарий, на который отвечаем
+  bool _showDeleteOption = false; // Показывать ли опцию удаления
+  int? _commentToDelete;
 
   @override
   void initState() {
@@ -261,6 +265,7 @@ class NewsFeedState extends State<NewsFeed> {
         posts = newPosts;
         filteredPosts = [...newPosts];
         showCommentInput = List.generate(newPosts.length, (index) => false);
+        _currentPostIndex = null;
       });
     } on DioException catch (e) {
       debugPrint('DioError: ${e.message}');
@@ -304,7 +309,6 @@ class NewsFeedState extends State<NewsFeed> {
 
   Future<void> addComment(int index, String comment) async {
     if (comment.isEmpty || _currentUserId == null) return;
-
     try {
       final post = filteredPosts[index];
       final response = await _commentApi.createComment(
@@ -346,8 +350,7 @@ class NewsFeedState extends State<NewsFeed> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Ошибка: не удалось добавить комментарий'),
-          ),
+              content: Text('Ошибка: не удалось добавить комментарий')),
         );
       }
     }
@@ -557,8 +560,8 @@ class NewsFeedState extends State<NewsFeed> {
   }
 
   void _navigateToEditPost(BuildContext context, Post post, int index) async {
-    // Локальная переменная для определения типа операции
     bool isDeleted = false;
+    final originalIndex = posts.indexWhere((p) => p.id == post.id);
 
     final result = await Navigator.push<bool>(
       context,
@@ -570,17 +573,16 @@ class NewsFeedState extends State<NewsFeed> {
           onSave: (newText, newImages, isSuccess) async {
             try {
               setState(() {
-                posts[index].text = newText;
-                posts[index].imageUrls = [...newImages];
+                posts[originalIndex].text = newText;
+                posts[originalIndex].imageUrls = [...newImages];
                 filteredPosts[index].text = newText;
                 filteredPosts[index].imageUrls = [...newImages];
               });
 
-              // Обновляем данные только при успешном сохранении
               if (isSuccess) {
                 await loadPosts();
               }
-              return true; // Успешное сохранение
+              return true;
             } catch (e) {
               debugPrint('Error updating post: $e');
               throw e;
@@ -597,14 +599,12 @@ class NewsFeedState extends State<NewsFeed> {
                 await postApi.deletePost(id: post.id!);
 
                 setState(() {
-                  posts.removeAt(index);
-                  filteredPosts.removeAt(index);
-                  if (showCommentInput.length > index) {
-                    showCommentInput.removeAt(index);
-                  }
+                  posts.removeWhere((p) => p.id == post.id);
+                  filteredPosts.removeWhere((p) => p.id == post.id);
+                  showCommentInput.removeAt(index);
                 });
-                isDeleted = true; // Устанавливаем флаг удаления
-                return true; // Успешное удаление
+                isDeleted = true;
+                return true;
               }
               return false;
             } catch (e) {
@@ -616,7 +616,6 @@ class NewsFeedState extends State<NewsFeed> {
       ),
     );
 
-    // Показываем соответствующее сообщение
     if (result == true && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -624,6 +623,74 @@ class NewsFeedState extends State<NewsFeed> {
               Text(isDeleted ? 'Пост успешно удален' : 'Пост успешно сохранен'),
         ),
       );
+    }
+  }
+
+  Future<void> _showDeleteCommentDialog(int postId, int commentId) async {
+    // Добавим отладочную печать для проверки вызова
+    debugPrint('Attempting to delete comment $commentId from post $postId');
+
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Удалить комментарий?'),
+        content: const Text('Вы уверены, что хотите удалить этот комментарий?'),
+        actions: [
+          TextButton(
+            child: const Text('Отмена'),
+            onPressed: () => Navigator.of(context).pop(false),
+          ),
+          TextButton(
+            child: const Text('Удалить', style: TextStyle(color: Colors.red)),
+            onPressed: () => Navigator.of(context).pop(true),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete == true && mounted) {
+      try {
+        setState(() => _isLoading = true);
+
+        await _commentApi.deleteComment(
+          postId: postId,
+          commentId: commentId,
+        );
+
+        // Находим и обновляем пост
+        final postIndex = filteredPosts.indexWhere((p) => p.id == postId);
+        if (postIndex != -1) {
+          setState(() {
+            filteredPosts[postIndex]
+                .comments
+                .removeWhere((c) => c.id == commentId);
+          });
+        }
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Комментарий успешно удалён')),
+          );
+        }
+      } on DioException catch (e) {
+        debugPrint('Error deleting comment: ${e.message}');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Ошибка удаления: ${e.message}')),
+          );
+        }
+      } catch (e) {
+        debugPrint('Unexpected error: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Произошла ошибка')),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
     }
   }
 
@@ -636,11 +703,10 @@ class NewsFeedState extends State<NewsFeed> {
           onTap: () {
             setState(() {
               _showCommentsPanel = false;
+              _replyingTo = null;
             });
           },
-          child: Container(
-            color: Colors.black54,
-          ),
+          child: Container(color: Colors.black54),
         ),
         // Сама панель комментариев
         SafeArea(
@@ -653,80 +719,193 @@ class NewsFeedState extends State<NewsFeed> {
                 borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
               ),
               child: Column(
+                // Перенесли child Column на уровень Container
                 children: [
-                  // Заголовок с количеством комментариев и крестиком
+                  // Заголовок
                   Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () {
+                            setState(() {
+                              _showCommentsPanel = false;
+                              _replyingTo = null;
+                            });
+                          },
+                        ),
                         Text(
                           'Комментарии (${post.comments.length})',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        IconButton(
-                          icon: Icon(Icons.close),
-                          onPressed: () {
-                            setState(() {
-                              _showCommentsPanel = false;
-                            });
-                          },
-                        ),
+                        if (_replyingTo != null) ...[
+                          const SizedBox(width: 8),
+                          Text(
+                            'Ответ на ${_replyingTo!.userName}',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close, size: 18),
+                            onPressed: () => setState(() => _replyingTo = null),
+                          ),
+                        ],
                       ],
                     ),
                   ),
-                  Divider(height: 1),
+                  const Divider(height: 1),
                   // Список комментариев
                   Expanded(
                     child: post.comments.isEmpty
-                        ? Center(child: Text('Нет комментариев'))
+                        ? const Center(child: Text('Нет комментариев'))
                         : ListView.builder(
-                            padding: EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.only(bottom: 8),
                             itemCount: post.comments.length,
                             itemBuilder: (context, commentIndex) {
                               final comment = post.comments[commentIndex];
-                              return ListTile(
-                                leading:
-                                    _buildCommentAvatar(comment.userAvatar),
-                                title: Text(comment.userName),
-                                subtitle: Text(comment.text),
-                                trailing: Text(
-                                  DateFormat('dd.MM.yyyy HH:mm')
-                                      .format(comment.createdAt),
-                                  style: TextStyle(fontSize: 12),
+                              final isCurrentUser =
+                                  comment.userId == _currentUserId;
+
+                              return GestureDetector(
+                                onTap: () {
+                                  HapticFeedback.lightImpact(); // Вибрация
+                                  setState(() {
+                                    _replyingTo = comment;
+                                    _controller.text = '@${comment.userName} ';
+                                  });
+                                },
+                                onLongPress: isCurrentUser
+                                    ? () {
+                                        HapticFeedback
+                                            .lightImpact(); // Вибрация
+                                        _showDeleteCommentDialog(
+                                            post.id!, comment.id!);
+                                      }
+                                    : null,
+                                child: Container(
+                                  color: _replyingTo?.id == comment.id
+                                      ? Colors.grey[100]
+                                      : Colors.white,
+                                  child: ListTile(
+                                    leading:
+                                        _buildCommentAvatar(comment.userAvatar),
+                                    title: Text(comment.userName),
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(comment.text),
+                                        if (comment.createdAt != null)
+                                          Text(
+                                            DateFormat('dd.MM.yyyy HH:mm')
+                                                .format(comment.createdAt),
+                                            style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey),
+                                          ),
+                                      ],
+                                    ),
+                                    trailing: isCurrentUser
+                                        ? PopupMenuButton<String>(
+                                            icon: const Icon(Icons.more_vert,
+                                                size: 16),
+                                            onSelected: (value) {
+                                              if (value == 'delete') {
+                                                _showDeleteCommentDialog(
+                                                    post.id!, comment.id!);
+                                              }
+                                            },
+                                            itemBuilder: (context) => [
+                                              const PopupMenuItem<String>(
+                                                value: 'delete',
+                                                child: Text('Удалить',
+                                                    style: TextStyle(
+                                                        color: Colors.red)),
+                                              ),
+                                            ],
+                                          )
+                                        : null,
+                                  ),
                                 ),
                               );
                             },
                           ),
                   ),
-                  // Поле ввода нового комментария
+                  // Поле ввода с учетом ответа на комментарий
                   Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Row(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
                       children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _controller,
-                            decoration: InputDecoration(
-                              hintText: 'Напишите комментарий...',
-                              border: OutlineInputBorder(),
-                              contentPadding:
-                                  EdgeInsets.symmetric(horizontal: 12),
+                        if (_replyingTo != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Row(
+                              children: [
+                                const Text('Ответ для: '),
+                                Text(
+                                  _replyingTo!.userName,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                const Spacer(),
+                                IconButton(
+                                  icon: const Icon(Icons.close, size: 18),
+                                  onPressed: () => setState(() {
+                                    _replyingTo = null;
+                                    _controller.text = '';
+                                  }),
+                                ),
+                              ],
                             ),
                           ),
-                        ),
-                        SizedBox(width: 8),
-                        IconButton(
-                          icon: Icon(Icons.send, color: Colors.purple),
-                          onPressed: () {
-                            final commentText = _controller.text.trim();
-                            if (commentText.isNotEmpty) {
-                              addComment(index, commentText);
-                            }
-                          },
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _controller,
+                                decoration: InputDecoration(
+                                  hintText: _replyingTo != null
+                                      ? 'Ответ для ${_replyingTo!.userName}...'
+                                      : 'Напишите комментарий...',
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12),
+                                  labelStyle: const TextStyle(
+                                    color: Color.fromARGB(255, 104, 102, 102),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(
+                                        color: Colors.purple, width: 2),
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              icon:
+                                  const Icon(Icons.send, color: Colors.purple),
+                              onPressed: () {
+                                final commentText = _controller.text.trim();
+                                // if (commentText.isNotEmpty) {
+                                //   if (_replyingTo != null) {
+                                //     addComment(index,
+                                //         '@${_replyingTo!.userName} $commentText');
+                                //     _replyingTo = null;
+                                //   } else {
+                                //     addComment(index, commentText);
+                                //   }
+                                //   _controller.clear();
+                                // }
+                                addComment(index, commentText);
+                              },
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -1020,6 +1199,11 @@ class NewsFeedState extends State<NewsFeed> {
         ),
       );
     }
+    debugPrint('Current user ID: $_currentUserId');
+    if (_currentPostIndex != null && filteredPosts.isNotEmpty) {
+      debugPrint(
+          'Current post comments: ${filteredPosts[_currentPostIndex!].comments.length}');
+    }
     return Scaffold(
       appBar: AppBar(
         foregroundColor: Colors.purple,
@@ -1038,13 +1222,29 @@ class NewsFeedState extends State<NewsFeed> {
             },
           ),
           if (_isAdmin)
+            // IconButton(
+            //   icon: const Icon(Icons.add),
+            //   onPressed: () {
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(builder: (context) => PublicationPage()),
+            //     );
+            //   },
+            // ),
             IconButton(
               icon: const Icon(Icons.add),
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => PublicationPage()),
                 );
+
+                if (result == true) {
+                  await loadPosts(); // Обновляем посты только при успешном создании
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Пост успешно создан!')),
+                  );
+                }
               },
             ),
           // IconButton(
@@ -1079,13 +1279,20 @@ class NewsFeedState extends State<NewsFeed> {
                   : ListView.builder(
                       itemCount: filteredPosts.length,
                       itemBuilder: (context, index) {
+                        if (index >= filteredPosts.length) {
+                          return const SizedBox.shrink();
+                        }
                         final post = filteredPosts[index];
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8.0),
+                              padding: const EdgeInsets.only(
+                                left: 8.0,
+                                right: 8.0,
+                                top: 50.0,
+                                bottom: 30,
+                              ),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -1109,6 +1316,15 @@ class NewsFeedState extends State<NewsFeed> {
                                     dio: GetIt.I<Dio>(),
                                     authRepo: GetIt.I<AuthRepositoryImpl>(),
                                   ),
+                                ),
+                              ),
+                            if (post.text.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0, vertical: 8.0),
+                                child: Text(
+                                  post.text,
+                                  style: const TextStyle(fontSize: 16),
                                 ),
                               ),
                             Row(

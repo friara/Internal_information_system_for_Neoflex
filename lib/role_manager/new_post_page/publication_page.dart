@@ -159,12 +159,13 @@ class _PublicationPageState extends State<PublicationPage> {
       debugPrint('Post created successfully: ${response.data}');
 
       if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          AppRoutes.newsFeed,
-          (route) => false,
-          arguments: {'postCreated': true}, // Передаем флаг успешного создания
-        );
+        // Navigator.pushNamedAndRemoveUntil(
+        //   context,
+        //   AppRoutes.newsFeed,
+        //   (route) => false,
+        //   arguments: {'postCreated': true}, // Передаем флаг успешного создания
+        // );
+        Navigator.pop(context, true);
       }
     } on DioException catch (e) {
       debugPrint('DioError: ${e.message}');

@@ -233,15 +233,6 @@ class _ListOfUsersState extends State<ListOfUsers> {
     }
   }
 
-  // Date? _parseDate(String dateString) {
-  //   try {
-  //     final dateTime = DateTime.parse(dateString);
-  //     return Date(dateTime.year, dateTime.month, dateTime.day);
-  //   } catch (e) {
-  //     return null;
-  //   }
-  // }
-
   Future<void> _updateAvatar(UserDTO user, File? avatarFile) async {
     if (avatarFile == null) return;
 
@@ -252,12 +243,10 @@ class _ListOfUsersState extends State<ListOfUsers> {
         builder: (context) => const Center(child: CircularProgressIndicator()),
       );
 
-      // Определяем MIME-тип и расширение файла
       final mimeType = lookupMimeType(avatarFile.path) ?? 'image/jpeg';
       final contentType = MediaType.parse(mimeType);
       final fileExtension = contentType.subtype;
 
-      // Создаем MultipartFile
       final multipartFile = await MultipartFile.fromFile(
         avatarFile.path,
         filename:
@@ -265,7 +254,6 @@ class _ListOfUsersState extends State<ListOfUsers> {
         contentType: contentType,
       );
 
-      // Вызываем API через сгенерированный клиент
       final response =
           await GetIt.I<Openapi>().getUserControllerApi().uploadAvatar(
                 file: multipartFile,
