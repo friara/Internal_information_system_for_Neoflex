@@ -19,7 +19,6 @@ export 'package:openapi/src/api/media_controller_api.dart';
 export 'package:openapi/src/api/message_controller_api.dart';
 export 'package:openapi/src/api/notification_controller_api.dart';
 export 'package:openapi/src/api/post_controller_api.dart';
-export 'package:openapi/src/api/repost_controller_api.dart';
 export 'package:openapi/src/api/user_controller_api.dart';
 export 'package:openapi/src/api/workspace_controller_api.dart';
 
@@ -43,7 +42,6 @@ export 'package:openapi/src/model/pageable.dart';
 export 'package:openapi/src/model/pageable_object.dart';
 export 'package:openapi/src/model/post_dto.dart';
 export 'package:openapi/src/model/post_response_dto.dart';
-export 'package:openapi/src/model/repost_dto.dart';
 export 'package:openapi/src/model/sort_object.dart';
 export 'package:openapi/src/model/user_dto.dart';
 export 'package:openapi/src/model/user_extended_dto.dart';

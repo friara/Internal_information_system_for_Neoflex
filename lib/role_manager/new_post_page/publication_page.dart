@@ -163,6 +163,7 @@ class _PublicationPageState extends State<PublicationPage> {
           context,
           AppRoutes.newsFeed,
           (route) => false,
+          arguments: {'postCreated': true}, // Передаем флаг успешного создания
         );
       }
     } on DioException catch (e) {

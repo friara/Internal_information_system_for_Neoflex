@@ -45,11 +45,21 @@ class NewsFeedState extends State<NewsFeed> {
       GetIt.I<Openapi>().getCommentControllerApi();
   final LikeControllerApi _likeApi = GetIt.I<Openapi>().getLikeControllerApi();
   int? _currentUserId;
+  late String _avatarBaseUrl;
+  late String _accessToken;
+  bool _postCreationMessageShown = false;
+  bool _showCommentsPanel = false;
+  int? _currentPostIndex;
 
   @override
   void initState() {
     super.initState();
     filteredPosts = [];
+    final dio = GetIt.I<Dio>();
+    _avatarBaseUrl = dio.options.baseUrl;
+    if (!_avatarBaseUrl.endsWith('/')) {
+      _avatarBaseUrl += '/';
+    }
     _initializeApp();
   }
 
@@ -60,6 +70,10 @@ class NewsFeedState extends State<NewsFeed> {
       return;
     }
 
+    setState(() {
+      _accessToken = token;
+    });
+
     final dio = GetIt.I<Dio>();
     dio.options.headers['Authorization'] = 'Bearer $token';
 
@@ -67,6 +81,34 @@ class NewsFeedState extends State<NewsFeed> {
       _loadUserRole(),
       loadPosts(),
     ]);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _checkForPostCreationMessage();
+  }
+
+  void _checkForPostCreationMessage() {
+    final routeArgs = ModalRoute.of(context)?.settings.arguments as Map?;
+    if (routeArgs?['postCreated'] == true &&
+        mounted &&
+        !_postCreationMessageShown) {
+      // Проверяем флаг
+
+      setState(() {
+        _postCreationMessageShown = true; // Устанавливаем флаг
+      });
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Пост успешно создан!'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      });
+    }
   }
 
   Future<void> _loadUserRole() async {
@@ -115,67 +157,6 @@ class NewsFeedState extends State<NewsFeed> {
     );
   }
 
-  // Future<void> loadPosts() async {
-  //   if (!mounted) return;
-
-  //   setState(() {
-  //     _isLoading = true;
-  //     _errorMessage = null;
-  //   });
-
-  //   try {
-  //     final token = await GetIt.I<AuthRepositoryImpl>().getAccessToken();
-
-  //     final dio = GetIt.I<Dio>();
-  //     dio.options.headers['Authorization'] = 'Bearer $token';
-
-  //     final postApi = GetIt.I<Openapi>().getPostControllerApi();
-  //     final response = await postApi.getAllPosts(
-  //       sortBy: _sortBy,
-  //       page: 0,
-  //       size: 100,
-  //     );
-
-  //     if (response.statusCode != 200 || response.data == null) {
-  //       throw Exception('Server returned ${response.statusCode}');
-  //     }
-
-  //     final pageResponse = response.data!;
-  //     final postDTOs = pageResponse.content ?? BuiltList<PostResponseDTO>();
-
-  //     // Создаем изменяемый список
-  //     final newPosts =
-  //         postDTOs.map((dto) => Post.fromResponseDto(dto)).toList();
-
-  //     setState(() {
-  //       posts = newPosts;
-  //       filteredPosts = [...newPosts]; // Создаем новый изменяемый список
-  //       showCommentInput = List.generate(newPosts.length, (index) => false);
-  //     });
-  //   } on DioException catch (e) {
-  //     debugPrint('DioError: ${e.message}');
-  //     debugPrint('Response: ${e.response}');
-
-  //     setState(() {
-  //       _errorMessage = 'Ошибка загрузки: ${e.message}';
-  //     });
-
-  //     if (e.response?.statusCode == 401) {
-  //       _handleInvalidToken();
-  //     }
-  //   } catch (e, stack) {
-  //     debugPrint('Error: $e');
-  //     debugPrint('Stack: $stack');
-  //     setState(() {
-  //       _errorMessage = 'Неизвестная ошибка';
-  //     });
-  //   } finally {
-  //     if (mounted) {
-  //       setState(() => _isLoading = false);
-  //     }
-  //   }
-  // }
-
   Future<void> loadPosts() async {
     if (!mounted) return;
 
@@ -214,7 +195,6 @@ class NewsFeedState extends State<NewsFeed> {
         }
 
         // Загружаем комментарии с информацией о пользователях
-        // Загружаем комментарии с информацией о пользователях
         try {
           final commentsResponse =
               await _commentApi.getComments(postId: post.id!);
@@ -238,15 +218,12 @@ class NewsFeedState extends State<NewsFeed> {
                 final userResponse = await userApi.getUserById(id: c.userId!);
                 final user = userResponse.data;
 
-                // Формируем URL аватарки
+                // Формируем URL аватарки с использованием _avatarBaseUrl
                 String avatarUrl = '';
                 if (user?.avatarUrl != null && user!.avatarUrl!.isNotEmpty) {
-                  if (user.avatarUrl!.startsWith('http')) {
-                    avatarUrl = user.avatarUrl!;
-                  } else {
-                    avatarUrl =
-                        '${dio.options.baseUrl}${user.avatarUrl!.startsWith('/') ? user.avatarUrl!.substring(1) : user.avatarUrl}';
-                  }
+                  avatarUrl = user.avatarUrl!.startsWith('http')
+                      ? user.avatarUrl!
+                      : '$_avatarBaseUrl${user.avatarUrl!.startsWith('/') ? user.avatarUrl!.substring(1) : user.avatarUrl}';
                 }
 
                 return Comment(
@@ -344,13 +321,9 @@ class NewsFeedState extends State<NewsFeed> {
         // Формируем URL аватарки
         String avatarUrl = '';
         if (user?.avatarUrl != null && user!.avatarUrl!.isNotEmpty) {
-          final dio = GetIt.I<Dio>();
-          if (user.avatarUrl!.startsWith('http')) {
-            avatarUrl = user.avatarUrl!;
-          } else {
-            avatarUrl =
-                '${dio.options.baseUrl}${user.avatarUrl!.startsWith('/') ? user.avatarUrl!.substring(1) : user.avatarUrl}';
-          }
+          avatarUrl = user.avatarUrl!.startsWith('http')
+              ? user.avatarUrl!
+              : '$_avatarBaseUrl${user.avatarUrl!.startsWith('/') ? user.avatarUrl!.substring(1) : user.avatarUrl}';
         }
 
         setState(() {
@@ -409,7 +382,6 @@ class NewsFeedState extends State<NewsFeed> {
         // Пробуем удалить лайк
         final response = await _likeApi.deleteLike(
           postId: post.id!,
-          userId: _currentUserId!,
         );
 
         if (response.statusCode == 200 || response.statusCode == 204) {
@@ -585,134 +557,227 @@ class NewsFeedState extends State<NewsFeed> {
   }
 
   void _navigateToEditPost(BuildContext context, Post post, int index) async {
-    try {
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => EditPostPage(
-            postId: post.id,
-            initialText: post.text,
-            initialImagePaths: [...post.imageUrls], // Создаем копию списка
-            onSave: (newText, newImages) async {
-              try {
-                // Обновляем локальное состояние
-                setState(() {
-                  posts[index].text = newText;
-                  posts[index].imageUrls = [
-                    ...newImages
-                  ]; // Создаем копию списка
-                  filteredPosts[index].text = newText;
-                  filteredPosts[index].imageUrls = [
-                    ...newImages
-                  ]; // Создаем копию списка
-                });
-                // Обновляем данные с сервера
+    // Локальная переменная для определения типа операции
+    bool isDeleted = false;
+
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditPostPage(
+          postId: post.id,
+          initialText: post.text,
+          initialImagePaths: [...post.imageUrls],
+          onSave: (newText, newImages, isSuccess) async {
+            try {
+              setState(() {
+                posts[index].text = newText;
+                posts[index].imageUrls = [...newImages];
+                filteredPosts[index].text = newText;
+                filteredPosts[index].imageUrls = [...newImages];
+              });
+
+              // Обновляем данные только при успешном сохранении
+              if (isSuccess) {
                 await loadPosts();
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Данные успешно сохранены')),
-                  );
-                }
-              } catch (e) {
-                debugPrint('Error updating post: $e');
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text('Ошибка сохранения: ${e.toString()}')),
-                  );
-                }
               }
-            },
-            onDelete: () async {
-              try {
-                final token =
-                    await GetIt.I<AuthRepositoryImpl>().getAccessToken();
-                if (token == null) {
-                  throw Exception('Необходима авторизация');
-                }
+              return true; // Успешное сохранение
+            } catch (e) {
+              debugPrint('Error updating post: $e');
+              throw e;
+            }
+          },
+          onDelete: () async {
+            try {
+              final token =
+                  await GetIt.I<AuthRepositoryImpl>().getAccessToken();
+              if (token == null) throw Exception('Необходима авторизация');
 
-                if (post.id != null) {
-                  final postApi = GetIt.I<Openapi>().getPostControllerApi();
-                  await postApi.deletePost(id: post.id!);
+              if (post.id != null) {
+                final postApi = GetIt.I<Openapi>().getPostControllerApi();
+                await postApi.deletePost(id: post.id!);
 
-                  // Удаляем пост из локального состояния
-                  setState(() {
-                    posts.removeAt(index); // Теперь это работает
-                    filteredPosts.removeAt(index); // Теперь это работает
-                    if (showCommentInput.length > index) {
-                      showCommentInput.removeAt(index);
-                    }
-                  });
-
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Пост успешно удален')),
-                    );
+                setState(() {
+                  posts.removeAt(index);
+                  filteredPosts.removeAt(index);
+                  if (showCommentInput.length > index) {
+                    showCommentInput.removeAt(index);
                   }
-                }
-              } catch (e) {
-                debugPrint('Error deleting post: $e');
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Ошибка удаления: ${e.toString()}')),
-                  );
-                }
-                rethrow;
+                });
+                isDeleted = true; // Устанавливаем флаг удаления
+                return true; // Успешное удаление
               }
-            },
-          ),
+              return false;
+            } catch (e) {
+              debugPrint('Error deleting post: $e');
+              throw e;
+            }
+          },
+        ),
+      ),
+    );
+
+    // Показываем соответствующее сообщение
+    if (result == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content:
+              Text(isDeleted ? 'Пост успешно удален' : 'Пост успешно сохранен'),
         ),
       );
-    } catch (e, stackTrace) {
-      debugPrint('Ошибка при редактировании поста: $e\n$stackTrace');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка: ${e.toString()}')),
-        );
-      }
     }
   }
 
-  Widget _buildCommentsDialog(int index) {
+  Widget _buildCommentsPanel(int index) {
     final post = filteredPosts[index];
-    return AlertDialog(
-      title: const Text('Комментарии'),
-      content: SizedBox(
-        width: double.maxFinite,
-        child: post.comments.isEmpty
-            ? const Center(child: Text('Нет комментариев'))
-            : ListView.builder(
-                shrinkWrap: true,
-                itemCount: post.comments.length,
-                itemBuilder: (context, commentIndex) {
-                  final comment = post.comments[commentIndex];
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor:
-                          Colors.grey, // Серый фон если нет аватарки
-                      backgroundImage: comment.userAvatar.isNotEmpty
-                          ? CachedNetworkImageProvider(comment.userAvatar)
-                          : null,
-                      child: comment.userAvatar.isEmpty
-                          ? const Icon(Icons.person, color: Colors.white)
-                          : null,
-                    ),
-                    title: Text(comment.userName),
-                    subtitle: Text(comment.text),
-                    trailing: Text(
-                      DateFormat('dd.MM.yyyy HH:mm').format(comment.createdAt),
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  );
-                },
+    return Stack(
+      children: [
+        // Затемнение фона
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              _showCommentsPanel = false;
+            });
+          },
+          child: Container(
+            color: Colors.black54,
+          ),
+        ),
+        // Сама панель комментариев
+        SafeArea(
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.7,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
               ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Закрыть'),
+              child: Column(
+                children: [
+                  // Заголовок с количеством комментариев и крестиком
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Комментарии (${post.comments.length})',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.close),
+                          onPressed: () {
+                            setState(() {
+                              _showCommentsPanel = false;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  Divider(height: 1),
+                  // Список комментариев
+                  Expanded(
+                    child: post.comments.isEmpty
+                        ? Center(child: Text('Нет комментариев'))
+                        : ListView.builder(
+                            padding: EdgeInsets.only(bottom: 8),
+                            itemCount: post.comments.length,
+                            itemBuilder: (context, commentIndex) {
+                              final comment = post.comments[commentIndex];
+                              return ListTile(
+                                leading:
+                                    _buildCommentAvatar(comment.userAvatar),
+                                title: Text(comment.userName),
+                                subtitle: Text(comment.text),
+                                trailing: Text(
+                                  DateFormat('dd.MM.yyyy HH:mm')
+                                      .format(comment.createdAt),
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                  // Поле ввода нового комментария
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _controller,
+                            decoration: InputDecoration(
+                              hintText: 'Напишите комментарий...',
+                              border: OutlineInputBorder(),
+                              contentPadding:
+                                  EdgeInsets.symmetric(horizontal: 12),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        IconButton(
+                          icon: Icon(Icons.send, color: Colors.purple),
+                          onPressed: () {
+                            final commentText = _controller.text.trim();
+                            if (commentText.isNotEmpty) {
+                              addComment(index, commentText);
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ],
+    );
+  }
+
+  Widget _buildCommentAvatar(String avatarUrl) {
+    if (avatarUrl.isEmpty) {
+      return const CircleAvatar(
+        backgroundColor: Colors.grey,
+        child: Icon(Icons.person, color: Colors.white),
+      );
+    }
+
+    // Формируем полный URL
+    final fullUrl = avatarUrl.startsWith('http')
+        ? avatarUrl
+        : '$_avatarBaseUrl${avatarUrl.startsWith('/') ? avatarUrl.substring(1) : avatarUrl}';
+
+    return ClipOval(
+      child: CachedNetworkImage(
+        imageUrl: fullUrl,
+        width: 40,
+        height: 40,
+        fit: BoxFit.cover,
+        httpHeaders: {
+          'Authorization': 'Bearer $_accessToken',
+        },
+        placeholder: (context, url) => Container(
+          width: 40,
+          height: 40,
+          color: Colors.grey,
+          child: const Icon(Icons.person, size: 20, color: Colors.white),
+        ),
+        errorWidget: (context, url, error) {
+          debugPrint('Ошибка загрузки аватара: $error');
+          return Container(
+            width: 40,
+            height: 40,
+            color: Colors.grey,
+            child: const Icon(Icons.error, size: 20),
+          );
+        },
+      ),
     );
   }
 
@@ -1063,18 +1128,13 @@ class NewsFeedState extends State<NewsFeed> {
                                 IconButton(
                                   icon: const Icon(Icons.message),
                                   onPressed: () {
-                                    // Always show comments dialog if there are comments
-                                    if (post.comments.isNotEmpty) {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) =>
-                                            _buildCommentsDialog(index),
-                                      );
-                                    }
-                                    // Toggle comment input regardless
-                                    toggleCommentInput(index);
+                                    setState(() {
+                                      _showCommentsPanel = true;
+                                      _currentPostIndex = index;
+                                    });
                                   },
                                 ),
+                                Text('${post.comments.length}'),
                                 if (_isAdmin)
                                   IconButton(
                                     icon: const Icon(Icons.edit),
@@ -1083,52 +1143,54 @@ class NewsFeedState extends State<NewsFeed> {
                                   ),
                               ],
                             ),
-                            if (showCommentInput.length > index &&
-                                showCommentInput[index]) ...[
-                              for (var comment in post.comments)
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
-                                  child: Text(
-                                      '- ${comment.text}'), // Было просто '- $comment'
-                                ),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: TextField(
-                                      controller: _controller,
-                                      onSubmitted: (value) =>
-                                          addComment(index, value),
-                                      decoration: const InputDecoration(
-                                        labelText: 'Напишите комментарий...',
-                                      ),
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.send),
-                                    onPressed: () {
-                                      String commentText =
-                                          _controller.text.trim();
-                                      addComment(index, commentText);
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ],
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                post.text,
-                                textAlign: TextAlign.left,
-                              ),
-                            ),
-                            SizedBox(height: 50),
+                            //   if (showCommentInput.length > index &&
+                            //       showCommentInput[index]) ...[
+                            //     for (var comment in post.comments)
+                            //       Padding(
+                            //         padding: const EdgeInsets.symmetric(
+                            //             horizontal: 8.0),
+                            //         child: Text(
+                            //             '- ${comment.text}'), // Было просто '- $comment'
+                            //       ),
+                            //     Row(
+                            //       children: [
+                            //         Expanded(
+                            //           child: TextField(
+                            //             controller: _controller,
+                            //             onSubmitted: (value) =>
+                            //                 addComment(index, value),
+                            //             decoration: const InputDecoration(
+                            //               labelText: 'Напишите комментарий...',
+                            //             ),
+                            //           ),
+                            //         ),
+                            //         IconButton(
+                            //           icon: const Icon(Icons.send),
+                            //           onPressed: () {
+                            //             String commentText =
+                            //                 _controller.text.trim();
+                            //             addComment(index, commentText);
+                            //           },
+                            //         ),
+                            //       ],
+                            //     ),
+                            //   ],
+                            //   Padding(
+                            //     padding: const EdgeInsets.all(8.0),
+                            //     child: Text(
+                            //       post.text,
+                            //       textAlign: TextAlign.left,
+                            //     ),
+                            //   ),
+                            //   SizedBox(height: 50),
                           ],
                         );
                       },
                     ),
             ),
           ),
+          if (_showCommentsPanel && _currentPostIndex != null)
+            _buildCommentsPanel(_currentPostIndex!),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

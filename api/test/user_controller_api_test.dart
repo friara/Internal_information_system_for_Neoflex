@@ -52,6 +52,11 @@ void main() {
       // TODO
     });
 
+    //Future<JsonObject> saveFcmToken(BuiltMap<String, String> requestBody) async
+    test('test saveFcmToken', () async {
+      // TODO
+    });
+
     //Future<PageUserDTO> searchByFIO(String query, { int page, int size }) async
     test('test searchByFIO', () async {
       // TODO

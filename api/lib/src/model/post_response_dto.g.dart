@@ -22,8 +22,6 @@ class _$PostResponseDTO extends PostResponseDTO {
   @override
   final int? commentCount;
   @override
-  final int? repostCount;
-  @override
   final bool? liked;
 
   factory _$PostResponseDTO([void Function(PostResponseDTOBuilder)? updates]) =>
@@ -37,7 +35,6 @@ class _$PostResponseDTO extends PostResponseDTO {
       this.userId,
       this.likeCount,
       this.commentCount,
-      this.repostCount,
       this.liked})
       : super._();
 
@@ -60,7 +57,6 @@ class _$PostResponseDTO extends PostResponseDTO {
         userId == other.userId &&
         likeCount == other.likeCount &&
         commentCount == other.commentCount &&
-        repostCount == other.repostCount &&
         liked == other.liked;
   }
 
@@ -74,7 +70,6 @@ class _$PostResponseDTO extends PostResponseDTO {
     _$hash = $jc(_$hash, userId.hashCode);
     _$hash = $jc(_$hash, likeCount.hashCode);
     _$hash = $jc(_$hash, commentCount.hashCode);
-    _$hash = $jc(_$hash, repostCount.hashCode);
     _$hash = $jc(_$hash, liked.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
@@ -90,7 +85,6 @@ class _$PostResponseDTO extends PostResponseDTO {
           ..add('userId', userId)
           ..add('likeCount', likeCount)
           ..add('commentCount', commentCount)
-          ..add('repostCount', repostCount)
           ..add('liked', liked))
         .toString();
   }
@@ -129,10 +123,6 @@ class PostResponseDTOBuilder
   int? get commentCount => _$this._commentCount;
   set commentCount(int? commentCount) => _$this._commentCount = commentCount;
 
-  int? _repostCount;
-  int? get repostCount => _$this._repostCount;
-  set repostCount(int? repostCount) => _$this._repostCount = repostCount;
-
   bool? _liked;
   bool? get liked => _$this._liked;
   set liked(bool? liked) => _$this._liked = liked;
@@ -151,7 +141,6 @@ class PostResponseDTOBuilder
       _userId = $v.userId;
       _likeCount = $v.likeCount;
       _commentCount = $v.commentCount;
-      _repostCount = $v.repostCount;
       _liked = $v.liked;
       _$v = null;
     }
@@ -184,7 +173,6 @@ class PostResponseDTOBuilder
             userId: userId,
             likeCount: likeCount,
             commentCount: commentCount,
-            repostCount: repostCount,
             liked: liked,
           );
     } catch (_) {

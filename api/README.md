@@ -83,7 +83,7 @@ Class | Method | HTTP request | Description
 [*CommentControllerApi*](doc/CommentControllerApi.md) | [**updateComment**](doc/CommentControllerApi.md#updatecomment) | **PUT** /api/posts/{postId}/comments/{commentId} | 
 [*FileControllerApi*](doc/FileControllerApi.md) | [**downloadFile**](doc/FileControllerApi.md#downloadfile) | **GET** /api/files/{filename} | 
 [*LikeControllerApi*](doc/LikeControllerApi.md) | [**createLike**](doc/LikeControllerApi.md#createlike) | **POST** /api/posts/{postId}/likes | 
-[*LikeControllerApi*](doc/LikeControllerApi.md) | [**deleteLike**](doc/LikeControllerApi.md#deletelike) | **DELETE** /api/posts/{postId}/likes/{userId} | 
+[*LikeControllerApi*](doc/LikeControllerApi.md) | [**deleteLike**](doc/LikeControllerApi.md#deletelike) | **DELETE** /api/posts/{postId}/likes | 
 [*LikeControllerApi*](doc/LikeControllerApi.md) | [**getLikesByPost**](doc/LikeControllerApi.md#getlikesbypost) | **GET** /api/posts/{postId}/likes | 
 [*LikeControllerApi*](doc/LikeControllerApi.md) | [**getLikesCount**](doc/LikeControllerApi.md#getlikescount) | **GET** /api/posts/{postId}/likes/count | 
 [*MediaControllerApi*](doc/MediaControllerApi.md) | [**downloadMedia**](doc/MediaControllerApi.md#downloadmedia) | **GET** /api/media/{filename} | 
@@ -99,10 +99,6 @@ Class | Method | HTTP request | Description
 [*PostControllerApi*](doc/PostControllerApi.md) | [**getAllPosts**](doc/PostControllerApi.md#getallposts) | **GET** /api/posts | 
 [*PostControllerApi*](doc/PostControllerApi.md) | [**getPostById**](doc/PostControllerApi.md#getpostbyid) | **GET** /api/posts/{id} | 
 [*PostControllerApi*](doc/PostControllerApi.md) | [**updatePost**](doc/PostControllerApi.md#updatepost) | **PUT** /api/posts/{id} | 
-[*RepostControllerApi*](doc/RepostControllerApi.md) | [**createRepost**](doc/RepostControllerApi.md#createrepost) | **POST** /api/posts/{postId}/reposts | 
-[*RepostControllerApi*](doc/RepostControllerApi.md) | [**deleteRepost**](doc/RepostControllerApi.md#deleterepost) | **DELETE** /api/posts/{postId}/reposts/{id} | 
-[*RepostControllerApi*](doc/RepostControllerApi.md) | [**getRepostById**](doc/RepostControllerApi.md#getrepostbyid) | **GET** /api/posts/{postId}/reposts/{id} | 
-[*RepostControllerApi*](doc/RepostControllerApi.md) | [**getRepostsByPost**](doc/RepostControllerApi.md#getrepostsbypost) | **GET** /api/posts/{postId}/reposts | 
 [*UserControllerApi*](doc/UserControllerApi.md) | [**adminCreateUser**](doc/UserControllerApi.md#admincreateuser) | **POST** /api/users | 
 [*UserControllerApi*](doc/UserControllerApi.md) | [**adminDeleteUser**](doc/UserControllerApi.md#admindeleteuser) | **DELETE** /api/users/{id} | 
 [*UserControllerApi*](doc/UserControllerApi.md) | [**adminGetAllUsers**](doc/UserControllerApi.md#admingetallusers) | **GET** /api/users/full | 
@@ -146,7 +142,6 @@ Class | Method | HTTP request | Description
  - [PageableObject](doc/PageableObject.md)
  - [PostDTO](doc/PostDTO.md)
  - [PostResponseDTO](doc/PostResponseDTO.md)
- - [RepostDTO](doc/RepostDTO.md)
  - [SortObject](doc/SortObject.md)
  - [UserDTO](doc/UserDTO.md)
  - [UserExtendedDTO](doc/UserExtendedDTO.md)

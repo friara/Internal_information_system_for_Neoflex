@@ -8,28 +8,28 @@ part of 'pageable_object.dart';
 
 class _$PageableObject extends PageableObject {
   @override
-  final int? pageNumber;
+  final int? offset;
+  @override
+  final SortObject? sort;
   @override
   final int? pageSize;
+  @override
+  final int? pageNumber;
   @override
   final bool? paged;
   @override
   final bool? unpaged;
-  @override
-  final int? offset;
-  @override
-  final SortObject? sort;
 
   factory _$PageableObject([void Function(PageableObjectBuilder)? updates]) =>
       (new PageableObjectBuilder()..update(updates))._build();
 
   _$PageableObject._(
-      {this.pageNumber,
+      {this.offset,
+      this.sort,
       this.pageSize,
+      this.pageNumber,
       this.paged,
-      this.unpaged,
-      this.offset,
-      this.sort})
+      this.unpaged})
       : super._();
 
   @override
@@ -44,23 +44,23 @@ class _$PageableObject extends PageableObject {
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
     return other is PageableObject &&
-        pageNumber == other.pageNumber &&
-        pageSize == other.pageSize &&
-        paged == other.paged &&
-        unpaged == other.unpaged &&
         offset == other.offset &&
-        sort == other.sort;
+        sort == other.sort &&
+        pageSize == other.pageSize &&
+        pageNumber == other.pageNumber &&
+        paged == other.paged &&
+        unpaged == other.unpaged;
   }
 
   @override
   int get hashCode {
     var _$hash = 0;
-    _$hash = $jc(_$hash, pageNumber.hashCode);
-    _$hash = $jc(_$hash, pageSize.hashCode);
-    _$hash = $jc(_$hash, paged.hashCode);
-    _$hash = $jc(_$hash, unpaged.hashCode);
     _$hash = $jc(_$hash, offset.hashCode);
     _$hash = $jc(_$hash, sort.hashCode);
+    _$hash = $jc(_$hash, pageSize.hashCode);
+    _$hash = $jc(_$hash, pageNumber.hashCode);
+    _$hash = $jc(_$hash, paged.hashCode);
+    _$hash = $jc(_$hash, unpaged.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -68,12 +68,12 @@ class _$PageableObject extends PageableObject {
   @override
   String toString() {
     return (newBuiltValueToStringHelper(r'PageableObject')
-          ..add('pageNumber', pageNumber)
-          ..add('pageSize', pageSize)
-          ..add('paged', paged)
-          ..add('unpaged', unpaged)
           ..add('offset', offset)
-          ..add('sort', sort))
+          ..add('sort', sort)
+          ..add('pageSize', pageSize)
+          ..add('pageNumber', pageNumber)
+          ..add('paged', paged)
+          ..add('unpaged', unpaged))
         .toString();
   }
 }
@@ -81,22 +81,6 @@ class _$PageableObject extends PageableObject {
 class PageableObjectBuilder
     implements Builder<PageableObject, PageableObjectBuilder> {
   _$PageableObject? _$v;
-
-  int? _pageNumber;
-  int? get pageNumber => _$this._pageNumber;
-  set pageNumber(int? pageNumber) => _$this._pageNumber = pageNumber;
-
-  int? _pageSize;
-  int? get pageSize => _$this._pageSize;
-  set pageSize(int? pageSize) => _$this._pageSize = pageSize;
-
-  bool? _paged;
-  bool? get paged => _$this._paged;
-  set paged(bool? paged) => _$this._paged = paged;
-
-  bool? _unpaged;
-  bool? get unpaged => _$this._unpaged;
-  set unpaged(bool? unpaged) => _$this._unpaged = unpaged;
 
   int? _offset;
   int? get offset => _$this._offset;
@@ -106,6 +90,22 @@ class PageableObjectBuilder
   SortObjectBuilder get sort => _$this._sort ??= new SortObjectBuilder();
   set sort(SortObjectBuilder? sort) => _$this._sort = sort;
 
+  int? _pageSize;
+  int? get pageSize => _$this._pageSize;
+  set pageSize(int? pageSize) => _$this._pageSize = pageSize;
+
+  int? _pageNumber;
+  int? get pageNumber => _$this._pageNumber;
+  set pageNumber(int? pageNumber) => _$this._pageNumber = pageNumber;
+
+  bool? _paged;
+  bool? get paged => _$this._paged;
+  set paged(bool? paged) => _$this._paged = paged;
+
+  bool? _unpaged;
+  bool? get unpaged => _$this._unpaged;
+  set unpaged(bool? unpaged) => _$this._unpaged = unpaged;
+
   PageableObjectBuilder() {
     PageableObject._defaults(this);
   }
@@ -113,12 +113,12 @@ class PageableObjectBuilder
   PageableObjectBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
-      _pageNumber = $v.pageNumber;
-      _pageSize = $v.pageSize;
-      _paged = $v.paged;
-      _unpaged = $v.unpaged;
       _offset = $v.offset;
       _sort = $v.sort?.toBuilder();
+      _pageSize = $v.pageSize;
+      _pageNumber = $v.pageNumber;
+      _paged = $v.paged;
+      _unpaged = $v.unpaged;
       _$v = null;
     }
     return this;
@@ -143,12 +143,12 @@ class PageableObjectBuilder
     try {
       _$result = _$v ??
           new _$PageableObject._(
-            pageNumber: pageNumber,
-            pageSize: pageSize,
-            paged: paged,
-            unpaged: unpaged,
             offset: offset,
             sort: _sort?.build(),
+            pageSize: pageSize,
+            pageNumber: pageNumber,
+            paged: paged,
+            unpaged: unpaged,
           );
     } catch (_) {
       late String _$failedField;

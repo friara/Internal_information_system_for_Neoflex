@@ -20,7 +20,6 @@ part 'post_response_dto.g.dart';
 /// * [userId] 
 /// * [likeCount] 
 /// * [commentCount] 
-/// * [repostCount] 
 /// * [liked] 
 @BuiltValue()
 abstract class PostResponseDTO implements Built<PostResponseDTO, PostResponseDTOBuilder> {
@@ -44,9 +43,6 @@ abstract class PostResponseDTO implements Built<PostResponseDTO, PostResponseDTO
 
   @BuiltValueField(wireName: r'commentCount')
   int? get commentCount;
-
-  @BuiltValueField(wireName: r'repostCount')
-  int? get repostCount;
 
   @BuiltValueField(wireName: r'liked')
   bool? get liked;
@@ -120,13 +116,6 @@ class _$PostResponseDTOSerializer implements PrimitiveSerializer<PostResponseDTO
       yield r'commentCount';
       yield serializers.serialize(
         object.commentCount,
-        specifiedType: const FullType(int),
-      );
-    }
-    if (object.repostCount != null) {
-      yield r'repostCount';
-      yield serializers.serialize(
-        object.repostCount,
         specifiedType: const FullType(int),
       );
     }
@@ -208,13 +197,6 @@ class _$PostResponseDTOSerializer implements PrimitiveSerializer<PostResponseDTO
             specifiedType: const FullType(int),
           ) as int;
           result.commentCount = valueDes;
-          break;
-        case r'repostCount':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(int),
-          ) as int;
-          result.repostCount = valueDes;
           break;
         case r'liked':
           final valueDes = serializers.deserialize(

@@ -18,7 +18,6 @@ import 'package:openapi/src/api/media_controller_api.dart';
 import 'package:openapi/src/api/message_controller_api.dart';
 import 'package:openapi/src/api/notification_controller_api.dart';
 import 'package:openapi/src/api/post_controller_api.dart';
-import 'package:openapi/src/api/repost_controller_api.dart';
 import 'package:openapi/src/api/user_controller_api.dart';
 import 'package:openapi/src/api/workspace_controller_api.dart';
 
@@ -128,12 +127,6 @@ class Openapi {
   /// by doing that all interceptors will not be executed
   PostControllerApi getPostControllerApi() {
     return PostControllerApi(dio, serializers);
-  }
-
-  /// Get RepostControllerApi instance, base route and serializer can be overridden by a given but be careful,
-  /// by doing that all interceptors will not be executed
-  RepostControllerApi getRepostControllerApi() {
-    return RepostControllerApi(dio, serializers);
   }
 
   /// Get UserControllerApi instance, base route and serializer can be overridden by a given but be careful,

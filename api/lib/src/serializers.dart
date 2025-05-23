@@ -34,7 +34,6 @@ import 'package:openapi/src/model/pageable.dart';
 import 'package:openapi/src/model/pageable_object.dart';
 import 'package:openapi/src/model/post_dto.dart';
 import 'package:openapi/src/model/post_response_dto.dart';
-import 'package:openapi/src/model/repost_dto.dart';
 import 'package:openapi/src/model/sort_object.dart';
 import 'package:openapi/src/model/user_dto.dart';
 import 'package:openapi/src/model/user_extended_dto.dart';
@@ -63,7 +62,6 @@ part 'serializers.g.dart';
   PageableObject,
   PostDTO,
   PostResponseDTO,
-  RepostDTO,
   SortObject,
   UserDTO,
   UserExtendedDTO,
@@ -81,10 +79,6 @@ Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(MessageNotificationDTO)]),
         () => ListBuilder<MessageNotificationDTO>(),
-      )
-      ..addBuilderFactory(
-        const FullType(BuiltList, [FullType(RepostDTO)]),
-        () => ListBuilder<RepostDTO>(),
       )
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(String)]),

@@ -22,7 +22,7 @@ void main() {
       // TODO
     });
 
-    //Future<BuiltList<WorkspaceDTO>> getAvailableWorkspaces() async
+    //Future<BuiltList<WorkspaceDTO>> getAvailableWorkspaces(DateTime start, DateTime end) async
     test('test getAvailableWorkspaces', () async {
       // TODO
     });

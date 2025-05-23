@@ -27,7 +27,7 @@ void main() {
       // TODO
     });
 
-    //Future<PostDTO> updatePost(int id, { PostDTO postDTO, BuiltList<MultipartFile> files }) async
+    //Future<PostDTO> updatePost(int id, String text, bool isMediaUpdated, { BuiltList<MultipartFile> files }) async
     test('test updatePost', () async {
       // TODO
     });

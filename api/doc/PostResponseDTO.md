@@ -15,7 +15,6 @@ Name | Type | Description | Notes
 **userId** | **int** |  | [optional] 
 **likeCount** | **int** |  | [optional] 
 **commentCount** | **int** |  | [optional] 
-**repostCount** | **int** |  | [optional] 
 **liked** | **bool** |  | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

@@ -7,11 +7,6 @@ void main() {
   final instance = Openapi().getBookingControllerApi();
 
   group(BookingControllerApi, () {
-    //Future<BuiltList<DateTime>> checkAvailability(int workspaceId, DateTime date) async
-    test('test checkAvailability', () async {
-      // TODO
-    });
-
     //Future<BookingDTO> createBooking(BookingRequestDTO bookingRequestDTO) async
     test('test createBooking', () async {
       // TODO
@@ -29,6 +24,11 @@ void main() {
 
     //Future<BookingDTO> getBookingById(int id) async
     test('test getBookingById', () async {
+      // TODO
+    });
+
+    //Future<PageBookingDTO> getBookings(Pageable pageable) async
+    test('test getBookings', () async {
       // TODO
     });
 
