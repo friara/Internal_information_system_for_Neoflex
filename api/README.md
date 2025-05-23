@@ -83,7 +83,7 @@ Class | Method | HTTP request | Description
 [*CommentControllerApi*](doc/CommentControllerApi.md) | [**updateComment**](doc/CommentControllerApi.md#updatecomment) | **PUT** /api/posts/{postId}/comments/{commentId} | 
 [*FileControllerApi*](doc/FileControllerApi.md) | [**downloadFile**](doc/FileControllerApi.md#downloadfile) | **GET** /api/files/{filename} | 
 [*LikeControllerApi*](doc/LikeControllerApi.md) | [**createLike**](doc/LikeControllerApi.md#createlike) | **POST** /api/posts/{postId}/likes | 
-[*LikeControllerApi*](doc/LikeControllerApi.md) | [**deleteLike**](doc/LikeControllerApi.md#deletelike) | **DELETE** /api/posts/{postId}/likes | 
+[*LikeControllerApi*](doc/LikeControllerApi.md) | [**deleteLike**](doc/LikeControllerApi.md#deletelike) | **DELETE** /api/posts/{postId}/likes/{userId} | 
 [*LikeControllerApi*](doc/LikeControllerApi.md) | [**getLikesByPost**](doc/LikeControllerApi.md#getlikesbypost) | **GET** /api/posts/{postId}/likes | 
 [*LikeControllerApi*](doc/LikeControllerApi.md) | [**getLikesCount**](doc/LikeControllerApi.md#getlikescount) | **GET** /api/posts/{postId}/likes/count | 
 [*MediaControllerApi*](doc/MediaControllerApi.md) | [**downloadMedia**](doc/MediaControllerApi.md#downloadmedia) | **GET** /api/media/{filename} | 

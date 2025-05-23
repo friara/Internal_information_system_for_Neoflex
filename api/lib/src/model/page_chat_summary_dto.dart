@@ -15,36 +15,24 @@ part 'page_chat_summary_dto.g.dart';
 /// PageChatSummaryDTO
 ///
 /// Properties:
-/// * [totalPages] 
 /// * [totalElements] 
-/// * [size] 
-/// * [content] 
-/// * [number] 
-/// * [sort] 
+/// * [totalPages] 
 /// * [first] 
 /// * [last] 
 /// * [numberOfElements] 
 /// * [pageable] 
+/// * [size] 
+/// * [content] 
+/// * [number] 
+/// * [sort] 
 /// * [empty] 
 @BuiltValue()
 abstract class PageChatSummaryDTO implements Built<PageChatSummaryDTO, PageChatSummaryDTOBuilder> {
-  @BuiltValueField(wireName: r'totalPages')
-  int? get totalPages;
-
   @BuiltValueField(wireName: r'totalElements')
   int? get totalElements;
 
-  @BuiltValueField(wireName: r'size')
-  int? get size;
-
-  @BuiltValueField(wireName: r'content')
-  BuiltList<ChatSummaryDTO>? get content;
-
-  @BuiltValueField(wireName: r'number')
-  int? get number;
-
-  @BuiltValueField(wireName: r'sort')
-  SortObject? get sort;
+  @BuiltValueField(wireName: r'totalPages')
+  int? get totalPages;
 
   @BuiltValueField(wireName: r'first')
   bool? get first;
@@ -57,6 +45,18 @@ abstract class PageChatSummaryDTO implements Built<PageChatSummaryDTO, PageChatS
 
   @BuiltValueField(wireName: r'pageable')
   PageableObject? get pageable;
+
+  @BuiltValueField(wireName: r'size')
+  int? get size;
+
+  @BuiltValueField(wireName: r'content')
+  BuiltList<ChatSummaryDTO>? get content;
+
+  @BuiltValueField(wireName: r'number')
+  int? get number;
+
+  @BuiltValueField(wireName: r'sort')
+  SortObject? get sort;
 
   @BuiltValueField(wireName: r'empty')
   bool? get empty;
@@ -84,13 +84,6 @@ class _$PageChatSummaryDTOSerializer implements PrimitiveSerializer<PageChatSumm
     PageChatSummaryDTO object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
-    if (object.totalPages != null) {
-      yield r'totalPages';
-      yield serializers.serialize(
-        object.totalPages,
-        specifiedType: const FullType(int),
-      );
-    }
     if (object.totalElements != null) {
       yield r'totalElements';
       yield serializers.serialize(
@@ -98,32 +91,11 @@ class _$PageChatSummaryDTOSerializer implements PrimitiveSerializer<PageChatSumm
         specifiedType: const FullType(int),
       );
     }
-    if (object.size != null) {
-      yield r'size';
+    if (object.totalPages != null) {
+      yield r'totalPages';
       yield serializers.serialize(
-        object.size,
+        object.totalPages,
         specifiedType: const FullType(int),
-      );
-    }
-    if (object.content != null) {
-      yield r'content';
-      yield serializers.serialize(
-        object.content,
-        specifiedType: const FullType(BuiltList, [FullType(ChatSummaryDTO)]),
-      );
-    }
-    if (object.number != null) {
-      yield r'number';
-      yield serializers.serialize(
-        object.number,
-        specifiedType: const FullType(int),
-      );
-    }
-    if (object.sort != null) {
-      yield r'sort';
-      yield serializers.serialize(
-        object.sort,
-        specifiedType: const FullType(SortObject),
       );
     }
     if (object.first != null) {
@@ -152,6 +124,34 @@ class _$PageChatSummaryDTOSerializer implements PrimitiveSerializer<PageChatSumm
       yield serializers.serialize(
         object.pageable,
         specifiedType: const FullType(PageableObject),
+      );
+    }
+    if (object.size != null) {
+      yield r'size';
+      yield serializers.serialize(
+        object.size,
+        specifiedType: const FullType(int),
+      );
+    }
+    if (object.content != null) {
+      yield r'content';
+      yield serializers.serialize(
+        object.content,
+        specifiedType: const FullType(BuiltList, [FullType(ChatSummaryDTO)]),
+      );
+    }
+    if (object.number != null) {
+      yield r'number';
+      yield serializers.serialize(
+        object.number,
+        specifiedType: const FullType(int),
+      );
+    }
+    if (object.sort != null) {
+      yield r'sort';
+      yield serializers.serialize(
+        object.sort,
+        specifiedType: const FullType(SortObject),
       );
     }
     if (object.empty != null) {
@@ -184,13 +184,6 @@ class _$PageChatSummaryDTOSerializer implements PrimitiveSerializer<PageChatSumm
       final key = serializedList[i] as String;
       final value = serializedList[i + 1];
       switch (key) {
-        case r'totalPages':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(int),
-          ) as int;
-          result.totalPages = valueDes;
-          break;
         case r'totalElements':
           final valueDes = serializers.deserialize(
             value,
@@ -198,33 +191,12 @@ class _$PageChatSummaryDTOSerializer implements PrimitiveSerializer<PageChatSumm
           ) as int;
           result.totalElements = valueDes;
           break;
-        case r'size':
+        case r'totalPages':
           final valueDes = serializers.deserialize(
             value,
             specifiedType: const FullType(int),
           ) as int;
-          result.size = valueDes;
-          break;
-        case r'content':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(BuiltList, [FullType(ChatSummaryDTO)]),
-          ) as BuiltList<ChatSummaryDTO>;
-          result.content.replace(valueDes);
-          break;
-        case r'number':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(int),
-          ) as int;
-          result.number = valueDes;
-          break;
-        case r'sort':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(SortObject),
-          ) as SortObject;
-          result.sort.replace(valueDes);
+          result.totalPages = valueDes;
           break;
         case r'first':
           final valueDes = serializers.deserialize(
@@ -253,6 +225,34 @@ class _$PageChatSummaryDTOSerializer implements PrimitiveSerializer<PageChatSumm
             specifiedType: const FullType(PageableObject),
           ) as PageableObject;
           result.pageable.replace(valueDes);
+          break;
+        case r'size':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(int),
+          ) as int;
+          result.size = valueDes;
+          break;
+        case r'content':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(BuiltList, [FullType(ChatSummaryDTO)]),
+          ) as BuiltList<ChatSummaryDTO>;
+          result.content.replace(valueDes);
+          break;
+        case r'number':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(int),
+          ) as int;
+          result.number = valueDes;
+          break;
+        case r'sort':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(SortObject),
+          ) as SortObject;
+          result.sort.replace(valueDes);
           break;
         case r'empty':
           final valueDes = serializers.deserialize(

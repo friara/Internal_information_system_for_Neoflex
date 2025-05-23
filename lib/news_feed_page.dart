@@ -409,6 +409,7 @@ class NewsFeedState extends State<NewsFeed> {
         // Пробуем удалить лайк
         final response = await _likeApi.deleteLike(
           postId: post.id!,
+          userId: _currentUserId!,
         );
 
         if (response.statusCode == 200 || response.statusCode == 204) {

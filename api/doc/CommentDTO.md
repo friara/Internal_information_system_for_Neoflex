@@ -13,7 +13,7 @@ Name | Type | Description | Notes
 **postId** | **int** |  | [optional] 
 **userId** | **int** |  | [optional] 
 **text** | **String** |  | [optional] 
-**answerToComm** | **int** |  | [optional] 
+**answerToComm** | **String** |  | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

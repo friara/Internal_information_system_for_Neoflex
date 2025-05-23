@@ -10,7 +10,7 @@ All URIs are relative to *http://localhost:8080*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**createLike**](LikeControllerApi.md#createlike) | **POST** /api/posts/{postId}/likes | 
-[**deleteLike**](LikeControllerApi.md#deletelike) | **DELETE** /api/posts/{postId}/likes | 
+[**deleteLike**](LikeControllerApi.md#deletelike) | **DELETE** /api/posts/{postId}/likes/{userId} | 
 [**getLikesByPost**](LikeControllerApi.md#getlikesbypost) | **GET** /api/posts/{postId}/likes | 
 [**getLikesCount**](LikeControllerApi.md#getlikescount) | **GET** /api/posts/{postId}/likes/count | 
 
@@ -57,7 +57,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **deleteLike**
-> deleteLike(postId)
+> deleteLike(postId, userId)
 
 
 
@@ -67,9 +67,10 @@ import 'package:openapi/api.dart';
 
 final api = Openapi().getLikeControllerApi();
 final int postId = 789; // int | 
+final int userId = 789; // int | 
 
 try {
-    api.deleteLike(postId);
+    api.deleteLike(postId, userId);
 } catch on DioException (e) {
     print('Exception when calling LikeControllerApi->deleteLike: $e\n');
 }
@@ -80,6 +81,7 @@ try {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **postId** | **int**|  | 
+ **userId** | **int**|  | 
 
 ### Return type
 

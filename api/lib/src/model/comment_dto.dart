@@ -35,7 +35,7 @@ abstract class CommentDTO implements Built<CommentDTO, CommentDTOBuilder> {
   String? get text;
 
   @BuiltValueField(wireName: r'answerToComm')
-  int? get answerToComm;
+  String? get answerToComm;
 
   CommentDTO._();
 
@@ -99,7 +99,7 @@ class _$CommentDTOSerializer implements PrimitiveSerializer<CommentDTO> {
       yield r'answerToComm';
       yield serializers.serialize(
         object.answerToComm,
-        specifiedType: const FullType(int),
+        specifiedType: const FullType(String),
       );
     }
   }
@@ -163,8 +163,8 @@ class _$CommentDTOSerializer implements PrimitiveSerializer<CommentDTO> {
         case r'answerToComm':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(int),
-          ) as int;
+            specifiedType: const FullType(String),
+          ) as String;
           result.answerToComm = valueDes;
           break;
         default:
