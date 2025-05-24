@@ -17,8 +17,6 @@ doc/MediaControllerApi.md
 doc/MediaDTO.md
 doc/MessageControllerApi.md
 doc/MessageDTO.md
-doc/MessageNotificationDTO.md
-doc/NotificationControllerApi.md
 doc/PageBookingDTO.md
 doc/PageChatSummaryDTO.md
 doc/PageLikeDTO.md
@@ -45,7 +43,6 @@ lib/src/api/file_controller_api.dart
 lib/src/api/like_controller_api.dart
 lib/src/api/media_controller_api.dart
 lib/src/api/message_controller_api.dart
-lib/src/api/notification_controller_api.dart
 lib/src/api/post_controller_api.dart
 lib/src/api/user_controller_api.dart
 lib/src/api/workspace_controller_api.dart
@@ -66,7 +63,6 @@ lib/src/model/file_dto.dart
 lib/src/model/like_dto.dart
 lib/src/model/media_dto.dart
 lib/src/model/message_dto.dart
-lib/src/model/message_notification_dto.dart
 lib/src/model/page_booking_dto.dart
 lib/src/model/page_chat_summary_dto.dart
 lib/src/model/page_like_dto.dart

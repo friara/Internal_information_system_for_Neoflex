@@ -40,6 +40,27 @@
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"
+        },
+        {
+            "name": "Windows Instance 1",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "-d", "windows",
+                "--dart-define", "APP_INSTANCE=1",
+                "--dart-define", "PORT=8080"
+            ]
+        },
+        {
+            "name": "Windows Instance 2",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "-d", "windows",
+                "--dart-define", "APP_INSTANCE=2",
+                "--dart-define", "PORT=8081"
+            ]
         }
+        
     ]
 }
