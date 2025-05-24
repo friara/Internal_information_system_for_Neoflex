@@ -39,21 +39,31 @@ class NotificationService {
     );
   }
 
-  void _handleNotificationClick(String payload) {
-    try {
-      // final message = MessageNotificationDTO.fromJson(jsonDecode(payload));
-      // navigatorKey.currentState?.push(
-      //   MaterialPageRoute(
-      //     builder: (context) => PersonalChatPage(
-      //       chatId: message.chatId,
-      //       currentUserId: GetIt.I<AuthRepositoryImpl>().getCurrentUserId(),
-      //     ),
-      //   ),
-      // );
-    } catch (e) {
-      debugPrint('Error handling notification click: $e');
-    }
-  }
+void _handleNotificationClick(String payload) {
+  // try {
+  //   // Добавьте проверку UTF-8
+  //   final utf8Payload = utf8.decode(
+  //     payload.runes.toList(), // Конвертация Runes в List<int>
+  //     allowMalformed: false, // Запретить невалидные символы
+  //   );
+    
+  //   final jsonData = jsonDecode(utf8Payload) as Map<String, dynamic>;
+  //   final message = MessageNotificationDTO.fromJson(jsonData);
+    
+  //   navigatorKey.currentState?.push(
+  //       MaterialPageRoute(
+  //         builder: (context) => PersonalChatPage(
+  //           chatId: message.chatId,
+  //           currentUserId: GetIt.I<AuthRepositoryImpl>().getCurrentUserId(),
+  //         ),
+  //       ),
+  //     );
+  // } on FormatException catch (e) {
+  //   debugPrint('Некорректный payload: ${e.message}\nИсходные данные: $payload');
+  // } catch (e) {
+  //   debugPrint('Ошибка: $e');
+  // }
+}
 
   String _formatTime(DateTime dateTime) {
     return DateFormat.Hm().format(dateTime.toLocal()); // Формат "ЧЧ:ММ"
@@ -61,6 +71,12 @@ class NotificationService {
 
   Future<void> showMessageNotification(MessageNotificationDTO message) async {
     final platformDetails = _buildPlatformDetails();
+
+    final payload = jsonEncode(message.toJson());
+  
+  // Логирование байтов payload
+  debugPrint('Payload bytes: ${payload.codeUnits}');
+  debugPrint('Payload string: $payload');
     
     String contentText = message.content.isNotEmpty 
         ? message.content 
@@ -68,22 +84,24 @@ class NotificationService {
     String formattedTime = _formatTime(message.timestamp);
     
     await _notificationsPlugin.show(
-      message.id.hashCode,
+      _generateNotificationId(message),
       message.chatName,
       '${message.sender}: $contentText\n$formattedTime',
       NotificationDetails(
         windows: platformDetails,
       ),
-      payload: jsonEncode(message.toJson()),
+      payload: payload,
     );
   }
   
+// Используйте уникальный идентификатор (например, timestamp + id)
+int _generateNotificationId(MessageNotificationDTO message) {
+  return message.timestamp.millisecondsSinceEpoch + message.id.hashCode;
+}
+
  WindowsNotificationDetails _buildPlatformDetails() {
-    return const WindowsNotificationDetails(
-      //toastActivatorClsid: '173cca6c-fc60-444e-8be1-cb9656aa3fed',
-      // Дополнительные параметры для Windows уведомлений:
-      // channelName: 'Новости',
-      //icon: 'assets/notification_icon.png',
+    return WindowsNotificationDetails(
+      audio: WindowsNotificationAudio.preset(sound: WindowsNotificationSound.alarm2)
     );
   }
 
