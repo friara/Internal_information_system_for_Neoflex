@@ -23,7 +23,6 @@ import 'package:openapi/src/model/file_dto.dart';
 import 'package:openapi/src/model/like_dto.dart';
 import 'package:openapi/src/model/media_dto.dart';
 import 'package:openapi/src/model/message_dto.dart';
-import 'package:openapi/src/model/message_notification_dto.dart';
 import 'package:openapi/src/model/page_booking_dto.dart';
 import 'package:openapi/src/model/page_chat_summary_dto.dart';
 import 'package:openapi/src/model/page_like_dto.dart';
@@ -51,7 +50,6 @@ part 'serializers.g.dart';
   LikeDTO,
   MediaDTO,
   MessageDTO,
-  MessageNotificationDTO,
   PageBookingDTO,
   PageChatSummaryDTO,
   PageLikeDTO,
@@ -75,10 +73,6 @@ Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(UserExtendedDTO)]),
         () => ListBuilder<UserExtendedDTO>(),
-      )
-      ..addBuilderFactory(
-        const FullType(BuiltList, [FullType(MessageNotificationDTO)]),
-        () => ListBuilder<MessageNotificationDTO>(),
       )
       ..addBuilderFactory(
         const FullType(BuiltList, [FullType(String)]),

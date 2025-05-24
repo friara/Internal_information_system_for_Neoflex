@@ -15,24 +15,24 @@ part 'page_post_response_dto.g.dart';
 /// PagePostResponseDTO
 ///
 /// Properties:
-/// * [totalPages] 
 /// * [totalElements] 
+/// * [totalPages] 
 /// * [size] 
 /// * [content] 
 /// * [number] 
 /// * [sort] 
-/// * [numberOfElements] 
 /// * [first] 
 /// * [last] 
+/// * [numberOfElements] 
 /// * [pageable] 
 /// * [empty] 
 @BuiltValue()
 abstract class PagePostResponseDTO implements Built<PagePostResponseDTO, PagePostResponseDTOBuilder> {
-  @BuiltValueField(wireName: r'totalPages')
-  int? get totalPages;
-
   @BuiltValueField(wireName: r'totalElements')
   int? get totalElements;
+
+  @BuiltValueField(wireName: r'totalPages')
+  int? get totalPages;
 
   @BuiltValueField(wireName: r'size')
   int? get size;
@@ -46,14 +46,14 @@ abstract class PagePostResponseDTO implements Built<PagePostResponseDTO, PagePos
   @BuiltValueField(wireName: r'sort')
   SortObject? get sort;
 
-  @BuiltValueField(wireName: r'numberOfElements')
-  int? get numberOfElements;
-
   @BuiltValueField(wireName: r'first')
   bool? get first;
 
   @BuiltValueField(wireName: r'last')
   bool? get last;
+
+  @BuiltValueField(wireName: r'numberOfElements')
+  int? get numberOfElements;
 
   @BuiltValueField(wireName: r'pageable')
   PageableObject? get pageable;
@@ -84,17 +84,17 @@ class _$PagePostResponseDTOSerializer implements PrimitiveSerializer<PagePostRes
     PagePostResponseDTO object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
-    if (object.totalPages != null) {
-      yield r'totalPages';
-      yield serializers.serialize(
-        object.totalPages,
-        specifiedType: const FullType(int),
-      );
-    }
     if (object.totalElements != null) {
       yield r'totalElements';
       yield serializers.serialize(
         object.totalElements,
+        specifiedType: const FullType(int),
+      );
+    }
+    if (object.totalPages != null) {
+      yield r'totalPages';
+      yield serializers.serialize(
+        object.totalPages,
         specifiedType: const FullType(int),
       );
     }
@@ -126,13 +126,6 @@ class _$PagePostResponseDTOSerializer implements PrimitiveSerializer<PagePostRes
         specifiedType: const FullType(SortObject),
       );
     }
-    if (object.numberOfElements != null) {
-      yield r'numberOfElements';
-      yield serializers.serialize(
-        object.numberOfElements,
-        specifiedType: const FullType(int),
-      );
-    }
     if (object.first != null) {
       yield r'first';
       yield serializers.serialize(
@@ -145,6 +138,13 @@ class _$PagePostResponseDTOSerializer implements PrimitiveSerializer<PagePostRes
       yield serializers.serialize(
         object.last,
         specifiedType: const FullType(bool),
+      );
+    }
+    if (object.numberOfElements != null) {
+      yield r'numberOfElements';
+      yield serializers.serialize(
+        object.numberOfElements,
+        specifiedType: const FullType(int),
       );
     }
     if (object.pageable != null) {
@@ -184,19 +184,19 @@ class _$PagePostResponseDTOSerializer implements PrimitiveSerializer<PagePostRes
       final key = serializedList[i] as String;
       final value = serializedList[i + 1];
       switch (key) {
-        case r'totalPages':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(int),
-          ) as int;
-          result.totalPages = valueDes;
-          break;
         case r'totalElements':
           final valueDes = serializers.deserialize(
             value,
             specifiedType: const FullType(int),
           ) as int;
           result.totalElements = valueDes;
+          break;
+        case r'totalPages':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(int),
+          ) as int;
+          result.totalPages = valueDes;
           break;
         case r'size':
           final valueDes = serializers.deserialize(
@@ -226,13 +226,6 @@ class _$PagePostResponseDTOSerializer implements PrimitiveSerializer<PagePostRes
           ) as SortObject;
           result.sort.replace(valueDes);
           break;
-        case r'numberOfElements':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(int),
-          ) as int;
-          result.numberOfElements = valueDes;
-          break;
         case r'first':
           final valueDes = serializers.deserialize(
             value,
@@ -246,6 +239,13 @@ class _$PagePostResponseDTOSerializer implements PrimitiveSerializer<PagePostRes
             specifiedType: const FullType(bool),
           ) as bool;
           result.last = valueDes;
+          break;
+        case r'numberOfElements':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(int),
+          ) as int;
+          result.numberOfElements = valueDes;
           break;
         case r'pageable':
           final valueDes = serializers.deserialize(
