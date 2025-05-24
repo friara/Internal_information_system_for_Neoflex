@@ -73,6 +73,14 @@ Future<void> persistTokens(oauth2.Client client) async {
 }
   Future<String?> getRefreshToken() => _storage.read(key: 'refresh_token');
   Future<String?> getIdToken() => _storage.read(key: 'id_token');
+
+  late int _currentUserId;
+  int getCurrentUserId() => _currentUserId;
+  void setCurrentUserId(int id) => _currentUserId = id;
+
+  late String _currentUserRole;
+  String getCurrentUserRole() => _currentUserRole;
+  void setCurrentUserRole(String role) => _currentUserRole = role;
 }
 
 // Абстракция для хранилища

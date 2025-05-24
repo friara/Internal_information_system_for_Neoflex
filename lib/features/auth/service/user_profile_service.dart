@@ -71,7 +71,7 @@ class UserProfile {
         authTime: json['auth_time'] as int,
         exp: json['exp'] as int,
         iat: json['iat'] as int,
-        role: json['role'] as String? ?? 'ROLE_GUEST',
+        role: json['role'] as String? ?? 'ROLE_USER',
         email: json['email'] as String?,
         name: json['name'] as String?,
         username: json['preferred_username'] as String?,
