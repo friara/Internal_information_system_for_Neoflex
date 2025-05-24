@@ -154,8 +154,7 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
       case 'doc':
         return MediaType('application', 'msword');
       case 'docx':
-        return MediaType('application',
-            'vnd.openxmlformats-officedocument.wordprocessingml.document');
+        return MediaType('application', 'octet-stream');
       case 'xls':
         return MediaType('application', 'vnd.ms-excel');
       case 'xlsx':
@@ -253,14 +252,9 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
 
   Future<void> _sendMessage() async {
     for (final file in _selectedFiles) {
-      if (!File(file.path!).existsSync()) {
-        _showErrorSnackbar('Файл ${file.name} не найден');
-        return;
-      }
-
-      final ext = file.extension?.toLowerCase();
-      if (!_allowedExtensions.contains(ext)) {
-        _showErrorSnackbar('Недопустимый тип файла: $ext');
+      if (file.name.contains(' ')) {
+        _showErrorSnackbar(
+            'Имя файла не должно содержать пробелов: ${file.name}');
         return;
       }
     }
@@ -280,24 +274,31 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
         formData.fields.add(MapEntry('text', _messageController.text));
       }
 
-      // Добавляем файлы с правильными MIME-типами
+      // Добавляем файлы
       if (_selectedFiles.isNotEmpty) {
-        final files = await Future.wait(_selectedFiles.map((file) async {
-          final mimeType = getMediaTypeForFile(file);
+        for (final file in _selectedFiles) {
+          // Для DOCX файлов используем 'application/octet-stream'
+          final mimeType = file.extension?.toLowerCase() == 'docx'
+              ? MediaType('application', 'octet-stream')
+              : getMediaTypeForFile(file);
+
           debugPrint(
               'Отправка файла: ${file.name}, тип: ${mimeType?.type}/${mimeType?.subtype}');
 
-          return await MultipartFile.fromFile(
+          final fileData = await MultipartFile.fromFile(
             file.path!,
             filename: file.name,
             contentType: mimeType,
           );
-        }));
-
-        formData.files.addAll(files.map((file) => MapEntry('files', file)));
+          formData.files.add(MapEntry('files', fileData));
+        }
       }
 
-      // Отправляем запрос
+      // Логирование данных перед отправкой
+      debugPrint('Отправляемые данные:');
+      debugPrint('Текст: ${_messageController.text}');
+      debugPrint('Файлы: ${_selectedFiles.map((f) => f.name).toList()}');
+
       final response = await messageApi.createMessage(
         chatId: widget.chatId,
         text: _messageController.text,
