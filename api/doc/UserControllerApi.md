@@ -18,7 +18,6 @@ Method | HTTP request | Description
 [**getAllUsers**](UserControllerApi.md#getallusers) | **GET** /api/users | 
 [**getCurrentUser**](UserControllerApi.md#getcurrentuser) | **GET** /api/users/me | 
 [**getUserById**](UserControllerApi.md#getuserbyid) | **GET** /api/users/{id} | 
-[**saveFcmToken**](UserControllerApi.md#savefcmtoken) | **POST** /api/users/fcm-token | 
 [**searchByFIO**](UserControllerApi.md#searchbyfio) | **GET** /api/users/search | 
 [**updateCurrentUser**](UserControllerApi.md#updatecurrentuser) | **PUT** /api/users/me | 
 [**uploadAvatar**](UserControllerApi.md#uploadavatar) | **POST** /api/users/me/avatar | 
@@ -380,47 +379,6 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: */*
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **saveFcmToken**
-> JsonObject saveFcmToken(requestBody)
-
-
-
-### Example
-```dart
-import 'package:openapi/api.dart';
-
-final api = Openapi().getUserControllerApi();
-final BuiltMap<String, String> requestBody = Object; // BuiltMap<String, String> | 
-
-try {
-    final response = api.saveFcmToken(requestBody);
-    print(response);
-} catch on DioException (e) {
-    print('Exception when calling UserControllerApi->saveFcmToken: $e\n');
-}
-```
-
-### Parameters
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **requestBody** | [**BuiltMap&lt;String, String&gt;**](String.md)|  | 
-
-### Return type
-
-[**JsonObject**](JsonObject.md)
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
- - **Content-Type**: application/json
  - **Accept**: */*
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

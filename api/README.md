@@ -106,7 +106,6 @@ Class | Method | HTTP request | Description
 [*UserControllerApi*](doc/UserControllerApi.md) | [**getAllUsers**](doc/UserControllerApi.md#getallusers) | **GET** /api/users | 
 [*UserControllerApi*](doc/UserControllerApi.md) | [**getCurrentUser**](doc/UserControllerApi.md#getcurrentuser) | **GET** /api/users/me | 
 [*UserControllerApi*](doc/UserControllerApi.md) | [**getUserById**](doc/UserControllerApi.md#getuserbyid) | **GET** /api/users/{id} | 
-[*UserControllerApi*](doc/UserControllerApi.md) | [**saveFcmToken**](doc/UserControllerApi.md#savefcmtoken) | **POST** /api/users/fcm-token | 
 [*UserControllerApi*](doc/UserControllerApi.md) | [**searchByFIO**](doc/UserControllerApi.md#searchbyfio) | **GET** /api/users/search | 
 [*UserControllerApi*](doc/UserControllerApi.md) | [**updateCurrentUser**](doc/UserControllerApi.md#updatecurrentuser) | **PUT** /api/users/me | 
 [*UserControllerApi*](doc/UserControllerApi.md) | [**uploadAvatar**](doc/UserControllerApi.md#uploadavatar) | **POST** /api/users/me/avatar | 

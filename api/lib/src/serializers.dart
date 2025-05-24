@@ -67,10 +67,6 @@ part 'serializers.g.dart';
 ])
 Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(
-        const FullType(BuiltMap, [FullType(String), FullType(String)]),
-        () => MapBuilder<String, String>(),
-      )
-      ..addBuilderFactory(
         const FullType(BuiltList, [FullType(UserExtendedDTO)]),
         () => ListBuilder<UserExtendedDTO>(),
       )
