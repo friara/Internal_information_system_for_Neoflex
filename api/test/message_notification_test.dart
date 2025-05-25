@@ -13,8 +13,8 @@ void main() {
       // TODO
     });
 
-    // Sender id
-    // int sender
+    // Sender name
+    // String sender
     test('to test the property `sender`', () async {
       // TODO
     });
@@ -31,11 +31,20 @@ void main() {
       // TODO
     });
 
-    // Chat id
+    // Chat's name of message
+    // String chatName
+    test('to test the property `chatName`', () async {
+      // TODO
+    });
+
     // int chatId
     test('to test the property `chatId`', () async {
       // TODO
     });
 
+    // bool read
+    test('to test the property `read`', () async {
+      // TODO
+    });
   });
 }

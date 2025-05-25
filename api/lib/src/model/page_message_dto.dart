@@ -17,12 +17,12 @@ part 'page_message_dto.g.dart';
 /// Properties:
 /// * [totalElements] 
 /// * [totalPages] 
+/// * [first] 
+/// * [last] 
 /// * [size] 
 /// * [content] 
 /// * [number] 
 /// * [sort] 
-/// * [first] 
-/// * [last] 
 /// * [numberOfElements] 
 /// * [pageable] 
 /// * [empty] 
@@ -33,6 +33,12 @@ abstract class PageMessageDTO implements Built<PageMessageDTO, PageMessageDTOBui
 
   @BuiltValueField(wireName: r'totalPages')
   int? get totalPages;
+
+  @BuiltValueField(wireName: r'first')
+  bool? get first;
+
+  @BuiltValueField(wireName: r'last')
+  bool? get last;
 
   @BuiltValueField(wireName: r'size')
   int? get size;
@@ -45,12 +51,6 @@ abstract class PageMessageDTO implements Built<PageMessageDTO, PageMessageDTOBui
 
   @BuiltValueField(wireName: r'sort')
   SortObject? get sort;
-
-  @BuiltValueField(wireName: r'first')
-  bool? get first;
-
-  @BuiltValueField(wireName: r'last')
-  bool? get last;
 
   @BuiltValueField(wireName: r'numberOfElements')
   int? get numberOfElements;
@@ -98,6 +98,20 @@ class _$PageMessageDTOSerializer implements PrimitiveSerializer<PageMessageDTO> 
         specifiedType: const FullType(int),
       );
     }
+    if (object.first != null) {
+      yield r'first';
+      yield serializers.serialize(
+        object.first,
+        specifiedType: const FullType(bool),
+      );
+    }
+    if (object.last != null) {
+      yield r'last';
+      yield serializers.serialize(
+        object.last,
+        specifiedType: const FullType(bool),
+      );
+    }
     if (object.size != null) {
       yield r'size';
       yield serializers.serialize(
@@ -124,20 +138,6 @@ class _$PageMessageDTOSerializer implements PrimitiveSerializer<PageMessageDTO> 
       yield serializers.serialize(
         object.sort,
         specifiedType: const FullType(SortObject),
-      );
-    }
-    if (object.first != null) {
-      yield r'first';
-      yield serializers.serialize(
-        object.first,
-        specifiedType: const FullType(bool),
-      );
-    }
-    if (object.last != null) {
-      yield r'last';
-      yield serializers.serialize(
-        object.last,
-        specifiedType: const FullType(bool),
       );
     }
     if (object.numberOfElements != null) {
@@ -198,6 +198,20 @@ class _$PageMessageDTOSerializer implements PrimitiveSerializer<PageMessageDTO> 
           ) as int;
           result.totalPages = valueDes;
           break;
+        case r'first':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(bool),
+          ) as bool;
+          result.first = valueDes;
+          break;
+        case r'last':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(bool),
+          ) as bool;
+          result.last = valueDes;
+          break;
         case r'size':
           final valueDes = serializers.deserialize(
             value,
@@ -225,20 +239,6 @@ class _$PageMessageDTOSerializer implements PrimitiveSerializer<PageMessageDTO> 
             specifiedType: const FullType(SortObject),
           ) as SortObject;
           result.sort.replace(valueDes);
-          break;
-        case r'first':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(bool),
-          ) as bool;
-          result.first = valueDes;
-          break;
-        case r'last':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(bool),
-          ) as bool;
-          result.last = valueDes;
           break;
         case r'numberOfElements':
           final valueDes = serializers.deserialize(

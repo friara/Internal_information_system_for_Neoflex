@@ -104,11 +104,14 @@ class _WorkspaceSelectorState extends State<WorkspaceSelector> {
   @override
   void didUpdateWidget(WorkspaceSelector oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.startTime != widget.startTime || oldWidget.endTime != widget.endTime) {
-      setState(() {
-        data = loadWorkspaces();
-      });
-    }
+    // if (oldWidget.startTime != widget.startTime || oldWidget.endTime != widget.endTime) {
+    //   setState(() {
+    //     data = loadWorkspaces();
+    //   });
+    // }
+    setState(() {
+            data = loadWorkspaces();
+          });
   }
 
   Future<WorkspaceData> loadWorkspaces() async {
@@ -299,267 +302,6 @@ class _BookingDialogState extends State<BookingDialog> {
 }
 
 
-
-
-
-
-// class BookingDialog extends StatefulWidget {
-//   final String workspaceId;
-//   final DateTime? initialStart;
-//   final DateTime? initialEnd;
-
-//   const BookingDialog({
-//     super.key,
-//     required this.workspaceId,
-//     this.initialStart,
-//     this.initialEnd,
-//   });
-
-//   @override
-//   State<BookingDialog> createState() => _BookingDialogState();
-// }
-
-// class _BookingDialogState extends State<BookingDialog> {
-//   DateTime? _selectedDate;
-//   TimeOfDay? _selectedStartTime;
-//   TimeOfDay? _selectedEndTime;
-//   final _repository = getIt<WorkspaceRepository>();
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     if (widget.initialStart != null && widget.initialEnd != null) {
-//       _selectedDate = widget.initialStart!;
-//       _selectedStartTime = TimeOfDay.fromDateTime(widget.initialStart!);
-//       _selectedEndTime = TimeOfDay.fromDateTime(widget.initialEnd!);
-//     }
-//   }
-
-//   bool _isTimeInRange(TimeOfDay time) {
-//     final totalMinutes = time.hour * 60 + time.minute;
-//     return totalMinutes >= 9 * 60 && totalMinutes <= 18 * 60;
-//   }
-
-//   bool _isAfterStartTime(TimeOfDay time) {
-//     if (_selectedStartTime == null) return true;
-//     final start = _selectedStartTime!;
-//     return time.hour > start.hour ||
-//         (time.hour == start.hour && time.minute > start.minute);
-//   }
-
-//   Future<void> _selectDate() async {
-//     final DateTime? picked = await showDatePicker(
-//       context: context,
-//       initialDate: DateTime.now(),
-//       firstDate: DateTime.now(),
-//       lastDate: DateTime.now().add(const Duration(days: 365)),
-//       selectableDayPredicate: (DateTime date) {
-//         return date.weekday != DateTime.saturday &&
-//             date.weekday != DateTime.sunday;
-//       },
-//     );
-//     if (picked != null && picked != _selectedDate) {
-//       setState(() => _selectedDate = picked);
-//     }
-//   }
-
-//   Future<TimeOfDay?> showCustomTimePicker({
-//     required BuildContext context,
-//     required TimeOfDay initialTime,
-//     required bool Function(TimeOfDay) selectableTimePredicate,
-//   }) async {
-//     TimeOfDay? pickedTime;
-
-//     await showDialog(
-//       context: context,
-//       builder: (BuildContext context) {
-//         return AlertDialog(
-//           title: const Text("Выберите время"),
-//           content: SizedBox(
-//             width: double.minPositive,
-//             child: ListView.builder(
-//               shrinkWrap: true,
-//               itemCount: 24 * 60,
-//               itemBuilder: (BuildContext context, int index) {
-//                 final hour = index ~/ 60;
-//                 final minute = index % 60;
-//                 final time = TimeOfDay(hour: hour, minute: minute);
-
-//                 if (!selectableTimePredicate(time)) {
-//                   return const SizedBox.shrink();
-//                 }
-
-//                 return ListTile(
-//                   title: Text(time.format(context)),
-//                   onTap: () {
-//                     pickedTime = time;
-//                     Navigator.of(context).pop();
-//                   },
-//                 );
-//               },
-//             ),
-//           ),
-//         );
-//       },
-//     );
-
-//     return pickedTime;
-//   }
-
-//   Future<void> _selectStartTime() async {
-//     TimeOfDay initialTime = _selectedStartTime ?? TimeOfDay.now();
-
-//     if (!_isTimeInRange(initialTime)) {
-//       initialTime = initialTime.hour < 9
-//           ? const TimeOfDay(hour: 9, minute: 0)
-//           : const TimeOfDay(hour: 17, minute: 45);
-//     }
-
-//     final TimeOfDay? picked = await showCustomTimePicker(
-//       context: context,
-//       initialTime: initialTime,
-//       selectableTimePredicate: _isTimeInRange,
-//     );
-//     if (picked != null) {
-//       setState(() => _selectedStartTime = picked);
-//     }
-//   }
-
-//   Future<void> _selectEndTime() async {
-//     if (_selectedStartTime == null) return;
-
-//     int startTotal = _selectedStartTime!.hour * 60 + _selectedStartTime!.minute;
-//     int endTotal = startTotal + 15;
-//     if (endTotal > 18 * 60) endTotal = 18 * 60;
-
-//     TimeOfDay initialTime = TimeOfDay(
-//       hour: endTotal ~/ 60,
-//       minute: endTotal % 60,
-//     );
-
-//     if (!_isTimeInRange(initialTime)) {
-//       initialTime = const TimeOfDay(hour: 18, minute: 0);
-//     }
-
-//     final TimeOfDay? picked = await showCustomTimePicker(
-//       context: context,
-//       initialTime: initialTime,
-//       selectableTimePredicate: (time) =>
-//           _isTimeInRange(time) && 
-//           _isAfterStartTime(time) &&
-//           (time.hour < 18 || (time.hour == 18 && time.minute == 0)),
-//     );
-//     if (picked != null) {
-//       setState(() => _selectedEndTime = picked);
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return AlertDialog(
-//       title: Text('Бронирование ${widget.workspaceId}'),
-//       content: Column(
-//         mainAxisSize: MainAxisSize.min,
-//         children: [
-//           Row(
-//             children: [
-//               Text(_selectedDate == null
-//                   ? 'Дата не выбрана'
-//                   : 'Дата: ${intl.DateFormat('dd.MM.yyyy').format(_selectedDate!)}'),
-//               IconButton(
-//                 icon: const Icon(Icons.calendar_today),
-//                 onPressed: _selectDate,
-//               ),
-//             ],
-//           ),
-//           const SizedBox(height: 16),
-//           Row(
-//             children: [
-//               Text(_selectedStartTime == null
-//                   ? 'Начало не выбрано'
-//                   : 'Начало: ${_selectedStartTime!.format(context)}'),
-//               IconButton(
-//                 icon: const Icon(Icons.access_time),
-//                 onPressed: _selectedDate == null ? null : _selectStartTime,
-//               ),
-//             ],
-//           ),
-//           const SizedBox(height: 16),
-//           Row(
-//             children: [
-//               Text(_selectedEndTime == null
-//                   ? 'Окончание не выбрано'
-//                   : 'Окончание: ${_selectedEndTime!.format(context)}'),
-//               IconButton(
-//                 icon: const Icon(Icons.access_time),
-//                 onPressed: _selectedStartTime == null ? null : _selectEndTime,
-//               ),
-//             ],
-//           ),
-//         ],
-//       ),
-//       actions: [
-//         TextButton(
-//           onPressed: () => Navigator.pop(context),
-//           child: const Text('Отмена'),
-//         ),
-//         ElevatedButton(
-//           onPressed: () async {
-//             if (_selectedDate == null ||
-//                 _selectedStartTime == null ||
-//                 _selectedEndTime == null) {
-//               ScaffoldMessenger.of(context).showSnackBar(
-//                 const SnackBar(content: Text('Заполните все поля')),
-//               );
-//               return;
-//             }
-
-//             final startDateTime = DateTime(
-//               _selectedDate!.year,
-//               _selectedDate!.month,
-//               _selectedDate!.day,
-//               _selectedStartTime!.hour,
-//               _selectedStartTime!.minute,
-//             );
-
-//             final endDateTime = DateTime(
-//               _selectedDate!.year,
-//               _selectedDate!.month,
-//               _selectedDate!.day,
-//               _selectedEndTime!.hour,
-//               _selectedEndTime!.minute,
-//             );
-
-//             if (endDateTime.isBefore(startDateTime)) {
-//               ScaffoldMessenger.of(context).showSnackBar(
-//                 const SnackBar(
-//                     content: Text('Окончание должно быть после начала')),
-//               );
-//               return;
-//             }
-
-//             try {
-//               await _repository.bookWorkspace(
-//                 widget.workspaceId.split('_').last,
-//                 startDateTime,
-//                 endDateTime,
-//               );
-//               Navigator.pop(context, true);
-//             } catch (e) {
-//               ScaffoldMessenger.of(context).showSnackBar(
-//                 SnackBar(content: Text('Ошибка: $e')),
-//               );
-//             }
-//           },
-//           child: const Text('Подтвердить'),
-//         ),
-//       ],
-//     );
-//   }
-// }
-
-
-
 class WorkspacesScreen extends StatefulWidget {
   const WorkspacesScreen({super.key});
 
@@ -693,31 +435,41 @@ class _WorkspacesScreenState extends State<WorkspacesScreen> {
     }
   }
 
+  DateTime _getNextWeekday(DateTime date) {
+    // Keep adding days until we find a weekday (Mon-Fri)
+    while (date.weekday == DateTime.saturday || date.weekday == DateTime.sunday) {
+      date = date.add(const Duration(days: 1));
+    }
+    return date;
+  }
+
+
   Future<void> _selectTimeRange() async {
+    final DateTime initialDate = _getNextWeekday(DateTime.now());
+
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: initialDate,
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
       selectableDayPredicate: (DateTime date) {
-        return date.weekday != DateTime.saturday &&
-            date.weekday != DateTime.sunday;
+        return date.weekday != DateTime.saturday && date.weekday != DateTime.sunday;
       },
     );
 
     if (pickedDate != null) {
-final TimeRange? timeRange = await showTimeRangePicker(
-  context: context,
-  start: const TimeOfDay(hour: 9, minute: 0),
-  end: const TimeOfDay(hour: 18, minute: 0),
-  interval: const Duration(minutes: 15),
-  disabledTime: TimeRange(
-    startTime: const TimeOfDay(hour: 18, minute: 0),
-    endTime: const TimeOfDay(hour: 9, minute: 0),
-  ),
-  minDuration: const Duration(minutes: 15),
-  maxDuration: const Duration(hours: 9),
-  disabledColor: Colors.red.withOpacity(0.5),
+      final TimeRange? timeRange = await showTimeRangePicker(
+        context: context,
+        start: const TimeOfDay(hour: 9, minute: 0),
+        end: const TimeOfDay(hour: 18, minute: 0),
+        interval: const Duration(minutes: 15),
+        disabledTime: TimeRange(
+          startTime: const TimeOfDay(hour: 18, minute: 0),
+          endTime: const TimeOfDay(hour: 9, minute: 0),
+        ),
+        minDuration: const Duration(minutes: 15),
+        maxDuration: const Duration(hours: 9),
+        disabledColor: Colors.red.withOpacity(0.5),
 );
 
       if (timeRange != null) {
