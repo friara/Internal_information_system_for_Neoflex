@@ -42,11 +42,6 @@ void main() {
       // TODO
     });
 
-    // int repostCount
-    test('to test the property `repostCount`', () async {
-      // TODO
-    });
-
     // bool liked
     test('to test the property `liked`', () async {
       // TODO

@@ -16,6 +16,8 @@ class _$FileDTO extends FileDTO {
   @override
   final String? fileType;
   @override
+  final int? fileSize;
+  @override
   final DateTime? uploadedWhen;
   @override
   final int? uploadedBy;
@@ -30,6 +32,7 @@ class _$FileDTO extends FileDTO {
       this.fileName,
       this.fileUrl,
       this.fileType,
+      this.fileSize,
       this.uploadedWhen,
       this.uploadedBy,
       this.messageId})
@@ -50,6 +53,7 @@ class _$FileDTO extends FileDTO {
         fileName == other.fileName &&
         fileUrl == other.fileUrl &&
         fileType == other.fileType &&
+        fileSize == other.fileSize &&
         uploadedWhen == other.uploadedWhen &&
         uploadedBy == other.uploadedBy &&
         messageId == other.messageId;
@@ -62,6 +66,7 @@ class _$FileDTO extends FileDTO {
     _$hash = $jc(_$hash, fileName.hashCode);
     _$hash = $jc(_$hash, fileUrl.hashCode);
     _$hash = $jc(_$hash, fileType.hashCode);
+    _$hash = $jc(_$hash, fileSize.hashCode);
     _$hash = $jc(_$hash, uploadedWhen.hashCode);
     _$hash = $jc(_$hash, uploadedBy.hashCode);
     _$hash = $jc(_$hash, messageId.hashCode);
@@ -76,6 +81,7 @@ class _$FileDTO extends FileDTO {
           ..add('fileName', fileName)
           ..add('fileUrl', fileUrl)
           ..add('fileType', fileType)
+          ..add('fileSize', fileSize)
           ..add('uploadedWhen', uploadedWhen)
           ..add('uploadedBy', uploadedBy)
           ..add('messageId', messageId))
@@ -102,6 +108,10 @@ class FileDTOBuilder implements Builder<FileDTO, FileDTOBuilder> {
   String? get fileType => _$this._fileType;
   set fileType(String? fileType) => _$this._fileType = fileType;
 
+  int? _fileSize;
+  int? get fileSize => _$this._fileSize;
+  set fileSize(int? fileSize) => _$this._fileSize = fileSize;
+
   DateTime? _uploadedWhen;
   DateTime? get uploadedWhen => _$this._uploadedWhen;
   set uploadedWhen(DateTime? uploadedWhen) =>
@@ -126,6 +136,7 @@ class FileDTOBuilder implements Builder<FileDTO, FileDTOBuilder> {
       _fileName = $v.fileName;
       _fileUrl = $v.fileUrl;
       _fileType = $v.fileType;
+      _fileSize = $v.fileSize;
       _uploadedWhen = $v.uploadedWhen;
       _uploadedBy = $v.uploadedBy;
       _messageId = $v.messageId;
@@ -155,6 +166,7 @@ class FileDTOBuilder implements Builder<FileDTO, FileDTOBuilder> {
           fileName: fileName,
           fileUrl: fileUrl,
           fileType: fileType,
+          fileSize: fileSize,
           uploadedWhen: uploadedWhen,
           uploadedBy: uploadedBy,
           messageId: messageId,

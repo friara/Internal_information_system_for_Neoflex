@@ -17,7 +17,7 @@ Method | HTTP request | Description
 
 
 # **createMessage**
-> MessageDTO createMessage(chatId, text, files)
+> MessageDTO createMessage(chatId, text, files, fileUpload)
 
 
 
@@ -29,9 +29,10 @@ final api = Openapi().getMessageControllerApi();
 final int chatId = 789; // int | 
 final String text = text_example; // String | 
 final BuiltList<MultipartFile> files = /path/to/file.txt; // BuiltList<MultipartFile> | 
+final bool fileUpload = true; // bool | 
 
 try {
-    final response = api.createMessage(chatId, text, files);
+    final response = api.createMessage(chatId, text, files, fileUpload);
     print(response);
 } catch on DioException (e) {
     print('Exception when calling MessageControllerApi->createMessage: $e\n');
@@ -45,6 +46,7 @@ Name | Type | Description  | Notes
  **chatId** | **int**|  | 
  **text** | **String**|  | [optional] 
  **files** | [**BuiltList&lt;MultipartFile&gt;**](MultipartFile.md)|  | [optional] 
+ **fileUpload** | **bool**|  | [optional] 
 
 ### Return type
 
@@ -194,7 +196,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **updateMessage**
-> MessageDTO updateMessage(chatId, messageId, text, files)
+> MessageDTO updateMessage(chatId, messageId, text, files, fileUpload)
 
 
 
@@ -207,9 +209,10 @@ final int chatId = 789; // int |
 final int messageId = 789; // int | 
 final String text = text_example; // String | 
 final BuiltList<MultipartFile> files = /path/to/file.txt; // BuiltList<MultipartFile> | 
+final bool fileUpload = true; // bool | 
 
 try {
-    final response = api.updateMessage(chatId, messageId, text, files);
+    final response = api.updateMessage(chatId, messageId, text, files, fileUpload);
     print(response);
 } catch on DioException (e) {
     print('Exception when calling MessageControllerApi->updateMessage: $e\n');
@@ -224,6 +227,7 @@ Name | Type | Description  | Notes
  **messageId** | **int**|  | 
  **text** | **String**|  | [optional] 
  **files** | [**BuiltList&lt;MultipartFile&gt;**](MultipartFile.md)|  | [optional] 
+ **fileUpload** | **bool**|  | [optional] 
 
 ### Return type
 

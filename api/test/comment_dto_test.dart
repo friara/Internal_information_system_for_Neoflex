@@ -32,7 +32,7 @@ void main() {
       // TODO
     });
 
-    // String answerToComm
+    // int answerToComm
     test('to test the property `answerToComm`', () async {
       // TODO
     });

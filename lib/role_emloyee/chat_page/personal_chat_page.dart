@@ -13,6 +13,7 @@ import 'package:openapi/openapi.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class PersonalChatPage extends StatefulWidget {
   final int chatId;
@@ -41,7 +42,7 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
   bool _isSending = false;
   Map<int, UserDTO> _users = {};
   int? _editingMessageId;
-  final ScrollController _scrollController = ScrollController();
+  //final ScrollController _scrollController = ScrollController();
   final Map<int, GlobalKey> _messageKeys = {};
   int? _selectedMessageId;
 
@@ -53,7 +54,7 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    //_scrollController.dispose();
     super.dispose();
   }
 
@@ -69,6 +70,57 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
     }
   }
 
+  // Future<void> _loadChatData() async {
+  //   try {
+  //     final token = await GetIt.I<AuthRepositoryImpl>().getAccessToken();
+  //     if (token == null) throw Exception('Нет токена авторизации');
+
+  //     final chatApi = GetIt.I<Openapi>().getChatControllerApi();
+  //     final messageApi = GetIt.I<Openapi>().getMessageControllerApi();
+  //     final userApi = GetIt.I<Openapi>().getUserControllerApi();
+
+  //     final chatResponse = await chatApi.getChatById(
+  //       id: widget.chatId,
+  //       headers: {'Authorization': 'Bearer $token'},
+  //     );
+
+  //     final chatData = chatResponse.data;
+  //     if (chatData == null) throw Exception('Чат не найден');
+
+  //     final messagesResponse = await messageApi.getChatMessages(
+  //       chatId: widget.chatId,
+  //       headers: {'Authorization': 'Bearer $token'},
+  //     );
+
+  //     final messagesData = messagesResponse.data?.content?.toList() ?? [];
+
+  //     final userIds =
+  //         messagesData.map((m) => m.userId).whereType<int>().toSet();
+  //     for (final userId in userIds) {
+  //       final userResponse = await userApi.getUserById(
+  //         id: userId,
+  //         headers: {'Authorization': 'Bearer $token'},
+  //       );
+  //       if (userResponse.data != null) {
+  //         _users[userId] = userResponse.data!;
+  //       }
+  //     }
+
+  //     if (mounted) {
+  //       setState(() {
+  //         _chat = chatData;
+  //         _messages = messagesData;
+  //         _isLoading = false;
+  //       });
+  //     }
+  //   } catch (e) {
+  //     debugPrint('Ошибка загрузки чата: $e');
+  //     if (mounted) {
+  //       setState(() => _isLoading = false);
+  //       _showErrorSnackbar('Ошибка загрузки чата');
+  //     }
+  //   }
+  // }
   Future<void> _loadChatData() async {
     try {
       final token = await GetIt.I<AuthRepositoryImpl>().getAccessToken();
@@ -78,6 +130,7 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
       final messageApi = GetIt.I<Openapi>().getMessageControllerApi();
       final userApi = GetIt.I<Openapi>().getUserControllerApi();
 
+      // Загружаем данные чата
       final chatResponse = await chatApi.getChatById(
         id: widget.chatId,
         headers: {'Authorization': 'Bearer $token'},
@@ -86,6 +139,7 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
       final chatData = chatResponse.data;
       if (chatData == null) throw Exception('Чат не найден');
 
+      // Загружаем сообщения чата
       final messagesResponse = await messageApi.getChatMessages(
         chatId: widget.chatId,
         headers: {'Authorization': 'Bearer $token'},
@@ -93,15 +147,24 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
 
       final messagesData = messagesResponse.data?.content?.toList() ?? [];
 
+      // Собираем всех пользователей (авторов сообщений + участников чата)
       final userIds =
           messagesData.map((m) => m.userId).whereType<int>().toSet();
+
+      // Добавляем текущего пользователя
+      userIds.add(widget.currentUserId);
+
+      // Загружаем данные всех пользователей
       for (final userId in userIds) {
-        final userResponse = await userApi.getUserById(
-          id: userId,
-          headers: {'Authorization': 'Bearer $token'},
-        );
-        if (userResponse.data != null) {
-          _users[userId] = userResponse.data!;
+        if (!_users.containsKey(userId)) {
+          // Загружаем только если еще не загружены
+          final userResponse = await userApi.getUserById(
+            id: userId,
+            headers: {'Authorization': 'Bearer $token'},
+          );
+          if (userResponse.data != null) {
+            _users[userId] = userResponse.data!;
+          }
         }
       }
 
@@ -131,16 +194,19 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
       if (token == null) throw Exception('Нет токена авторизации');
 
       final messageApi = GetIt.I<Openapi>().getMessageControllerApi();
-      final formData = FormData();
 
-      // Добавляем текст сообщения, если он есть
-      if (_messageController.text.isNotEmpty) {
-        formData.fields.add(MapEntry('text', _messageController.text));
-      }
+      // Если есть и текст и файлы, отправляем отдельные сообщения
+      if (_messageController.text.isNotEmpty && _selectedFiles.isNotEmpty) {
+        // Сначала отправляем текстовое сообщение
+        await messageApi.createMessage(
+          chatId: widget.chatId,
+          text: _messageController.text,
+          headers: {'Authorization': 'Bearer $token'},
+        );
 
-      // Добавляем файлы
-      for (final file in _selectedFiles) {
-        if (file.path != null) {
+        // Затем отправляем каждый файл отдельным сообщением
+        for (final file in _selectedFiles) {
+          final formData = FormData();
           final mimeType = _getMediaTypeForFile(file);
           final fileData = await MultipartFile.fromFile(
             file.path!,
@@ -148,27 +214,44 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
             contentType: mimeType,
           );
           formData.files.add(MapEntry('files', fileData));
+
+          await messageApi.createMessage(
+            chatId: widget.chatId,
+            files: BuiltList([fileData]),
+            headers: {'Authorization': 'Bearer $token'},
+          );
+        }
+      } else if (_messageController.text.isNotEmpty) {
+        // Только текст
+        await messageApi.createMessage(
+          chatId: widget.chatId,
+          text: _messageController.text,
+          headers: {'Authorization': 'Bearer $token'},
+        );
+      } else if (_selectedFiles.isNotEmpty) {
+        // Только файлы - каждый файл отдельным сообщением
+        for (final file in _selectedFiles) {
+          final formData = FormData();
+          final mimeType = _getMediaTypeForFile(file);
+          final fileData = await MultipartFile.fromFile(
+            file.path!,
+            filename: file.name,
+            contentType: mimeType,
+          );
+          formData.files.add(MapEntry('files', fileData));
+
+          await messageApi.createMessage(
+            chatId: widget.chatId,
+            files: BuiltList([fileData]),
+            headers: {'Authorization': 'Bearer $token'},
+          );
         }
       }
 
-      // Отправляем запрос
-      final response = await messageApi.createMessage(
-        chatId: widget.chatId,
-        text:
-            _messageController.text.isNotEmpty ? _messageController.text : null,
-        files: _selectedFiles.isNotEmpty
-            ? formData.files.map((e) => e.value).toBuiltList()
-            : null,
-        headers: {'Authorization': 'Bearer $token'},
-      );
-
-      if (response.data != null && mounted) {
+      if (mounted) {
         setState(() {
-          // Очищаем поля ввода
           _messageController.clear();
           _selectedFiles.clear();
-
-          // Обновляем список сообщений
           _loadChatData();
         });
       }
@@ -202,12 +285,125 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
     }
   }
 
+  // Основные изменения в методах:
+
+  // В методе _buildMessageItem добавлен вывод автора и даты для текстовых сообщений
+  // Widget _buildMessageItem(MessageDTO message) {
+  //   final isMe = message.userId == widget.currentUserId;
+  //   final user = _users[message.userId ?? -1];
+  //   final userName = user != null
+  //       ? '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim()
+  //       : 'Неизвестный';
+  //   final screenWidth = MediaQuery.of(context).size.width;
+  //   final hasText = message.text != null && message.text!.isNotEmpty;
+  //   final hasFiles = message.files != null && message.files!.isNotEmpty;
+
+  //   if (!_messageKeys.containsKey(message.id)) {
+  //     _messageKeys[message.id!] = GlobalKey();
+  //   }
+
+  //   return Container(
+  //     margin: const EdgeInsets.symmetric(vertical: 8),
+  //     child: Column(
+  //       crossAxisAlignment:
+  //           isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+  //       children: [
+  //         if (!isMe)
+  //           Padding(
+  //             padding: const EdgeInsets.only(left: 50, bottom: 4),
+  //             child: Text(
+  //               userName,
+  //               style: const TextStyle(
+  //                 fontWeight: FontWeight.bold,
+  //                 fontSize: 14,
+  //                 color: Colors.white, // Имя автора белым
+  //               ),
+  //             ),
+  //           ),
+  //         GestureDetector(
+  //           key: _messageKeys[message.id],
+  //           onLongPress: () => _handleLongPress(message),
+  //           child: Row(
+  //             crossAxisAlignment: CrossAxisAlignment.end,
+  //             mainAxisAlignment:
+  //                 isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+  //             children: [
+  //               if (!isMe) _buildUserAvatar(message.userId),
+  //               Flexible(
+  //                 child: Container(
+  //                   constraints: BoxConstraints(maxWidth: screenWidth * 0.7),
+  //                   margin: EdgeInsets.only(
+  //                     left: isMe ? 0 : 8,
+  //                     right: isMe ? 8 : 0,
+  //                   ),
+  //                   child: Column(
+  //                     crossAxisAlignment: isMe
+  //                         ? CrossAxisAlignment.end
+  //                         : CrossAxisAlignment.start,
+  //                     children: [
+  //                       if (hasFiles) _buildMessageFiles(message),
+  //                       if (hasText)
+  //                         Container(
+  //                           padding: const EdgeInsets.all(12),
+  //                           decoration: BoxDecoration(
+  //                             color: const Color.fromARGB(255, 165, 69, 182),
+  //                             borderRadius: BorderRadius.only(
+  //                               topLeft: const Radius.circular(12),
+  //                               topRight: const Radius.circular(12),
+  //                               bottomLeft: isMe
+  //                                   ? const Radius.circular(12)
+  //                                   : const Radius.circular(4),
+  //                               bottomRight: isMe
+  //                                   ? const Radius.circular(4)
+  //                                   : const Radius.circular(12),
+  //                             ),
+  //                           ),
+  //                           child: Column(
+  //                             crossAxisAlignment: isMe
+  //                                 ? CrossAxisAlignment.end
+  //                                 : CrossAxisAlignment.start,
+  //                             children: [
+  //                               Text(
+  //                                 message.text!,
+  //                                 style: const TextStyle(
+  //                                   fontSize: 15,
+  //                                   color: Colors.white,
+  //                                 ),
+  //                               ),
+  //                               const SizedBox(height: 4),
+  //                               Text(
+  //                                 DateFormat('HH:mm dd.MM.yyyy').format(
+  //                                     message.createdWhen?.toLocal() ??
+  //                                         DateTime.now().toLocal()),
+  //                                 style: const TextStyle(
+  //                                   fontSize: 11,
+  //                                   color: Colors
+  //                                       .white70, // Дата немного прозрачнее
+  //                                 ),
+  //                               ),
+  //                             ],
+  //                           ),
+  //                         ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //               ),
+  //               if (isMe) _buildUserAvatar(message.userId),
+  //             ],
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+// В методе _buildMessageFiles добавлена дата поверх файла
   Widget _buildMessageItem(MessageDTO message) {
     final isMe = message.userId == widget.currentUserId;
-    final user = message.userId != null ? _users[message.userId!] : null;
+    final user = _users[message.userId ?? -1];
     final userName = user != null
-        ? '${user.firstName ?? ''} ${user.lastName ?? ''}'
-        : 'Аноним';
+        ? '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim()
+        : 'Неизвестный';
     final screenWidth = MediaQuery.of(context).size.width;
     final hasText = message.text != null && message.text!.isNotEmpty;
     final hasFiles = message.files != null && message.files!.isNotEmpty;
@@ -216,139 +412,514 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
       _messageKeys[message.id!] = GlobalKey();
     }
 
-    return Column(
-      children: [
-        GestureDetector(
-          key: _messageKeys[message.id],
-          onTap: isMe
-              ? () {
-                  setState(() {
-                    _selectedMessageId =
-                        _selectedMessageId == message.id ? null : message.id;
-                  });
-                }
-              : null,
-          child: Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisAlignment:
-                      isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-                  children: [
-                    if (!isMe) _buildUserAvatar(message.userId),
-                    Flexible(
-                      child: Container(
-                        constraints:
-                            BoxConstraints(maxWidth: screenWidth * 0.7),
-                        margin: EdgeInsets.only(
-                          left: isMe ? 0 : 8,
-                          right: isMe ? 8 : 0,
-                        ),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: isMe ? Colors.blue[100] : Colors.grey[200],
-                          borderRadius: BorderRadius.only(
-                            topLeft: const Radius.circular(12),
-                            topRight: const Radius.circular(12),
-                            bottomLeft: isMe
-                                ? const Radius.circular(12)
-                                : const Radius.circular(4),
-                            bottomRight: isMe
-                                ? const Radius.circular(4)
-                                : const Radius.circular(12),
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (!isMe)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 4),
-                                child: Text(
-                                  userName,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
-                                ),
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment:
+            isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          if (!isMe)
+            Padding(
+              padding: const EdgeInsets.only(left: 50, bottom: 4),
+              child: Text(
+                userName,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          GestureDetector(
+            key: _messageKeys[message.id],
+            onLongPress: () => _handleLongPress(message),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment:
+                  isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+              children: [
+                if (!isMe) _buildUserAvatar(message.userId),
+                Flexible(
+                  child: Container(
+                    constraints: BoxConstraints(maxWidth: screenWidth * 0.7),
+                    margin: EdgeInsets.only(
+                      left: isMe ? 0 : 8,
+                      right: isMe ? 8 : 0,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: isMe
+                          ? CrossAxisAlignment.end
+                          : CrossAxisAlignment.start,
+                      children: [
+                        if (hasFiles) _buildMessageFiles(message),
+                        if (hasText)
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: const Color.fromARGB(255, 165, 69, 182),
+                              borderRadius: BorderRadius.only(
+                                topLeft: const Radius.circular(12),
+                                topRight: const Radius.circular(12),
+                                bottomLeft: isMe
+                                    ? const Radius.circular(12)
+                                    : const Radius.circular(4),
+                                bottomRight: isMe
+                                    ? const Radius.circular(4)
+                                    : const Radius.circular(12),
                               ),
-                            if (hasText)
-                              Text(
-                                message.text!,
-                                style: const TextStyle(fontSize: 15),
-                              ),
-                            if (hasFiles)
-                              _buildMessageFiles(message.files!.toList()),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: isMe
+                                  ? CrossAxisAlignment.end
+                                  : CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  DateFormat('HH:mm').format(
-                                      message.createdWhen ?? DateTime.now()),
+                                  message.text!,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  DateFormat('HH:mm dd.MM.yyyy').format(
+                                      message.createdWhen?.toLocal() ??
+                                          DateTime.now().toLocal()),
                                   style: const TextStyle(
                                     fontSize: 11,
-                                    color: Colors.grey,
+                                    color: Colors.white70,
                                   ),
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    if (isMe) _buildUserAvatar(message.userId),
-                  ],
-                ),
-              ),
-              if (_selectedMessageId == message.id && isMe)
-                Positioned(
-                  right: isMe ? 0 : null,
-                  left: isMe ? null : 0,
-                  top: 0,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 5,
-                          spreadRadius: 1,
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        _buildOptionButton(
-                          'Редактировать',
-                          Icons.edit,
-                          () {
-                            setState(() {
-                              _editingMessageId = message.id;
-                              _messageController.text = message.text ?? '';
-                              _selectedMessageId = null;
-                            });
-                          },
-                        ),
-                        _buildOptionButton(
-                          'Удалить',
-                          Icons.delete,
-                          () {
-                            setState(() => _selectedMessageId = null);
-                            _showDeleteDialog(message.id!);
-                          },
-                          isDelete: true,
-                        ),
+                          ),
                       ],
                     ),
                   ),
                 ),
-            ],
+                if (isMe) _buildUserAvatar(message.userId),
+              ],
+            ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMessageFiles(MessageDTO message) {
+    final isMe = message.userId == widget.currentUserId;
+    final files = message.files!.toList();
+
+    return Column(
+      children: files.map((fileDto) {
+        final chatFile = _convertFileDtoToChatFile(fileDto);
+        final isImage = chatFile.type == 'image';
+        final isVideo = chatFile.type == 'video';
+
+        return Stack(
+          children: [
+            Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: isImage || isVideo
+                  ? _buildMediaPreview(chatFile,
+                      fileDto: fileDto, message: message)
+                  : _buildFileItem(chatFile, fileDto: fileDto),
+            ),
+            Positioned(
+              bottom: 8,
+              left: 8,
+              right: 8,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  if (!isMe)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.5),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        chatFile.name,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      DateFormat('HH:mm dd.MM.yyyy').format(
+                          message.createdWhen?.toLocal() ??
+                              DateTime.now().toLocal()),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      }).toList(),
+    );
+  }
+
+// Изменен метод _pickMedia для поддержки видео
+  Future<void> _pickMedia() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        type: FileType.custom,
+        allowedExtensions: [
+          'jpg',
+          'jpeg',
+          'png',
+          'gif',
+          'bmp',
+          'mp4',
+          'mov',
+          'avi',
+          'mkv'
+        ],
+      );
+
+      if (result != null && result.files.isNotEmpty) {
+        setState(() {
+          _selectedFiles.addAll(result.files.map((pf) => ChatFile(
+                name: pf.name,
+                path: pf.path,
+                size: pf.size,
+                type: _getFileType(pf.name),
+              )));
+        });
+      }
+    } catch (e) {
+      debugPrint('Ошибка при выборе медиа: $e');
+      _showErrorSnackbar('Ошибка при выборе медиа: ${e.toString()}');
+    }
+  }
+
+  // Widget _buildMessageFiles(MessageDTO message) {
+  //   final isMe = message.userId == widget.currentUserId;
+  //   final files = message.files!.toList();
+
+  //   return Column(
+  //     children: files.map((fileDto) {
+  //       final chatFile = _convertFileDtoToChatFile(fileDto);
+  //       final isImage = chatFile.type == 'image';
+  //       final isVideo = chatFile.type == 'video';
+
+  //       return Stack(
+  //         children: [
+  //           Container(
+  //             margin: const EdgeInsets.only(bottom: 8),
+  //             child: isImage || isVideo
+  //                 ? _buildMediaPreview(chatFile,
+  //                     fileDto: fileDto, message: message)
+  //                 : _buildFileItem(chatFile, fileDto: fileDto),
+  //           ),
+  //           // Имя и дата поверх медиа
+  //           if (isImage || isVideo)
+  //             Positioned(
+  //               bottom: 8,
+  //               left: 8,
+  //               right: 8,
+  //               child: Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                 children: [
+  //                   if (!isMe)
+  //                     Container(
+  //                       padding: const EdgeInsets.symmetric(
+  //                           horizontal: 8, vertical: 4),
+  //                       decoration: BoxDecoration(
+  //                         color: Colors.black.withOpacity(0.5),
+  //                         borderRadius: BorderRadius.circular(8),
+  //                       ),
+  //                       child: Text(
+  //                         chatFile.name,
+  //                         style: const TextStyle(
+  //                           color: Colors.white,
+  //                           fontSize: 12,
+  //                         ),
+  //                         maxLines: 1,
+  //                         overflow: TextOverflow.ellipsis,
+  //                       ),
+  //                     ),
+  //                   Container(
+  //                     padding: const EdgeInsets.symmetric(
+  //                         horizontal: 8, vertical: 4),
+  //                     decoration: BoxDecoration(
+  //                       color: Colors.black.withOpacity(0.5),
+  //                       borderRadius: BorderRadius.circular(8),
+  //                     ),
+  //                     child: Text(
+  //                       DateFormat('HH:mm')
+  //                           .format(message.createdWhen ?? DateTime.now()),
+  //                       style: const TextStyle(
+  //                         color: Colors.white,
+  //                         fontSize: 12,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //         ],
+  //       );
+  //     }).toList(),
+  //   );
+  // }
+
+  Widget _buildMediaPreview(ChatFile chatFile,
+      {required FileDTO fileDto, required MessageDTO message}) {
+    final isImage = chatFile.type == 'image';
+
+    return GestureDetector(
+      onTap: () => _openMediaInViewer(fileDto),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: isImage
+            ? FutureBuilder<String?>(
+                future: GetIt.I<AuthRepositoryImpl>().getAccessToken(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState != ConnectionState.done ||
+                      !snapshot.hasData) {
+                    return Container(
+                      color: Colors.grey[200],
+                      child: const Center(child: CircularProgressIndicator()),
+                    );
+                  }
+
+                  return CachedNetworkImage(
+                    imageUrl: _getFullFileUrl(fileDto.fileUrl!),
+                    fit: BoxFit.cover,
+                    httpHeaders: {
+                      'Authorization': 'Bearer ${snapshot.data}',
+                    },
+                    placeholder: (context, url) => Container(
+                      color: Colors.grey[200],
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      color: Colors.grey[200],
+                      child: Center(
+                        child: IconButton(
+                          icon: const Icon(Icons.refresh, color: Colors.red),
+                          onPressed: () {
+                            final imageProvider = CachedNetworkImageProvider(
+                              _getFullFileUrl(fileDto.fileUrl!),
+                              headers: {
+                                'Authorization': 'Bearer ${snapshot.data}'
+                              },
+                            );
+                            imageProvider.evict().then((_) => setState(() {}));
+                          },
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              )
+            : Container(
+                height: 200,
+                color: Colors.black,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    const Center(
+                      child:
+                          Icon(Icons.videocam, color: Colors.white, size: 50),
+                    ),
+                    Positioned(
+                      bottom: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          chatFile.name,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+      ),
+    );
+  }
+
+  Future<void> _downloadFile(FileDTO file) async {
+    try {
+      // Запрашиваем разрешение на запись в хранилище
+      final status = await Permission.storage.request();
+      if (!status.isGranted) {
+        _showErrorSnackbar('Необходимо разрешение на доступ к хранилищу');
+        return;
+      }
+
+      final token = await GetIt.I<AuthRepositoryImpl>().getAccessToken();
+      if (token == null) {
+        _showErrorSnackbar('Необходима авторизация');
+        return;
+      }
+
+      // Получаем путь к папке загрузок
+      final directory = await getDownloadsDirectory();
+      if (directory == null) {
+        _showErrorSnackbar('Не удалось получить доступ к папке загрузок');
+        return;
+      }
+
+      final savePath =
+          '${directory.path}/${file.fileName ?? 'file_${DateTime.now().millisecondsSinceEpoch}'}';
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Скачивание ${file.fileName}...')),
+      );
+
+      final response = await Dio().download(
+        _getFullFileUrl(file.fileUrl!),
+        savePath,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+          receiveTimeout: const Duration(minutes: 5),
         ),
-      ],
+        onReceiveProgress: (received, total) {
+          if (total != -1) {
+            final progress = (received / total * 100).toStringAsFixed(0);
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(content: Text('Загружено $progress%')),
+              );
+          }
+        },
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(content: Text('Файл сохранен: ${directory.path}')),
+          );
+
+        // Открываем файл после скачивания
+        await OpenFile.open(savePath);
+      } else {
+        _showErrorSnackbar('Ошибка скачивания файла: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Ошибка скачивания файла: $e');
+      _showErrorSnackbar('Ошибка скачивания файла: ${e.toString()}');
+    }
+  }
+
+  void _handleLongPress(MessageDTO message) {
+    if (message.userId != widget.currentUserId) return;
+
+    final hasText = message.text != null && message.text!.isNotEmpty;
+    final hasFiles = message.files != null && message.files!.isNotEmpty;
+
+    if (hasFiles) {
+      _showFileOptionsDialog(message);
+    } else if (hasText) {
+      _showTextMessageOptionsDialog(message);
+    }
+  }
+
+  // void _handleLongPress(MessageDTO message) {
+  //   if (message.userId != widget.currentUserId) return; // Только свои сообщения
+
+  //   final hasText = message.text != null && message.text!.isNotEmpty;
+  //   final hasFiles = message.files != null && message.files!.isNotEmpty;
+
+  //   if (hasFiles) {
+  //     _showFileOptionsDialog(message);
+  //   } else if (hasText) {
+  //     _showTextMessageOptionsDialog(message);
+  //   }
+  // }
+
+  void _showTextMessageOptionsDialog(MessageDTO message) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.edit),
+              title: const Text('Редактировать'),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() {
+                  _editingMessageId = message.id;
+                  _messageController.text = message.text ?? '';
+                });
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text('Удалить', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.pop(context);
+                _showDeleteDialog(message.id!);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showFileOptionsDialog(MessageDTO message) async {
+    if (message.files == null || message.files!.isEmpty) return;
+
+    final file = message.files!.first;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.download),
+              title: const Text('Скачать'),
+              onTap: () {
+                Navigator.pop(context);
+                _downloadFile(file);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text('Удалить', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.pop(context);
+                _showDeleteDialog(message.id!);
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -363,80 +934,101 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
           color: Colors.grey[200],
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+        child: Column(
           children: [
-            if (isImage)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: FutureBuilder<String?>(
-                  future: GetIt.I<AuthRepositoryImpl>().getAccessToken(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState != ConnectionState.done ||
-                        !snapshot.hasData) {
-                      return Container(
-                        width: 40,
-                        height: 40,
-                        color: Colors.grey[300],
-                        child: const Icon(Icons.image, size: 20),
-                      );
-                    }
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isImage)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: FutureBuilder<String?>(
+                      future: GetIt.I<AuthRepositoryImpl>().getAccessToken(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState != ConnectionState.done ||
+                            !snapshot.hasData) {
+                          return Container(
+                            width: 40,
+                            height: 40,
+                            color: Colors.grey[300],
+                            child: const Icon(Icons.image, size: 20),
+                          );
+                        }
 
-                    return CachedNetworkImage(
-                      imageUrl: _getFullFileUrl(fileDto.fileUrl!),
-                      width: 40,
-                      height: 40,
-                      fit: BoxFit.cover,
-                      httpHeaders: {
-                        'Authorization': 'Bearer ${snapshot.data}',
-                      },
-                      placeholder: (context, url) => Container(
-                        width: 40,
-                        height: 40,
-                        color: Colors.grey[300],
-                        child: const Icon(Icons.image, size: 20),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        width: 40,
-                        height: 40,
-                        color: Colors.grey[300],
-                        child: IconButton(
-                          icon: const Icon(Icons.refresh),
-                          onPressed: () {
-                            final imageProvider = CachedNetworkImageProvider(
-                              _getFullFileUrl(fileDto.fileUrl!),
-                              headers: {
-                                'Authorization': 'Bearer ${snapshot.data}'
-                              },
-                            );
-                            imageProvider.evict().then((_) => setState(() {}));
+                        return CachedNetworkImage(
+                          imageUrl: _getFullFileUrl(fileDto.fileUrl!),
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                          httpHeaders: {
+                            'Authorization': 'Bearer ${snapshot.data}',
                           },
-                        ),
-                      ),
-                    );
-                  },
+                          placeholder: (context, url) => Container(
+                            width: 40,
+                            height: 40,
+                            color: Colors.grey[300],
+                            child: const Icon(Icons.image, size: 20),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            width: 40,
+                            height: 40,
+                            color: Colors.grey[300],
+                            child: IconButton(
+                              icon: const Icon(Icons.refresh),
+                              onPressed: () {
+                                final imageProvider =
+                                    CachedNetworkImageProvider(
+                                  _getFullFileUrl(fileDto.fileUrl!),
+                                  headers: {
+                                    'Authorization': 'Bearer ${snapshot.data}'
+                                  },
+                                );
+                                imageProvider
+                                    .evict()
+                                    .then((_) => setState(() {}));
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                else
+                  Icon(
+                    _getFileIcon(chatFile.type),
+                    size: 30,
+                    color: _getFileIconColor(chatFile.type),
+                  ),
+                const SizedBox(width: 8),
+                SizedBox(
+                  width: 150,
+                  child: Text(
+                    chatFile.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
                 ),
-              )
-            else
-              Icon(
-                _getFileIcon(chatFile.type),
-                size: 30,
-                color: _getFileIconColor(chatFile.type),
-              ),
-            const SizedBox(width: 8),
-            SizedBox(
-              width: 150,
-              child: Text(
-                chatFile.name,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
+              ],
             ),
+            if (fileDto.fileSize != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  _formatFileSize(fileDto.fileSize!),
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ),
           ],
         ),
       ),
     );
+  }
+
+  String _formatFileSize(int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 
   Future<void> _openFileDto(FileDTO fileDto) async {
@@ -517,88 +1109,91 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
     return baseUrl + path;
   }
 
-  Widget _buildMediaPreview(ChatFile chatFile, {required FileDTO fileDto}) {
-    final isImage = chatFile.type == 'image';
+  // Widget _buildMediaPreview(ChatFile chatFile, {required FileDTO fileDto}) {
+  //   final isImage = chatFile.type == 'image';
 
-    return GestureDetector(
-      onTap: () => _openMediaInViewer(fileDto),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: isImage
-            ? FutureBuilder<String?>(
-                future: GetIt.I<AuthRepositoryImpl>().getAccessToken(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState != ConnectionState.done ||
-                      !snapshot.hasData) {
-                    return Container(
-                      color: Colors.grey[200],
-                      child: const Center(child: CircularProgressIndicator()),
-                    );
-                  }
+  //   return GestureDetector(
+  //     onTap: () => _openMediaInViewer(fileDto),
+  //     child: ClipRRect(
+  //       borderRadius: BorderRadius.circular(8),
+  //       child: isImage
+  //           ? FutureBuilder<String?>(
+  //               future: GetIt.I<AuthRepositoryImpl>().getAccessToken(),
+  //               builder: (context, snapshot) {
+  //                 if (snapshot.connectionState != ConnectionState.done ||
+  //                     !snapshot.hasData) {
+  //                   return Container(
+  //                     color: Colors.grey[200],
+  //                     child: const Center(child: CircularProgressIndicator()),
+  //                   );
+  //                 }
 
-                  return CachedNetworkImage(
-                    imageUrl: _getFullFileUrl(fileDto.fileUrl!),
-                    width: double.infinity,
-                    height: 200,
-                    fit: BoxFit.cover,
-                    httpHeaders: {
-                      'Authorization': 'Bearer ${snapshot.data}',
-                    },
-                    placeholder: (context, url) => Container(
-                      color: Colors.grey[200],
-                      child: const Center(child: CircularProgressIndicator()),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      color: Colors.grey[200],
-                      child: Center(
-                        child: IconButton(
-                          icon: const Icon(Icons.refresh, color: Colors.red),
-                          onPressed: () {
-                            final imageProvider = CachedNetworkImageProvider(
-                              _getFullFileUrl(fileDto.fileUrl!),
-                              headers: {
-                                'Authorization': 'Bearer ${snapshot.data}'
-                              },
-                            );
-                            imageProvider.evict().then((_) => setState(() {}));
-                          },
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              )
-            : Container(
-                height: 200,
-                color: Colors.black,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    const Center(
-                      child:
-                          Icon(Icons.videocam, color: Colors.white, size: 50),
-                    ),
-                    Positioned(
-                      bottom: 8,
-                      right: 8,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.black54,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          chatFile.name,
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-      ),
-    );
-  }
+  //                 return AspectRatio(
+  //                   aspectRatio: 1, // Квадратное соотношение сторон
+  //                   child: CachedNetworkImage(
+  //                     imageUrl: _getFullFileUrl(fileDto.fileUrl!),
+  //                     fit: BoxFit.contain,
+  //                     httpHeaders: {
+  //                       'Authorization': 'Bearer ${snapshot.data}',
+  //                     },
+  //                     placeholder: (context, url) => Container(
+  //                       color: Colors.grey[200],
+  //                       child: const Center(child: CircularProgressIndicator()),
+  //                     ),
+  //                     errorWidget: (context, url, error) => Container(
+  //                       color: Colors.grey[200],
+  //                       child: Center(
+  //                         child: IconButton(
+  //                           icon: const Icon(Icons.refresh, color: Colors.red),
+  //                           onPressed: () {
+  //                             final imageProvider = CachedNetworkImageProvider(
+  //                               _getFullFileUrl(fileDto.fileUrl!),
+  //                               headers: {
+  //                                 'Authorization': 'Bearer ${snapshot.data}'
+  //                               },
+  //                             );
+  //                             imageProvider
+  //                                 .evict()
+  //                                 .then((_) => setState(() {}));
+  //                           },
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 );
+  //               },
+  //             )
+  //           : Container(
+  //               height: 200,
+  //               color: Colors.black,
+  //               child: Stack(
+  //                 fit: StackFit.expand,
+  //                 children: [
+  //                   const Center(
+  //                     child:
+  //                         Icon(Icons.videocam, color: Colors.white, size: 50),
+  //                   ),
+  //                   Positioned(
+  //                     bottom: 8,
+  //                     right: 8,
+  //                     child: Container(
+  //                       padding: const EdgeInsets.all(4),
+  //                       decoration: BoxDecoration(
+  //                         color: Colors.black54,
+  //                         borderRadius: BorderRadius.circular(4),
+  //                       ),
+  //                       child: Text(
+  //                         chatFile.name,
+  //                         style: const TextStyle(color: Colors.white),
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //     ),
+  //   );
+  // }
 
   Future<void> _openMediaInViewer(FileDTO file) async {
     if (file.fileUrl == null) return;
@@ -631,50 +1226,59 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
     }
   }
 
-  Future<void> _downloadFile(FileDTO file) async {
-    try {
-      if (file.fileUrl == null) {
-        _showErrorSnackbar('URL файла не доступен');
-        return;
-      }
+  // Future<void> _downloadFile(FileDTO file) async {
+  //   try {
+  //     // Запрашиваем разрешение на запись в хранилище
+  //     final status = await Permission.storage.request();
+  //     if (!status.isGranted) {
+  //       _showErrorSnackbar('Необходимо разрешение на доступ к хранилищу');
+  //       return;
+  //     }
 
-      final token = await GetIt.I<AuthRepositoryImpl>().getAccessToken();
-      if (token == null) {
-        _showErrorSnackbar('Необходима авторизация');
-        return;
-      }
+  //     final token = await GetIt.I<AuthRepositoryImpl>().getAccessToken();
+  //     if (token == null) {
+  //       _showErrorSnackbar('Необходима авторизация');
+  //       return;
+  //     }
 
-      final dir = await getTemporaryDirectory();
-      final savePath = '${dir.path}/${file.fileName ?? 'file'}';
+  //     // Получаем путь к папке загрузок
+  //     final directory = Directory('/storage/emulated/0/Download');
+  //     if (!await directory.exists()) {
+  //       await directory.create(recursive: true);
+  //     }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Скачивание ${file.fileName}...')),
-      );
+  //     final savePath = '${directory.path}/${file.fileName ?? 'file'}';
 
-      await Dio().download(
-        _getFullFileUrl(file.fileUrl!),
-        savePath,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
-        onReceiveProgress: (received, total) {
-          if (total != -1) {
-            final progress = (received / total * 100).toStringAsFixed(0);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Загружено $progress%')),
-            );
-          }
-        },
-      );
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Скачивание ${file.fileName}...')),
+  //     );
 
-      await OpenFile.open(savePath);
-    } catch (e) {
-      debugPrint('Ошибка скачивания файла: $e');
-      _showErrorSnackbar('Ошибка скачивания файла');
-    }
-  }
+  //     await Dio().download(
+  //       _getFullFileUrl(file.fileUrl!),
+  //       savePath,
+  //       options: Options(
+  //         headers: {
+  //           'Authorization': 'Bearer $token',
+  //         },
+  //       ),
+  //       onReceiveProgress: (received, total) {
+  //         if (total != -1) {
+  //           final progress = (received / total * 100).toStringAsFixed(0);
+  //           ScaffoldMessenger.of(context).showSnackBar(
+  //             SnackBar(content: Text('Загружено $progress%')),
+  //           );
+  //         }
+  //       },
+  //     );
+
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Файл сохранен в Загрузки')),
+  //     );
+  //   } catch (e) {
+  //     debugPrint('Ошибка скачивания файла: $e');
+  //     _showErrorSnackbar('Ошибка скачивания файла');
+  //   }
+  // }
 
   String _getFileTypeFromMime(String? mimeType) {
     if (mimeType == null) return 'file';
@@ -741,25 +1345,22 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
   }
 
 // Обновленный метод для отображения файлов в сообщениях
-  Widget _buildMessageFiles(List<FileDTO> files) {
-    return Column(
-      children: files.map((fileDto) {
-        final chatFile = _convertFileDtoToChatFile(fileDto);
-        final isImage = chatFile.type == 'image';
-        final isVideo = chatFile.type == 'video';
+  // Widget _buildMessageFiles(List<FileDTO> files) {
+  //   return Column(
+  //     children: files.map((fileDto) {
+  //       final chatFile = _convertFileDtoToChatFile(fileDto);
+  //       final isImage = chatFile.type == 'image';
+  //       final isVideo = chatFile.type == 'video';
 
-        return Container(
-          margin: const EdgeInsets.only(top: 8),
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.5,
-          ),
-          child: isImage || isVideo
-              ? _buildMediaPreview(chatFile, fileDto: fileDto)
-              : _buildFileItem(chatFile, fileDto: fileDto),
-        );
-      }).toList(),
-    );
-  }
+  //       return Container(
+  //         margin: const EdgeInsets.only(bottom: 8),
+  //         child: isImage || isVideo
+  //             ? _buildMediaPreview(chatFile, fileDto: fileDto)
+  //             : _buildFileItem(chatFile, fileDto: fileDto),
+  //       );
+  //     }).toList(),
+  //   );
+  // }
 
   Widget _buildSelectedFilesPreview() {
     if (_selectedFiles.isEmpty) return const SizedBox.shrink();
@@ -947,29 +1548,29 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
     }
   }
 
-  Future<void> _pickMedia() async {
-    try {
-      final result = await FilePicker.platform.pickFiles(
-        allowMultiple: true,
-        type: FileType.image,
-        allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'mov', 'avi'],
-      );
+  // Future<void> _pickMedia() async {
+  //   try {
+  //     final result = await FilePicker.platform.pickFiles(
+  //       allowMultiple: true,
+  //       type: FileType.image,
+  //       allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'mov', 'avi'],
+  //     );
 
-      if (result != null && result.files.isNotEmpty) {
-        setState(() {
-          _selectedFiles.addAll(result.files.map((pf) => ChatFile(
-                name: pf.name,
-                path: pf.path,
-                size: pf.size,
-                type: _getFileType(pf.name),
-              )));
-        });
-      }
-    } catch (e) {
-      debugPrint('Ошибка при выборе медиа: $e');
-      _showErrorSnackbar('Ошибка при выборе медиа: ${e.toString()}');
-    }
-  }
+  //     if (result != null && result.files.isNotEmpty) {
+  //       setState(() {
+  //         _selectedFiles.addAll(result.files.map((pf) => ChatFile(
+  //               name: pf.name,
+  //               path: pf.path,
+  //               size: pf.size,
+  //               type: _getFileType(pf.name),
+  //             )));
+  //       });
+  //     }
+  //   } catch (e) {
+  //     debugPrint('Ошибка при выборе медиа: $e');
+  //     _showErrorSnackbar('Ошибка при выборе медиа: ${e.toString()}');
+  //   }
+  // }
 
   String _getFileType(String fileName) {
     final ext = fileName.split('.').last.toLowerCase();
@@ -1083,7 +1684,6 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
 
   Future<void> _deleteMessage(int messageId) async {
     try {
-      // 1. Проверка токена
       final authRepo = GetIt.I<AuthRepositoryImpl>();
       final token = await authRepo.getAccessToken();
       if (token == null) {
@@ -1091,25 +1691,21 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
         return;
       }
 
-      // 2. Проверка существования сообщения в локальном кеше
       final messageExists = _messages.any((m) => m.id == messageId);
       if (!messageExists) {
         _showErrorSnackbar('Сообщение не найдено в локальном кеше');
         return;
       }
 
-      // 3. Получаем ID пользователя из токена
       final currentUserId = _getUserIdFromToken(token);
       if (currentUserId == null) {
         _showErrorSnackbar('Не удалось определить пользователя из токена');
         return;
       }
 
-      // 4. Находим сообщение
       final messageIndex = _messages.indexWhere((m) => m.id == messageId);
       final message = _messages[messageIndex];
 
-      // 5. Проверяем авторство
       if (message.userId != currentUserId) {
         _showErrorSnackbar('Вы можете удалять только свои сообщения');
         return;
@@ -1120,7 +1716,6 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
           'ID пользователя из токена: $currentUserId, '
           'Автор сообщения: ${message.userId}');
 
-      // 6. Отправляем запрос на удаление
       final messageApi = GetIt.I<Openapi>().getMessageControllerApi();
       await messageApi.deleteMessage(
         chatId: widget.chatId,
@@ -1131,7 +1726,6 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
         },
       );
 
-      // 7. Обновляем UI
       if (mounted) {
         setState(() {
           _messages.removeAt(messageIndex);
@@ -1153,7 +1747,6 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
     }
   }
 
-// Вспомогательный метод для извлечения ID из JWT токена
   int? _getUserIdFromToken(String token) {
     try {
       final parts = token.split('.');
@@ -1180,105 +1773,6 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
       ),
     );
   }
-
-  Widget _buildFilePreview(ChatFile file, {bool isPreview = false}) {
-    final isImage = file.type == 'image' && file.path != null;
-    final isVideo = file.type == 'video';
-    final size = isPreview ? 80.0 : 150.0;
-
-    return InkWell(
-      onTap: () => _openFile(file),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (isImage)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.file(
-                File(file.path!),
-                height: size,
-                width: size,
-                fit: BoxFit.cover,
-              ),
-            )
-          else if (isVideo)
-            Container(
-              height: size,
-              width: size,
-              decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Center(
-                child: Icon(Icons.videocam, color: Colors.white, size: 30),
-              ),
-            )
-          else
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.insert_drive_file, size: 30),
-                  const SizedBox(width: 8),
-                  SizedBox(
-                    width: isPreview ? 100 : 200,
-                    child: Text(
-                      file.name,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _openFileInViewer(FileDTO file) async {
-    if (file.fileUrl == null) return;
-
-    final isImage = file.fileType?.startsWith('image/') ?? false;
-    final isVideo = file.fileType?.startsWith('video/') ?? false;
-
-    if (isImage) {
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Scaffold(
-            appBar: AppBar(),
-            body: Center(
-              child: CachedNetworkImage(
-                imageUrl: _getFullFileUrl(file.fileUrl!),
-                fit: BoxFit.contain,
-              ),
-            ),
-          ),
-        ),
-      );
-    } else if (isVideo) {
-      // Здесь можно использовать видео-плеер
-      _showErrorSnackbar('Просмотр видео временно недоступен');
-    } else {
-      await _downloadFile(file);
-    }
-  }
-
-  // String _getFullFileUrl(String path) {
-  //   final dio = GetIt.I<Dio>();
-  //   String baseUrl = dio.options.baseUrl;
-  //   if (!baseUrl.endsWith('/') && !path.startsWith('/')) {
-  //     baseUrl += '/';
-  //   }
-  //   return baseUrl + path;
-  // }
 
   Widget _buildUserAvatar(int? userId) {
     if (userId == null || _users[userId]?.avatarUrl == null) {
@@ -1323,43 +1817,6 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
     );
   }
 
-  String _getShortFileName(String fileName) {
-    const maxLength = 30; // Максимальная длина без обрезки
-    if (fileName.length <= maxLength) return fileName;
-
-    return '${fileName.substring(0, maxLength - 3)}...'; // Обрезаем и добавляем ...
-  }
-
-  Widget _buildOptionButton(String text, IconData icon, VoidCallback onPressed,
-      {bool isDelete = false}) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onPressed,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                size: 18,
-                color: isDelete ? Colors.red : Colors.grey[700],
-              ),
-              const SizedBox(width: 8),
-              Text(
-                text,
-                style: TextStyle(
-                  color: isDelete ? Colors.red : Colors.grey[700],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Future<void> _openFile(ChatFile file) async {
     if (file.path != null) {
       await OpenFile.open(file.path);
@@ -1375,14 +1832,30 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(_chat?.chatName ?? (widget.isGroup ? 'Группа' : 'Чат')),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              if (widget.onBack != null) widget.onBack!();
-              Navigator.pop(context);
-            },
+        backgroundColor: Colors.white,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(80.0),
+          child: Column(
+            children: [
+              AppBar(
+                foregroundColor: Colors.purple,
+                surfaceTintColor: const Color.fromARGB(255, 100, 29, 113),
+                title: Text(
+                    _chat?.chatName ?? (widget.isGroup ? 'Группа' : 'Чат')),
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () {
+                    if (widget.onBack != null) widget.onBack!();
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+              const Divider(
+                height: 1,
+                thickness: 1,
+                color: Colors.grey,
+              ),
+            ],
           ),
         ),
         body: _isLoading
@@ -1393,7 +1866,7 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
                     children: [
                       Expanded(
                         child: ListView.builder(
-                          controller: _scrollController,
+                          //controller: _scrollController,
                           reverse: true,
                           itemCount: _messages.length,
                           itemBuilder: (context, index) =>
@@ -1416,8 +1889,16 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
                                   hintText: _editingMessageId != null
                                       ? 'Редактируете сообщение...'
                                       : 'Сообщение',
+                                  labelStyle: const TextStyle(
+                                    color: Color.fromARGB(255, 104, 102, 102),
+                                  ),
                                   border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(30),
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(
+                                        color: Colors.purple, width: 2),
+                                    borderRadius: BorderRadius.circular(10.0),
                                   ),
                                 ),
                               ),

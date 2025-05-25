@@ -1,44 +1,39 @@
 import 'package:test/test.dart';
 import 'package:openapi/openapi.dart';
 
-// tests for MessageNotificationDTO
+// tests for MessageNotification
 void main() {
-  final instance = MessageNotificationDTOBuilder();
+  final instance = MessageNotificationBuilder();
   // TODO add properties to the builder and call build()
 
-  group(MessageNotificationDTO, () {
+  group(MessageNotification, () {
+    // Unique identifier
     // int id
     test('to test the property `id`', () async {
       // TODO
     });
 
-    // UserDTO recipient
-    test('to test the property `recipient`', () async {
-      // TODO
-    });
-
-    // UserDTO sender
+    // Sender id
+    // int sender
     test('to test the property `sender`', () async {
       // TODO
     });
 
+    // Message content
     // String content
     test('to test the property `content`', () async {
       // TODO
     });
 
+    // Timestamp of the message
     // DateTime timestamp
     test('to test the property `timestamp`', () async {
       // TODO
     });
 
-    // MessageDTO linkedMessage
-    test('to test the property `linkedMessage`', () async {
-      // TODO
-    });
-
-    // bool read
-    test('to test the property `read`', () async {
+    // Chat id
+    // int chatId
+    test('to test the property `chatId`', () async {
       // TODO
     });
 

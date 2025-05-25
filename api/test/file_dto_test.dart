@@ -27,6 +27,11 @@ void main() {
       // TODO
     });
 
+    // int fileSize
+    test('to test the property `fileSize`', () async {
+      // TODO
+    });
+
     // DateTime uploadedWhen
     test('to test the property `uploadedWhen`', () async {
       // TODO

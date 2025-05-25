@@ -12,6 +12,7 @@ Name | Type | Description | Notes
 **fileName** | **String** |  | [optional] 
 **fileUrl** | **String** |  | [optional] 
 **fileType** | **String** |  | [optional] 
+**fileSize** | **int** |  | [optional] 
 **uploadedWhen** | [**DateTime**](DateTime.md) |  | [optional] 
 **uploadedBy** | **int** |  | [optional] 
 **messageId** | **int** |  | [optional] 

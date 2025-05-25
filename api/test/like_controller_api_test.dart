@@ -12,7 +12,7 @@ void main() {
       // TODO
     });
 
-    //Future deleteLike(int postId, int userId) async
+    //Future deleteLike(int postId) async
     test('test deleteLike', () async {
       // TODO
     });
