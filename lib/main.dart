@@ -13,10 +13,10 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Инициализация зависимостей
   setupLocator();
-  
+
   // Инициализация сервиса уведомлений
   await NotificationService().initialize();
 
@@ -60,10 +60,12 @@ class _MyAppState extends State<MyApp> {
         }
       },
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'News Feed',
         // Добавляем navigatorKey для глобальной навигации
         navigatorKey: navigatorKey,
-        theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue)),
+        theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue)),
         initialRoute: AppRoutes.loginPage,
         routes: AppRoutes.routes,
       ),

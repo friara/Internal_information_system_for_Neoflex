@@ -8,9 +8,9 @@ part of 'page_message_dto.dart';
 
 class _$PageMessageDTO extends PageMessageDTO {
   @override
-  final int? totalPages;
-  @override
   final int? totalElements;
+  @override
+  final int? totalPages;
   @override
   final int? size;
   @override
@@ -34,8 +34,8 @@ class _$PageMessageDTO extends PageMessageDTO {
       (new PageMessageDTOBuilder()..update(updates))._build();
 
   _$PageMessageDTO._(
-      {this.totalPages,
-      this.totalElements,
+      {this.totalElements,
+      this.totalPages,
       this.size,
       this.content,
       this.number,
@@ -59,8 +59,8 @@ class _$PageMessageDTO extends PageMessageDTO {
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
     return other is PageMessageDTO &&
-        totalPages == other.totalPages &&
         totalElements == other.totalElements &&
+        totalPages == other.totalPages &&
         size == other.size &&
         content == other.content &&
         number == other.number &&
@@ -75,8 +75,8 @@ class _$PageMessageDTO extends PageMessageDTO {
   @override
   int get hashCode {
     var _$hash = 0;
-    _$hash = $jc(_$hash, totalPages.hashCode);
     _$hash = $jc(_$hash, totalElements.hashCode);
+    _$hash = $jc(_$hash, totalPages.hashCode);
     _$hash = $jc(_$hash, size.hashCode);
     _$hash = $jc(_$hash, content.hashCode);
     _$hash = $jc(_$hash, number.hashCode);
@@ -93,8 +93,8 @@ class _$PageMessageDTO extends PageMessageDTO {
   @override
   String toString() {
     return (newBuiltValueToStringHelper(r'PageMessageDTO')
-          ..add('totalPages', totalPages)
           ..add('totalElements', totalElements)
+          ..add('totalPages', totalPages)
           ..add('size', size)
           ..add('content', content)
           ..add('number', number)
@@ -112,14 +112,14 @@ class PageMessageDTOBuilder
     implements Builder<PageMessageDTO, PageMessageDTOBuilder> {
   _$PageMessageDTO? _$v;
 
-  int? _totalPages;
-  int? get totalPages => _$this._totalPages;
-  set totalPages(int? totalPages) => _$this._totalPages = totalPages;
-
   int? _totalElements;
   int? get totalElements => _$this._totalElements;
   set totalElements(int? totalElements) =>
       _$this._totalElements = totalElements;
+
+  int? _totalPages;
+  int? get totalPages => _$this._totalPages;
+  set totalPages(int? totalPages) => _$this._totalPages = totalPages;
 
   int? _size;
   int? get size => _$this._size;
@@ -167,8 +167,8 @@ class PageMessageDTOBuilder
   PageMessageDTOBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
-      _totalPages = $v.totalPages;
       _totalElements = $v.totalElements;
+      _totalPages = $v.totalPages;
       _size = $v.size;
       _content = $v.content?.toBuilder();
       _number = $v.number;
@@ -202,8 +202,8 @@ class PageMessageDTOBuilder
     try {
       _$result = _$v ??
           new _$PageMessageDTO._(
-            totalPages: totalPages,
             totalElements: totalElements,
+            totalPages: totalPages,
             size: size,
             content: _content?.build(),
             number: number,

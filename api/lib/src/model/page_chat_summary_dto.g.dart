@@ -8,9 +8,9 @@ part of 'page_chat_summary_dto.dart';
 
 class _$PageChatSummaryDTO extends PageChatSummaryDTO {
   @override
-  final int? totalPages;
-  @override
   final int? totalElements;
+  @override
+  final int? totalPages;
   @override
   final int? size;
   @override
@@ -35,8 +35,8 @@ class _$PageChatSummaryDTO extends PageChatSummaryDTO {
       (new PageChatSummaryDTOBuilder()..update(updates))._build();
 
   _$PageChatSummaryDTO._(
-      {this.totalPages,
-      this.totalElements,
+      {this.totalElements,
+      this.totalPages,
       this.size,
       this.content,
       this.number,
@@ -61,8 +61,8 @@ class _$PageChatSummaryDTO extends PageChatSummaryDTO {
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
     return other is PageChatSummaryDTO &&
-        totalPages == other.totalPages &&
         totalElements == other.totalElements &&
+        totalPages == other.totalPages &&
         size == other.size &&
         content == other.content &&
         number == other.number &&
@@ -77,8 +77,8 @@ class _$PageChatSummaryDTO extends PageChatSummaryDTO {
   @override
   int get hashCode {
     var _$hash = 0;
-    _$hash = $jc(_$hash, totalPages.hashCode);
     _$hash = $jc(_$hash, totalElements.hashCode);
+    _$hash = $jc(_$hash, totalPages.hashCode);
     _$hash = $jc(_$hash, size.hashCode);
     _$hash = $jc(_$hash, content.hashCode);
     _$hash = $jc(_$hash, number.hashCode);
@@ -95,8 +95,8 @@ class _$PageChatSummaryDTO extends PageChatSummaryDTO {
   @override
   String toString() {
     return (newBuiltValueToStringHelper(r'PageChatSummaryDTO')
-          ..add('totalPages', totalPages)
           ..add('totalElements', totalElements)
+          ..add('totalPages', totalPages)
           ..add('size', size)
           ..add('content', content)
           ..add('number', number)
@@ -114,14 +114,14 @@ class PageChatSummaryDTOBuilder
     implements Builder<PageChatSummaryDTO, PageChatSummaryDTOBuilder> {
   _$PageChatSummaryDTO? _$v;
 
-  int? _totalPages;
-  int? get totalPages => _$this._totalPages;
-  set totalPages(int? totalPages) => _$this._totalPages = totalPages;
-
   int? _totalElements;
   int? get totalElements => _$this._totalElements;
   set totalElements(int? totalElements) =>
       _$this._totalElements = totalElements;
+
+  int? _totalPages;
+  int? get totalPages => _$this._totalPages;
+  set totalPages(int? totalPages) => _$this._totalPages = totalPages;
 
   int? _size;
   int? get size => _$this._size;
@@ -170,8 +170,8 @@ class PageChatSummaryDTOBuilder
   PageChatSummaryDTOBuilder get _$this {
     final $v = _$v;
     if ($v != null) {
-      _totalPages = $v.totalPages;
       _totalElements = $v.totalElements;
+      _totalPages = $v.totalPages;
       _size = $v.size;
       _content = $v.content?.toBuilder();
       _number = $v.number;
@@ -205,8 +205,8 @@ class PageChatSummaryDTOBuilder
     try {
       _$result = _$v ??
           new _$PageChatSummaryDTO._(
-            totalPages: totalPages,
             totalElements: totalElements,
+            totalPages: totalPages,
             size: size,
             content: _content?.build(),
             number: number,

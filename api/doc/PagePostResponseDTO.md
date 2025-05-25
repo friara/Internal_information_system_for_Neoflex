@@ -8,8 +8,8 @@ import 'package:openapi/api.dart';
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**totalPages** | **int** |  | [optional] 
 **totalElements** | **int** |  | [optional] 
+**totalPages** | **int** |  | [optional] 
 **size** | **int** |  | [optional] 
 **content** | [**BuiltList&lt;PostResponseDTO&gt;**](PostResponseDTO.md) |  | [optional] 
 **number** | **int** |  | [optional] 

@@ -14,7 +14,6 @@ import 'contact_selection_page.dart';
 import 'package:news_feed_neoflex/features/auth/auth_repository_impl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
 
@@ -42,7 +41,6 @@ class ChatPageState extends State<ChatPage> {
   bool _isAdmin = false;
   bool _isRoleLoaded = false;
   String? _currentUserRole;
-
 
   @override
   void initState() {
@@ -150,34 +148,111 @@ class ChatPageState extends State<ChatPage> {
     }
   }
 
+  Future<void> _createContactChat(int otherUserId) async {
+    try {
+      final chatApi = GetIt.I<Openapi>().getChatControllerApi();
+
+      // Получаем ID текущего пользователя
+      final currentUserResponse =
+          await GetIt.I<Openapi>().getUserControllerApi().getCurrentUser();
+      final currentUserId = currentUserResponse.data?.id;
+
+      if (currentUserId == null) {
+        throw Exception('Не удалось получить ID текущего пользователя');
+      }
+
+      // Для приватного чата:
+      // - Указываем тип PRIVATE
+      // - Указываем otherUserId (участника чата)
+      // - Указываем createdBy (создателя чата)
+      // - В participantIds включаем только otherUserId (не включаем создателя)
+      final chatDTO = ChatDTO(
+        (b) => b
+          ..chatType = 'PRIVATE'
+          ..otherUserId = otherUserId
+          ..createdBy = currentUserId
+          // Включаем только ID собеседника (не включаем текущего пользователя)
+          ..participantIds = ListBuilder<int>([otherUserId]),
+      );
+
+      final response = await chatApi.createChat(chatDTO: chatDTO);
+
+      if (response.data != null) {
+        await _loadData();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Чат успешно создан')),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error creating chat: $e');
+      if (e is DioException) {
+        debugPrint('Response data: ${e.response?.data}');
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка создания чата: ${e.toString()}')),
+      );
+    }
+  }
+
   void _createGroup() async {
     if (_groupNameController.text.isEmpty ||
-        !_selectedUsers.values.any((v) => v)) return;
+        !_selectedUsers.values.any((v) => v)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Введите название группы и выберите участников')),
+      );
+      return;
+    }
 
     try {
       final chatApi = GetIt.I<Openapi>().getChatControllerApi();
 
+      // Получаем ID текущего пользователя
+      final currentUserResponse =
+          await GetIt.I<Openapi>().getUserControllerApi().getCurrentUser();
+      final currentUserId = currentUserResponse.data?.id;
+
+      if (currentUserId == null) {
+        throw Exception('Не удалось получить ID текущего пользователя');
+      }
+
+      // Формируем список участников без создателя
       final participantIds = _selectedUsers.entries
-          .where((e) => e.value)
+          .where(
+              (e) => e.value && e.key != currentUserId) // Исключаем создателя
           .map((e) => e.key)
           .toList();
+
+      if (participantIds.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Выберите хотя бы одного участника')),
+        );
+        return;
+      }
 
       final chatDTO = ChatDTO(
         (b) => b
           ..chatType = 'GROUP'
           ..chatName = _groupNameController.text
+          ..createdBy = currentUserId
           ..participantIds = ListBuilder<int>(participantIds),
       );
 
       final response = await chatApi.createChat(chatDTO: chatDTO);
 
       if (response.data != null) {
+        // Обновляем список чатов
+        await _loadData();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Группа успешно создана')),
+        );
+
         setState(() {
           _showGroupCreation = false;
           _groupNameController.clear();
           _selectedUsers = {};
           _groupImage = null;
-          _chats.insert(0, _convertToSummary(response.data!));
         });
       }
     } catch (e) {
@@ -185,6 +260,63 @@ class ChatPageState extends State<ChatPage> {
         SnackBar(content: Text('Ошибка создания группы: ${e.toString()}')),
       );
     }
+  }
+
+  // В методе build модифицируем переход на страницу выбора контактов
+  Widget _buildCreateOptionsOverlay() {
+    return Positioned(
+      top: 70,
+      right: 20,
+      child: Material(
+        elevation: 4,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          width: 200,
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.group),
+                title: const Text('Создать группу'),
+                onTap: () => setState(() {
+                  _showCreateOptions = false;
+                  _showGroupCreation = true;
+                }),
+              ),
+              ListTile(
+                leading: const Icon(Icons.person_add),
+                title: const Text('Создать контакт'),
+                onTap: () async {
+                  setState(() => _showCreateOptions = false);
+
+                  // Ожидаем результат выбора контакта
+                  final selectedUserId = await Navigator.push<int>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ContactSelectionPage(
+                        users: _allUsers,
+                        avatarBaseUrl: _avatarBaseUrl,
+                        accessToken: accessToken,
+                      ),
+                    ),
+                  );
+
+                  // Если пользователь выбрал контакт (не нажал "назад")
+                  if (selectedUserId != null) {
+                    // Создаем чат с выбранным пользователем
+                    _createContactChat(selectedUserId);
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   ChatSummaryDTO _convertToSummary(ChatDTO chat) {
@@ -388,6 +520,7 @@ class ChatPageState extends State<ChatPage> {
                               builder: (context) => PersonalChatPage(
                                 chatId: filteredChats[index].id!,
                                 currentUserId: _currentUserId!,
+                                onBack: () => _loadData(),
                               ),
                             ),
                           ),
@@ -428,138 +561,125 @@ class ChatPageState extends State<ChatPage> {
     );
   }
 
-  Widget _buildCreateOptionsOverlay() {
-    return Positioned(
-      top: 70,
-      right: 20,
-      child: Material(
-        elevation: 4,
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          width: 200,
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
+  // Widget _buildCreateOptionsOverlay() {
+  //   return Positioned(
+  //     top: 70,
+  //     right: 20,
+  //     child: Material(
+  //       elevation: 4,
+  //       borderRadius: BorderRadius.circular(8),
+  //       child: Container(
+  //         width: 200,
+  //         padding: const EdgeInsets.all(8),
+  //         decoration: BoxDecoration(
+  //           color: Colors.white,
+  //           borderRadius: BorderRadius.circular(8),
+  //         ),
+  //         child: Column(
+  //           children: [
+  //             ListTile(
+  //               leading: const Icon(Icons.group),
+  //               title: const Text('Создать группу'),
+  //               onTap: () => setState(() {
+  //                 _showCreateOptions = false;
+  //                 _showGroupCreation = true;
+  //               }),
+  //             ),
+  //             ListTile(
+  //               leading: const Icon(Icons.person_add),
+  //               title: const Text('Создать контакт'),
+  //               onTap: () {
+  //                 setState(() => _showCreateOptions = false);
+  //                 Navigator.push(
+  //                   context,
+  //                   MaterialPageRoute(
+  //                     builder: (context) => ContactSelectionPage(
+  //                       users: _allUsers,
+  //                       avatarBaseUrl: _avatarBaseUrl,
+  //                       accessToken: accessToken,
+  //                     ),
+  //                   ),
+  //                 );
+  //               },
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  Widget _buildGroupCreationOverlay() {
+    return Positioned.fill(
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => setState(() => _showGroupCreation = false),
           ),
+          actions: [
+            TextButton(
+              onPressed: _createGroup,
+              child: const Text('Создать'),
+            ),
+          ],
+        ),
+        body: SingleChildScrollView(
           child: Column(
             children: [
-              ListTile(
-                leading: const Icon(Icons.group),
-                title: const Text('Создать группу'),
-                onTap: () => setState(() {
-                  _showCreateOptions = false;
-                  _showGroupCreation = true;
-                }),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: TextField(
+                  controller: _groupNameController,
+                  decoration:
+                      const InputDecoration(hintText: 'Название группы'),
+                ),
               ),
-              ListTile(
-                leading: const Icon(Icons.person_add),
-                title: const Text('Создать контакт'),
-                onTap: () {
-                  setState(() => _showCreateOptions = false);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ContactSelectionPage(
-                        users: _allUsers,
-                        avatarBaseUrl: _avatarBaseUrl,
-                        accessToken: accessToken,
-                      ),
+              const Divider(),
+              const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text('Участники',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+              ),
+              ..._allUsers.map((user) => CheckboxListTile(
+                    title: Text('${user.firstName} ${user.lastName}'),
+                    subtitle: Text(user.appointment ?? ''),
+                    value: _selectedUsers[user.id!] ?? false,
+                    onChanged: (value) =>
+                        setState(() => _selectedUsers[user.id!] = value!),
+                    secondary: CircleAvatar(
+                      radius: 20,
+                      child: user.avatarUrl != null
+                          ? ClipOval(
+                              child: CachedNetworkImage(
+                                imageUrl: user.avatarUrl!.startsWith('http')
+                                    ? user.avatarUrl!
+                                    : '$_avatarBaseUrl${user.avatarUrl!.startsWith('/') ? user.avatarUrl!.substring(1) : user.avatarUrl}',
+                                httpHeaders: {
+                                  'Authorization': 'Bearer $accessToken'
+                                },
+                                placeholder: (context, url) => Container(
+                                  color: Colors.grey,
+                                  child: const Icon(Icons.person, size: 20),
+                                ),
+                                errorWidget: (context, url, error) =>
+                                    const Icon(Icons.error, size: 20),
+                                fit: BoxFit.cover,
+                                width: 40,
+                                height: 40,
+                              ),
+                            )
+                          : const Icon(Icons.person),
                     ),
-                  );
-                },
-              ),
+                  )),
             ],
           ),
         ),
       ),
     );
   }
-
-  Widget _buildGroupCreationOverlay() {
-  return Positioned.fill(
-    child: Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => setState(() => _showGroupCreation = false),
-        ),
-        actions: [
-          TextButton(
-            onPressed: _createGroup,
-            child: const Text('Создать'),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 16),
-            GestureDetector(
-              onTap: _pickImage,
-              child: CircleAvatar(
-                radius: 50,
-                backgroundColor: Colors.grey[200],
-                backgroundImage: 
-                    _groupImage != null ? FileImage(_groupImage!) : null,
-                child: _groupImage == null
-                    ? const Icon(Icons.camera_alt, size: 40)
-                    : null,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: TextField(
-                controller: _groupNameController,
-                decoration: 
-                    const InputDecoration(hintText: 'Название группы'),
-              ),
-            ),
-            const Divider(),
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text('Участники',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-              ),
-            ),
-            ..._allUsers.map((user) => CheckboxListTile(
-              title: Text('${user.firstName} ${user.lastName}'),
-              subtitle: Text(user.appointment ?? ''),
-              value: _selectedUsers[user.id!] ?? false,
-              onChanged: (value) =>
-                  setState(() => _selectedUsers[user.id!] = value!),
-              secondary: CircleAvatar(
-                radius: 20,
-                child: user.avatarUrl != null
-                    ? ClipOval(
-                        child: CachedNetworkImage(
-                          imageUrl: user.avatarUrl!.startsWith('http')
-                              ? user.avatarUrl!
-                              : '$_avatarBaseUrl${user.avatarUrl!.startsWith('/') 
-                                  ? user.avatarUrl!.substring(1) 
-                                  : user.avatarUrl}',
-                          httpHeaders: 
-                              {'Authorization': 'Bearer $accessToken'},
-                          placeholder: (context, url) => Container(
-                            color: Colors.grey,
-                            child: const Icon(Icons.person, size: 20),
-                          ),
-                          errorWidget: (context, url, error) => 
-                              const Icon(Icons.error, size: 20),
-                          fit: BoxFit.cover,
-                          width: 40,
-                          height: 40,
-                        ),
-                      )
-                    : const Icon(Icons.person),
-              ),
-            )),
-          ],
-        ),
-      ),
-    ),
-  );
-}
 }

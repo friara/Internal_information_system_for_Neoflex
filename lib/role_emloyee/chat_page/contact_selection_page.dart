@@ -1,9 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:openapi/openapi.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:news_feed_neoflex/features/auth/auth_repository_impl.dart';
 import 'package:get_it/get_it.dart';
-
 
 class ContactSelectionPage extends StatelessWidget {
   final List<UserDTO> users;
@@ -14,11 +13,14 @@ class ContactSelectionPage extends StatelessWidget {
     super.key,
     required this.users,
     required this.avatarBaseUrl,
-    required this.accessToken
+    required this.accessToken,
   });
 
   @override
   Widget build(BuildContext context) {
+    final dio = GetIt.I<Dio>();
+    final baseUrl = dio.options.baseUrl;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Выберите контакт'),
@@ -27,18 +29,20 @@ class ContactSelectionPage extends StatelessWidget {
         itemCount: users.length,
         itemBuilder: (context, index) {
           final user = users[index];
+          final avatarUrl = user.avatarUrl != null
+              ? user.avatarUrl!.startsWith('http')
+                  ? user.avatarUrl!
+                  : '$baseUrl${user.avatarUrl!.startsWith('/') ? user.avatarUrl : '/${user.avatarUrl}'}'
+              : null;
+
           return ListTile(
             leading: CircleAvatar(
               radius: 20,
               backgroundColor: Colors.grey[200],
-              child: user.avatarUrl != null
+              child: avatarUrl != null
                   ? ClipOval(
                       child: CachedNetworkImage(
-                        imageUrl: user.avatarUrl!.startsWith('http')
-                            ? user.avatarUrl!
-                            : '$avatarBaseUrl${user.avatarUrl!.startsWith('/') 
-                                ? user.avatarUrl!.substring(1) 
-                                : user.avatarUrl}',
+                        imageUrl: avatarUrl,
                         httpHeaders: {'Authorization': 'Bearer $accessToken'},
                         placeholder: (context, url) => Container(
                           color: Colors.grey,
@@ -56,7 +60,7 @@ class ContactSelectionPage extends StatelessWidget {
             title: Text('${user.firstName} ${user.lastName}'),
             subtitle: Text(user.appointment ?? ''),
             onTap: () {
-              Navigator.pop(context, user);
+              Navigator.pop(context, user.id);
             },
           );
         },
@@ -64,50 +68,3 @@ class ContactSelectionPage extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-// import 'package:flutter/material.dart';
-// import 'package:openapi/openapi.dart';
-
-// class ContactSelectionPage extends StatelessWidget {
-//   final List<UserDTO> users;
-
-//   const ContactSelectionPage({
-//     super.key,
-//     required this.users,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Выберите контакт'),
-//       ),
-//       body: ListView.builder(
-//         itemCount: users.length,
-//         itemBuilder: (context, index) {
-//           final user = users[index];
-//           return ListTile(
-//             leading: CircleAvatar(
-//               backgroundImage:
-//                   user.avatarUrl != null ? NetworkImage(user.avatarUrl!) : null,
-//               child: user.avatarUrl == null ? const Icon(Icons.person) : null,
-//             ),
-//             title: Text('${user.firstName} ${user.lastName}'),
-//             subtitle: Text(user.appointment ?? ''),
-//             onTap: () {
-//               Navigator.pop(context, user);
-//             },
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }
