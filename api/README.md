@@ -92,6 +92,11 @@ Class | Method | HTTP request | Description
 [*MessageControllerApi*](doc/MessageControllerApi.md) | [**getChatMessages**](doc/MessageControllerApi.md#getchatmessages) | **GET** /api/chats/{chatId}/messages | 
 [*MessageControllerApi*](doc/MessageControllerApi.md) | [**getMessage**](doc/MessageControllerApi.md#getmessage) | **GET** /api/chats/{chatId}/messages/{messageId} | 
 [*MessageControllerApi*](doc/MessageControllerApi.md) | [**updateMessage**](doc/MessageControllerApi.md#updatemessage) | **PUT** /api/chats/{chatId}/messages/{messageId} | 
+[*NotificationControllerApi*](doc/NotificationControllerApi.md) | [**getNotifications**](doc/NotificationControllerApi.md#getnotifications) | **GET** /api/notifications | 
+[*NotificationControllerApi*](doc/NotificationControllerApi.md) | [**getNotificationsCount**](doc/NotificationControllerApi.md#getnotificationscount) | **GET** /api/notifications/count | 
+[*NotificationControllerApi*](doc/NotificationControllerApi.md) | [**markAllAsRead**](doc/NotificationControllerApi.md#markallasread) | **PATCH** /api/notifications/read-all | 
+[*NotificationControllerApi*](doc/NotificationControllerApi.md) | [**markAsRead**](doc/NotificationControllerApi.md#markasread) | **PATCH** /api/notifications/{id}/read | 
+[*NotificationControllerApi*](doc/NotificationControllerApi.md) | [**markAsReadForChat**](doc/NotificationControllerApi.md#markasreadforchat) | **PATCH** /api/notifications/chat/{id}/read | 
 [*PostControllerApi*](doc/PostControllerApi.md) | [**createPost**](doc/PostControllerApi.md#createpost) | **POST** /api/posts | 
 [*PostControllerApi*](doc/PostControllerApi.md) | [**deletePost**](doc/PostControllerApi.md#deletepost) | **DELETE** /api/posts/{id} | 
 [*PostControllerApi*](doc/PostControllerApi.md) | [**getAllPosts**](doc/PostControllerApi.md#getallposts) | **GET** /api/posts | 
@@ -128,6 +133,7 @@ Class | Method | HTTP request | Description
  - [LikeDTO](doc/LikeDTO.md)
  - [MediaDTO](doc/MediaDTO.md)
  - [MessageDTO](doc/MessageDTO.md)
+ - [MessageNotification](doc/MessageNotification.md)
  - [PageBookingDTO](doc/PageBookingDTO.md)
  - [PageChatSummaryDTO](doc/PageChatSummaryDTO.md)
  - [PageLikeDTO](doc/PageLikeDTO.md)

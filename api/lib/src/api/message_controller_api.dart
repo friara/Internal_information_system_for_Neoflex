@@ -28,6 +28,7 @@ class MessageControllerApi {
   /// * [chatId] 
   /// * [text] 
   /// * [files] 
+  /// * [fileUpload] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -41,6 +42,7 @@ class MessageControllerApi {
     required int chatId,
     String? text,
     BuiltList<MultipartFile>? files,
+    bool? fileUpload,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -68,6 +70,7 @@ class MessageControllerApi {
       _bodyData = FormData.fromMap(<String, dynamic>{
         if (text != null) r'text': encodeFormParameter(_serializers, text, const FullType(String)),
         if (files != null) r'files': files.toList(),
+        if (fileUpload != null) r'fileUpload': encodeFormParameter(_serializers, fileUpload, const FullType(bool)),
       });
 
     } catch(error, stackTrace) {
@@ -344,6 +347,7 @@ class MessageControllerApi {
   /// * [messageId] 
   /// * [text] 
   /// * [files] 
+  /// * [fileUpload] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -358,6 +362,7 @@ class MessageControllerApi {
     required int messageId,
     String? text,
     BuiltList<MultipartFile>? files,
+    bool? fileUpload,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -385,6 +390,7 @@ class MessageControllerApi {
       _bodyData = FormData.fromMap(<String, dynamic>{
         if (text != null) r'text': encodeFormParameter(_serializers, text, const FullType(String)),
         if (files != null) r'files': files.toList(),
+        if (fileUpload != null) r'fileUpload': encodeFormParameter(_serializers, fileUpload, const FullType(bool)),
       });
 
     } catch(error, stackTrace) {

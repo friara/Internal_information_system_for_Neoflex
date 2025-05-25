@@ -3,67 +3,62 @@
 //
 
 // ignore_for_file: unused_element
-import 'package:openapi/src/model/message_dto.dart';
-import 'package:openapi/src/model/user_dto.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
-part 'message_notification_dto.g.dart';
+part 'message_notification.g.dart';
 
-/// MessageNotificationDTO
+/// Message notification details
 ///
 /// Properties:
-/// * [id] 
-/// * [recipient] 
-/// * [sender] 
-/// * [content] 
-/// * [timestamp] 
-/// * [linkedMessage] 
-/// * [read] 
+/// * [id] - Unique identifier
+/// * [sender] - Sender id
+/// * [content] - Message content
+/// * [timestamp] - Timestamp of the message
+/// * [chatId] - Chat id
 @BuiltValue()
-abstract class MessageNotificationDTO implements Built<MessageNotificationDTO, MessageNotificationDTOBuilder> {
+abstract class MessageNotification implements Built<MessageNotification, MessageNotificationBuilder> {
+  /// Unique identifier
   @BuiltValueField(wireName: r'id')
   int? get id;
 
-  @BuiltValueField(wireName: r'recipient')
-  UserDTO? get recipient;
-
+  /// Sender id
   @BuiltValueField(wireName: r'sender')
-  UserDTO? get sender;
+  int? get sender;
 
+  /// Message content
   @BuiltValueField(wireName: r'content')
   String? get content;
 
+  /// Timestamp of the message
   @BuiltValueField(wireName: r'timestamp')
   DateTime? get timestamp;
 
-  @BuiltValueField(wireName: r'linkedMessage')
-  MessageDTO? get linkedMessage;
+  /// Chat id
+  @BuiltValueField(wireName: r'chatId')
+  int? get chatId;
 
-  @BuiltValueField(wireName: r'read')
-  bool? get read;
+  MessageNotification._();
 
-  MessageNotificationDTO._();
-
-  factory MessageNotificationDTO([void updates(MessageNotificationDTOBuilder b)]) = _$MessageNotificationDTO;
+  factory MessageNotification([void updates(MessageNotificationBuilder b)]) = _$MessageNotification;
 
   @BuiltValueHook(initializeBuilder: true)
-  static void _defaults(MessageNotificationDTOBuilder b) => b;
+  static void _defaults(MessageNotificationBuilder b) => b;
 
   @BuiltValueSerializer(custom: true)
-  static Serializer<MessageNotificationDTO> get serializer => _$MessageNotificationDTOSerializer();
+  static Serializer<MessageNotification> get serializer => _$MessageNotificationSerializer();
 }
 
-class _$MessageNotificationDTOSerializer implements PrimitiveSerializer<MessageNotificationDTO> {
+class _$MessageNotificationSerializer implements PrimitiveSerializer<MessageNotification> {
   @override
-  final Iterable<Type> types = const [MessageNotificationDTO, _$MessageNotificationDTO];
+  final Iterable<Type> types = const [MessageNotification, _$MessageNotification];
 
   @override
-  final String wireName = r'MessageNotificationDTO';
+  final String wireName = r'MessageNotification';
 
   Iterable<Object?> _serializeProperties(
     Serializers serializers,
-    MessageNotificationDTO object, {
+    MessageNotification object, {
     FullType specifiedType = FullType.unspecified,
   }) sync* {
     if (object.id != null) {
@@ -73,18 +68,11 @@ class _$MessageNotificationDTOSerializer implements PrimitiveSerializer<MessageN
         specifiedType: const FullType(int),
       );
     }
-    if (object.recipient != null) {
-      yield r'recipient';
-      yield serializers.serialize(
-        object.recipient,
-        specifiedType: const FullType(UserDTO),
-      );
-    }
     if (object.sender != null) {
       yield r'sender';
       yield serializers.serialize(
         object.sender,
-        specifiedType: const FullType(UserDTO),
+        specifiedType: const FullType(int),
       );
     }
     if (object.content != null) {
@@ -101,18 +89,11 @@ class _$MessageNotificationDTOSerializer implements PrimitiveSerializer<MessageN
         specifiedType: const FullType(DateTime),
       );
     }
-    if (object.linkedMessage != null) {
-      yield r'linkedMessage';
+    if (object.chatId != null) {
+      yield r'chatId';
       yield serializers.serialize(
-        object.linkedMessage,
-        specifiedType: const FullType(MessageDTO),
-      );
-    }
-    if (object.read != null) {
-      yield r'read';
-      yield serializers.serialize(
-        object.read,
-        specifiedType: const FullType(bool),
+        object.chatId,
+        specifiedType: const FullType(int),
       );
     }
   }
@@ -120,7 +101,7 @@ class _$MessageNotificationDTOSerializer implements PrimitiveSerializer<MessageN
   @override
   Object serialize(
     Serializers serializers,
-    MessageNotificationDTO object, {
+    MessageNotification object, {
     FullType specifiedType = FullType.unspecified,
   }) {
     return _serializeProperties(serializers, object, specifiedType: specifiedType).toList();
@@ -131,7 +112,7 @@ class _$MessageNotificationDTOSerializer implements PrimitiveSerializer<MessageN
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
     required List<Object?> serializedList,
-    required MessageNotificationDTOBuilder result,
+    required MessageNotificationBuilder result,
     required List<Object?> unhandled,
   }) {
     for (var i = 0; i < serializedList.length; i += 2) {
@@ -145,19 +126,12 @@ class _$MessageNotificationDTOSerializer implements PrimitiveSerializer<MessageN
           ) as int;
           result.id = valueDes;
           break;
-        case r'recipient':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(UserDTO),
-          ) as UserDTO;
-          result.recipient.replace(valueDes);
-          break;
         case r'sender':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(UserDTO),
-          ) as UserDTO;
-          result.sender.replace(valueDes);
+            specifiedType: const FullType(int),
+          ) as int;
+          result.sender = valueDes;
           break;
         case r'content':
           final valueDes = serializers.deserialize(
@@ -173,19 +147,12 @@ class _$MessageNotificationDTOSerializer implements PrimitiveSerializer<MessageN
           ) as DateTime;
           result.timestamp = valueDes;
           break;
-        case r'linkedMessage':
+        case r'chatId':
           final valueDes = serializers.deserialize(
             value,
-            specifiedType: const FullType(MessageDTO),
-          ) as MessageDTO;
-          result.linkedMessage.replace(valueDes);
-          break;
-        case r'read':
-          final valueDes = serializers.deserialize(
-            value,
-            specifiedType: const FullType(bool),
-          ) as bool;
-          result.read = valueDes;
+            specifiedType: const FullType(int),
+          ) as int;
+          result.chatId = valueDes;
           break;
         default:
           unhandled.add(key);
@@ -196,12 +163,12 @@ class _$MessageNotificationDTOSerializer implements PrimitiveSerializer<MessageN
   }
 
   @override
-  MessageNotificationDTO deserialize(
+  MessageNotification deserialize(
     Serializers serializers,
     Object serialized, {
     FullType specifiedType = FullType.unspecified,
   }) {
-    final result = MessageNotificationDTOBuilder();
+    final result = MessageNotificationBuilder();
     final serializedList = (serialized as Iterable<Object?>).toList();
     final unhandled = <Object?>[];
     _deserializeProperties(

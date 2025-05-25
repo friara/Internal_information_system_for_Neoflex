@@ -15,6 +15,7 @@ part 'file_dto.g.dart';
 /// * [fileName] 
 /// * [fileUrl] 
 /// * [fileType] 
+/// * [fileSize] 
 /// * [uploadedWhen] 
 /// * [uploadedBy] 
 /// * [messageId] 
@@ -31,6 +32,9 @@ abstract class FileDTO implements Built<FileDTO, FileDTOBuilder> {
 
   @BuiltValueField(wireName: r'fileType')
   String? get fileType;
+
+  @BuiltValueField(wireName: r'fileSize')
+  int? get fileSize;
 
   @BuiltValueField(wireName: r'uploadedWhen')
   DateTime? get uploadedWhen;
@@ -90,6 +94,13 @@ class _$FileDTOSerializer implements PrimitiveSerializer<FileDTO> {
       yield serializers.serialize(
         object.fileType,
         specifiedType: const FullType(String),
+      );
+    }
+    if (object.fileSize != null) {
+      yield r'fileSize';
+      yield serializers.serialize(
+        object.fileSize,
+        specifiedType: const FullType(int),
       );
     }
     if (object.uploadedWhen != null) {
@@ -163,6 +174,13 @@ class _$FileDTOSerializer implements PrimitiveSerializer<FileDTO> {
             specifiedType: const FullType(String),
           ) as String;
           result.fileType = valueDes;
+          break;
+        case r'fileSize':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType(int),
+          ) as int;
+          result.fileSize = valueDes;
           break;
         case r'uploadedWhen':
           final valueDes = serializers.deserialize(

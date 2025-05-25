@@ -17,6 +17,8 @@ import 'package:news_feed_neoflex/role_manager/users_page/user_profile_page.dart
 import 'package:openapi/openapi.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:badges/badges.dart' as badges;
+import 'package:news_feed_neoflex/features/notification/presentation/notifications_page.dart';
 
 class NewsFeed extends StatefulWidget {
   const NewsFeed({super.key});
@@ -55,6 +57,8 @@ class NewsFeedState extends State<NewsFeed> {
   bool _showDeleteOption = false; // Показывать ли опцию удаления
   int? _commentToDelete;
 
+  int _notificationCount = 0;
+
   @override
   void initState() {
     super.initState();
@@ -85,6 +89,8 @@ class NewsFeedState extends State<NewsFeed> {
       _loadUserRole(),
       loadPosts(),
     ]);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadNotificationCount());
   }
 
   @override
@@ -114,6 +120,18 @@ class NewsFeedState extends State<NewsFeed> {
       });
     }
   }
+
+  Future<void> _loadNotificationCount() async {
+  try {
+    final api = GetIt.I<Openapi>().getNotificationControllerApi();
+    final response = await api.getNotificationsCount();
+    if (mounted) {
+      setState(() => _notificationCount = response.data ?? 0);
+    }
+  } catch (e) {
+    debugPrint('Error loading notification count: $e');
+  }
+}
 
   Future<void> _loadUserRole() async {
     try {
@@ -1247,10 +1265,36 @@ class NewsFeedState extends State<NewsFeed> {
                 }
               },
             ),
-          // IconButton(
-          //   icon: const Icon(Icons.notifications_none),
-          //   onPressed: () {},
-          // ),
+          IconButton(
+            icon: badges.Badge(
+              showBadge: _notificationCount > 0,
+              badgeContent: Text(
+                '$_notificationCount',
+                style: const TextStyle(color: Colors.white),
+              ),
+              child: const Icon(Icons.notifications_none),
+            ),
+            onPressed: () async {
+              final userApi = GetIt.I<Openapi>().getUserControllerApi();
+              final currentUser = await userApi.getCurrentUser();
+              if (currentUser.data != null) {
+                // Добавьте await и обновление после возврата
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NotificationsPage(
+                      currentUserId: currentUser.data!.id!,
+                    ),
+                  ),
+                );
+                
+                // Обновляем счетчик после закрытия страницы уведомлений
+                if (mounted) {
+                  await _loadNotificationCount();
+                }
+              }
+            },
+          ),
         ],
         surfaceTintColor: const Color.fromARGB(255, 100, 29, 113),
       ),
