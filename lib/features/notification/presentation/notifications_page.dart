@@ -24,7 +24,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   late final NotificationControllerApi _notificationApi;
   late final UserControllerApi _userApi;
   late final ChatControllerApi _chatApi;
-  
+
   List<MessageNotification> _notifications = [];
   final Map<int, UserDTO> _userCache = {};
   final Map<int, ChatDTO> _chatCache = {};
@@ -51,7 +51,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
       }
     });
 
-
     _notificationApi = GetIt.I<Openapi>().getNotificationControllerApi();
     _userApi = GetIt.I<Openapi>().getUserControllerApi();
     _chatApi = GetIt.I<Openapi>().getChatControllerApi();
@@ -62,10 +61,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
     try {
       final notificationsResponse = await _notificationApi.getNotifications();
       final notifications = notificationsResponse.data?.toList() ?? [];
-      
+
       // Собираем уникальные ID пользователей и чатов
-      final userIds = notifications.map((n) => n.sender).whereType<int>().toSet();
-      final chatIds = notifications.map((n) => n.chatId).whereType<int>().toSet();
+      final userIds =
+          notifications.map((n) => n.sender).whereType<int>().toSet();
+      final chatIds =
+          notifications.map((n) => n.chatId).whereType<int>().toSet();
 
       // Параллельная загрузка дополнительных данных
       await Future.wait([
@@ -91,7 +92,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   Future<void> _loadUsers(Set<int> userIds) async {
     for (final userId in userIds) {
       if (_userCache.containsKey(userId)) continue;
-      
+
       try {
         final response = await _userApi.getUserById(id: userId);
         if (response.data != null) {
@@ -235,8 +236,7 @@ class _NotificationItem extends StatelessWidget {
   Widget _buildAvatar() {
     final avatarUrl = _getAvatarUrl();
     return avatarUrl.isEmpty
-        ? CircleAvatar(
-            child: Text(_userName.isNotEmpty ? _userName[0] : '?'))
+        ? CircleAvatar(child: Text(_userName.isNotEmpty ? _userName[0] : '?'))
         : ClipOval(
             child: CachedNetworkImage(
               imageUrl: avatarUrl,
@@ -297,7 +297,7 @@ class _NotificationItem extends StatelessWidget {
           ],
         ),
         trailing: const Icon(Icons.circle, size: 12, color: Colors.purple),
-            //: null,
+        //: null,
         onTap: onTap,
       ),
     );
