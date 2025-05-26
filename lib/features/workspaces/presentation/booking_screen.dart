@@ -110,8 +110,8 @@ class _WorkspaceSelectorState extends State<WorkspaceSelector> {
     //   });
     // }
     setState(() {
-            data = loadWorkspaces();
-          });
+      data = loadWorkspaces();
+    });
   }
 
   Future<WorkspaceData> loadWorkspaces() async {
@@ -121,7 +121,8 @@ class _WorkspaceSelectorState extends State<WorkspaceSelector> {
     final size = Size(double.parse(viewBox[2]), double.parse(viewBox[3]));
 
     final workspacesDTO = widget.startTime != null && widget.endTime != null
-        ? await _repository.getAvailableWorkspaces(widget.startTime!, widget.endTime!)
+        ? await _repository.getAvailableWorkspaces(
+            widget.startTime!, widget.endTime!)
         : await _repository.getWorkspaces();
 
     final workspaceMap = <String, Workspace>{};
@@ -184,7 +185,9 @@ class _WorkspaceSelectorState extends State<WorkspaceSelector> {
                     Positioned.fromRect(
                       rect: entry.value.rect,
                       child: GestureDetector(
-                        onTap: entry.value.available ? () => widget.onWorkspaceTap(entry.key) : null,
+                        onTap: entry.value.available
+                            ? () => widget.onWorkspaceTap(entry.key)
+                            : null,
                         child: Container(
                           decoration: ShapeDecoration(
                             color: _getWorkspaceColor(entry.value),
@@ -216,13 +219,13 @@ Future<String> loadSvgString() async {
 class BookingDialog extends StatefulWidget {
   final String workspaceId;
   final DateTime initialStart; // Изменили на обязательный параметр
-  final DateTime initialEnd;    // Изменили на обязательный параметр
+  final DateTime initialEnd; // Изменили на обязательный параметр
 
   const BookingDialog({
     super.key,
     required this.workspaceId,
     required this.initialStart, // Добавили required
-    required this.initialEnd,   // Добавили required
+    required this.initialEnd, // Добавили required
   });
 
   @override
@@ -301,7 +304,6 @@ class _BookingDialogState extends State<BookingDialog> {
   }
 }
 
-
 class WorkspacesScreen extends StatefulWidget {
   const WorkspacesScreen({super.key});
 
@@ -369,7 +371,8 @@ class _WorkspacesScreenState extends State<WorkspacesScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Дата: ${_formatDate(booking.bookingStart)}'),
-            Text('Время: ${_formatTime(booking.bookingStart)} - ${_formatTime(booking.bookingEnd)}'),
+            Text(
+                'Время: ${_formatTime(booking.bookingStart)} - ${_formatTime(booking.bookingEnd)}'),
           ],
         ),
         trailing: IconButton(
@@ -385,7 +388,8 @@ class _WorkspacesScreenState extends State<WorkspacesScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Отменить бронирование?'),
-        content: const Text('Вы уверены, что хотите отменить это бронирование?'),
+        content:
+            const Text('Вы уверены, что хотите отменить это бронирование?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -396,7 +400,8 @@ class _WorkspacesScreenState extends State<WorkspacesScreen> {
               Navigator.pop(context);
               _cancelBooking(bookingId);
             },
-            child: const Text('Подтвердить', style: TextStyle(color: Colors.red)),
+            child:
+                const Text('Подтвердить', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -404,15 +409,13 @@ class _WorkspacesScreenState extends State<WorkspacesScreen> {
   }
 
   String _formatDate(DateTime? date) {
-    return date != null 
+    return date != null
         ? intl.DateFormat('dd.MM.yyyy').format(date)
         : '--.--.----';
   }
 
   String _formatTime(DateTime? time) {
-    return time != null 
-      ? intl.DateFormat('HH:mm').format(time)
-      : '--:--';
+    return time != null ? intl.DateFormat('HH:mm').format(time) : '--:--';
   }
 
   Future<void> _loadUserRole() async {
@@ -437,12 +440,12 @@ class _WorkspacesScreenState extends State<WorkspacesScreen> {
 
   DateTime _getNextWeekday(DateTime date) {
     // Keep adding days until we find a weekday (Mon-Fri)
-    while (date.weekday == DateTime.saturday || date.weekday == DateTime.sunday) {
+    while (
+        date.weekday == DateTime.saturday || date.weekday == DateTime.sunday) {
       date = date.add(const Duration(days: 1));
     }
     return date;
   }
-
 
   Future<void> _selectTimeRange() async {
     final DateTime initialDate = _getNextWeekday(DateTime.now());
@@ -453,7 +456,8 @@ class _WorkspacesScreenState extends State<WorkspacesScreen> {
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
       selectableDayPredicate: (DateTime date) {
-        return date.weekday != DateTime.saturday && date.weekday != DateTime.sunday;
+        return date.weekday != DateTime.saturday &&
+            date.weekday != DateTime.sunday;
       },
     );
 
@@ -470,7 +474,7 @@ class _WorkspacesScreenState extends State<WorkspacesScreen> {
         minDuration: const Duration(minutes: 15),
         maxDuration: const Duration(hours: 9),
         disabledColor: Colors.red.withOpacity(0.5),
-);
+      );
 
       if (timeRange != null) {
         setState(() {
@@ -597,8 +601,20 @@ class _WorkspacesScreenState extends State<WorkspacesScreen> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Выбор рабочего места'),
+        foregroundColor: Colors.purple,
         automaticallyImplyLeading: false,
+        title: const Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            "Выбор рабочего места",
+            style: TextStyle(
+              fontFamily: 'Osmo Font',
+              fontSize: 36.0,
+              color: Colors.purple,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.timer),
@@ -625,10 +641,10 @@ class _WorkspacesScreenState extends State<WorkspacesScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: Text(
-                      _selectedStart == null 
-                        ? 'Выберите время'
-                        : '${intl.DateFormat('dd.MM.yyyy HH:mm').format(_selectedStart!)} - '
-                          '${intl.DateFormat('HH:mm').format(_selectedEnd!)}',
+                      _selectedStart == null
+                          ? 'Выберите время'
+                          : '${intl.DateFormat('dd.MM.yyyy HH:mm').format(_selectedStart!)} - '
+                              '${intl.DateFormat('HH:mm').format(_selectedEnd!)}',
                       style: const TextStyle(fontSize: 16),
                     ),
                   ),
@@ -639,11 +655,12 @@ class _WorkspacesScreenState extends State<WorkspacesScreen> {
                       onWorkspaceTap: (workspaceId) {
                         if (_selectedStart == null || _selectedEnd == null) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Сначала выберите время')),
+                            const SnackBar(
+                                content: Text('Сначала выберите время')),
                           );
                           return;
                         }
-                        
+
                         showDialog(
                           context: context,
                           builder: (context) => BookingDialog(
@@ -657,7 +674,8 @@ class _WorkspacesScreenState extends State<WorkspacesScreen> {
                             _refreshBookings();
                           }
                         });
-                      },),
+                      },
+                    ),
                     //   onWorkspaceTap: (workspaceId) => showDialog(
                     //     context: context,
                     //     builder: (context) => BookingDialog(
@@ -685,28 +703,33 @@ class _WorkspacesScreenState extends State<WorkspacesScreen> {
                     padding: EdgeInsets.all(8.0),
                     child: Text(
                       'Мои бронирования',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
                   Expanded(
                     child: FutureBuilder<List<BookingDTO>>(
                       future: _bookingsFuture,
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
                         }
                         if (snapshot.hasError) {
-                          return Center(child: Text('Ошибка: ${snapshot.error}'));
+                          return Center(
+                              child: Text('Ошибка: ${snapshot.error}'));
                         }
                         final bookings = snapshot.data ?? [];
                         if (bookings.isEmpty) {
-                          return const Center(child: Text('Нет активных бронирований'));
+                          return const Center(
+                              child: Text('Нет активных бронирований'));
                         }
                         return RefreshIndicator(
                           onRefresh: _refreshBookings,
                           child: ListView.builder(
                             itemCount: bookings.length,
-                            itemBuilder: (context, index) => 
+                            itemBuilder: (context, index) =>
                                 _buildBookingItem(bookings[index]),
                           ),
                         );

@@ -17,6 +17,7 @@ class UserProfilePage extends StatefulWidget {
   final Function(int) onDelete;
   final Function(File?) onAvatarChanged;
   final bool isAdmin;
+  final int? currentUserId;
 
   const UserProfilePage({
     super.key,
@@ -27,6 +28,7 @@ class UserProfilePage extends StatefulWidget {
     required this.onDelete,
     required this.onAvatarChanged,
     this.isAdmin = false,
+    this.currentUserId,
   });
 
   @override
@@ -48,10 +50,15 @@ class _UserProfilePageState extends State<UserProfilePage> {
   Color colorForLabel = const Color.fromARGB(255, 104, 102, 102);
   int _selectedIndex = 3;
   bool _isRoleLoaded = false;
+  bool _isCurrentUser = false;
 
   @override
   void initState() {
     _initializeData();
+    final profileUserId = int.tryParse(widget.userData['id'] ?? '');
+    _isCurrentUser = profileUserId != null &&
+        widget.currentUserId != null &&
+        profileUserId == widget.currentUserId;
     setState(() {
       _isRoleLoaded = true;
     });
@@ -126,8 +133,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
         await _uploadAvatar(_avatarImage!);
       }
 
-      // Для сотрудника используем оригинальные значения должности и роли
-      // Для администратора - текущие значения из полей
       final position = widget.isAdmin
           ? _positionController.text
           : widget.userData['position'] ?? '';
@@ -237,9 +242,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   void _showSnackBar(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? Colors.red : Colors.green,
-      ),
+          content: Text(message), backgroundColor: isError ? Colors.red : null),
     );
   }
 
@@ -354,7 +357,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
           children: [
             const SizedBox(height: 20),
             GestureDetector(
-              onTap: _pickImage,
+              onTap: _isCurrentUser ? _pickImage : null,
               child: _buildAvatar(),
             ),
             const SizedBox(height: 20),
@@ -397,25 +400,27 @@ class _UserProfilePageState extends State<UserProfilePage> {
               readOnly: !widget.isAdmin,
             ),
             if (widget.isAdmin) ...[
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () {
-                  final userId = int.tryParse(widget.userData['id'] ?? '');
-                  if (userId != null) {
-                    widget.onDelete(userId);
-                    Navigator.pop(context);
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
+              if (widget.isAdmin && !_isCurrentUser) ...[
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () {
+                    final userId = int.tryParse(widget.userData['id'] ?? '');
+                    if (userId != null) {
+                      widget.onDelete(userId);
+                      Navigator.pop(context);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 16),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text('Удалить профиль'),
                 ),
-                child: const Text('Удалить профиль'),
-              ),
+              ],
             ],
           ],
         ),

@@ -149,7 +149,20 @@ class _NotificationsPageState extends State<NotificationsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Уведомления'),
+        foregroundColor: Colors.purple,
+        automaticallyImplyLeading: true,
+        title: const Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            "Уведомления",
+            style: TextStyle(
+              fontFamily: 'Osmo Font',
+              fontSize: 36.0,
+              color: Colors.purple,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
         actions: [
           if (_unreadCount > 0)
             IconButton(

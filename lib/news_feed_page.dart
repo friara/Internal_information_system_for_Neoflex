@@ -90,7 +90,8 @@ class NewsFeedState extends State<NewsFeed> {
       loadPosts(),
     ]);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadNotificationCount());
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _loadNotificationCount());
   }
 
   @override
@@ -122,16 +123,16 @@ class NewsFeedState extends State<NewsFeed> {
   }
 
   Future<void> _loadNotificationCount() async {
-  try {
-    final api = GetIt.I<Openapi>().getNotificationControllerApi();
-    final response = await api.getNotificationsCount();
-    if (mounted) {
-      setState(() => _notificationCount = response.data ?? 0);
+    try {
+      final api = GetIt.I<Openapi>().getNotificationControllerApi();
+      final response = await api.getNotificationsCount();
+      if (mounted) {
+        setState(() => _notificationCount = response.data ?? 0);
+      }
+    } catch (e) {
+      debugPrint('Error loading notification count: $e');
     }
-  } catch (e) {
-    debugPrint('Error loading notification count: $e');
   }
-}
 
   Future<void> _loadUserRole() async {
     try {
@@ -1224,11 +1225,20 @@ class NewsFeedState extends State<NewsFeed> {
     }
     return Scaffold(
       appBar: AppBar(
-        foregroundColor: Colors.purple,
-        leading: const Icon(Icons.image),
+        backgroundColor: Colors.purple,
+        foregroundColor: Colors.white,
+        automaticallyImplyLeading: false,
         title: const Align(
           alignment: Alignment.centerLeft,
-          child: Text("Главная"),
+          child: Text(
+            "Neoflex",
+            style: TextStyle(
+              fontFamily: 'Osmo Font',
+              fontSize: 40.0,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
         actions: [
           IconButton(
@@ -1240,15 +1250,6 @@ class NewsFeedState extends State<NewsFeed> {
             },
           ),
           if (_isAdmin)
-            // IconButton(
-            //   icon: const Icon(Icons.add),
-            //   onPressed: () {
-            //     Navigator.push(
-            //       context,
-            //       MaterialPageRoute(builder: (context) => PublicationPage()),
-            //     );
-            //   },
-            // ),
             IconButton(
               icon: const Icon(Icons.add),
               onPressed: () async {
@@ -1287,7 +1288,7 @@ class NewsFeedState extends State<NewsFeed> {
                     ),
                   ),
                 );
-                
+
                 // Обновляем счетчик после закрытия страницы уведомлений
                 if (mounted) {
                   await _loadNotificationCount();
@@ -1296,7 +1297,6 @@ class NewsFeedState extends State<NewsFeed> {
             },
           ),
         ],
-        surfaceTintColor: const Color.fromARGB(255, 100, 29, 113),
       ),
       body: Column(
         children: [
@@ -1403,46 +1403,6 @@ class NewsFeedState extends State<NewsFeed> {
                                   ),
                               ],
                             ),
-                            //   if (showCommentInput.length > index &&
-                            //       showCommentInput[index]) ...[
-                            //     for (var comment in post.comments)
-                            //       Padding(
-                            //         padding: const EdgeInsets.symmetric(
-                            //             horizontal: 8.0),
-                            //         child: Text(
-                            //             '- ${comment.text}'), // Было просто '- $comment'
-                            //       ),
-                            //     Row(
-                            //       children: [
-                            //         Expanded(
-                            //           child: TextField(
-                            //             controller: _controller,
-                            //             onSubmitted: (value) =>
-                            //                 addComment(index, value),
-                            //             decoration: const InputDecoration(
-                            //               labelText: 'Напишите комментарий...',
-                            //             ),
-                            //           ),
-                            //         ),
-                            //         IconButton(
-                            //           icon: const Icon(Icons.send),
-                            //           onPressed: () {
-                            //             String commentText =
-                            //                 _controller.text.trim();
-                            //             addComment(index, commentText);
-                            //           },
-                            //         ),
-                            //       ],
-                            //     ),
-                            //   ],
-                            //   Padding(
-                            //     padding: const EdgeInsets.all(8.0),
-                            //     child: Text(
-                            //       post.text,
-                            //       textAlign: TextAlign.left,
-                            //     ),
-                            //   ),
-                            //   SizedBox(height: 50),
                           ],
                         );
                       },

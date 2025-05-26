@@ -23,7 +23,12 @@ class ContactSelectionPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Выберите контакт'),
+        foregroundColor: Colors.purple,
+        title: const Align(
+          alignment: Alignment.centerLeft,
+          child: Text("Выберите контакт"),
+        ),
+        surfaceTintColor: const Color.fromARGB(255, 100, 29, 113),
       ),
       body: ListView.builder(
         itemCount: users.length,

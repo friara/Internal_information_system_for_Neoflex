@@ -345,10 +345,17 @@ class _ListOfUsersState extends State<ListOfUsers> {
           children: [
             AppBar(
               foregroundColor: Colors.purple,
-              automaticallyImplyLeading: false,
               title: const Align(
                 alignment: Alignment.centerLeft,
-                child: Text("Список пользователей"),
+                child: Text(
+                  "Список пользователей",
+                  style: TextStyle(
+                    fontFamily: 'Osmo Font',
+                    fontSize: 36.0,
+                    color: Colors.purple,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
               actions: [
                 IconButton(
@@ -452,6 +459,8 @@ class _ListOfUsersState extends State<ListOfUsers> {
                             onAvatarChanged: (file) =>
                                 _updateAvatar(user, file),
                             isAdmin: true,
+                            currentUserId: GetIt.I<AuthRepositoryImpl>()
+                                .getCurrentUserId(),
                           ),
                         ),
                       );
