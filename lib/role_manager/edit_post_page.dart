@@ -9,6 +9,7 @@ import 'package:get_it/get_it.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
+import 'package:news_feed_neoflex/constans/app_style.dart';
 import 'package:news_feed_neoflex/features/auth/auth_repository_impl.dart';
 import 'package:openapi/openapi.dart';
 import 'package:path/path.dart' as p;
@@ -326,7 +327,10 @@ class _EditPostPageState extends State<EditPostPage> {
           icon: const Icon(Icons.close, color: Colors.purple),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Редактировать пост'),
+        title: const Text(
+          'Редактировать пост',
+          style: AppStyles.heading2,
+        ),
         centerTitle: true,
         surfaceTintColor: const Color.fromARGB(255, 100, 29, 113),
         actions: [
@@ -343,6 +347,7 @@ class _EditPostPageState extends State<EditPostPage> {
             children: [
               const SizedBox(height: 20),
               TextField(
+                style: AppStyles.textMain,
                 controller: _textController,
                 maxLines: null,
                 decoration: const InputDecoration(
@@ -410,9 +415,10 @@ class _EditPostPageState extends State<EditPostPage> {
                     ),
                     elevation: 0,
                   ),
-                  child: const Text('Добавить изображение',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'Добавить изображение',
+                    style: AppStyles.purpleButtonText,
+                  ),
                 ),
               ),
             ],
@@ -435,8 +441,7 @@ class _EditPostPageState extends State<EditPostPage> {
                     elevation: 0,
                   ),
                   child: const Text('Сохранить изменения',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      style: AppStyles.deleteButtonText),
                 ),
               ),
             ),

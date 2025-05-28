@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:news_feed_neoflex/constans/app_style.dart';
 import 'package:news_feed_neoflex/role_manager/users_page/date_format.dart';
 import 'package:news_feed_neoflex/role_manager/users_page/phone_format.dart';
 import 'package:openapi/openapi.dart';
@@ -129,7 +130,10 @@ class _CreateUserPageState extends State<CreateUserPage> {
               foregroundColor: Colors.purple,
               title: const Align(
                 alignment: Alignment.center,
-                child: Text("Создание пользователя"),
+                child: Text(
+                  "Создание пользователя",
+                  style: AppStyles.heading2,
+                ),
               ),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back),
@@ -387,8 +391,7 @@ class _CreateUserPageState extends State<CreateUserPage> {
                         borderRadius: BorderRadius.circular(8)),
                   ),
                   child: const Text('Сохранить',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      style: AppStyles.deleteButtonText),
                 ),
               ],
             ),

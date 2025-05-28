@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:news_feed_neoflex/constans/app_style.dart';
 import '../bloc/auth_bloc.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -33,16 +34,14 @@ class LoginScreen extends StatelessWidget {
                       context.read<AuthBloc>().add(LoginRequested());
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.purple,
+                      backgroundColor: AppStyles.purple,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 32, vertical: 16),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8)),
                     ),
-                    child: const Text('Войти',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
+                    child: const Text('Войти', style: AppStyles.exitButtonText),
                   ),
               ],
             ),

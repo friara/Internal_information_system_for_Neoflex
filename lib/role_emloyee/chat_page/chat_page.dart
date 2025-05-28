@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:news_feed_neoflex/app_routes.dart';
+import 'package:news_feed_neoflex/constans/app_style.dart';
 import 'package:news_feed_neoflex/role_manager/users_page/user_profile_page.dart';
 import 'package:openapi/openapi.dart';
 import 'package:news_feed_neoflex/features/auth/auth_repository_impl.dart';
@@ -423,12 +424,7 @@ class ChatPageState extends State<ChatPage> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Чаты",
-                  style: TextStyle(
-                    fontFamily: 'Sukplena',
-                    fontSize: 36.0,
-                    color: Colors.purple,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: AppStyles.heading2,
                 ),
               ),
               actions: [
@@ -476,27 +472,44 @@ class ChatPageState extends State<ChatPage> {
                 ),
               ),
               Expanded(
-                child: _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : ListView.builder(
-                        itemCount: filteredChats.length,
-                        itemBuilder: (context, index) => ListTile(
-                          title: Text(filteredChats[index].chatName ?? 'Чат'),
-                          subtitle: Text(
-                              filteredChats[index].lastMessagePreview ?? ''),
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PersonalChatPage(
-                                chatId: filteredChats[index].id!,
-                                currentUserId: _currentUserId!,
-                                onBack: () => _loadData(),
+                  child: _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : ListView.builder(
+                          itemCount: filteredChats.length,
+                          itemBuilder: (context, index) => MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: AnimatedContainer(
+                              duration: Duration(milliseconds: 200),
+                              margin: EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 4),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  left: BorderSide(
+                                    color: AppStyles.pink,
+                                    width: 4,
+                                  ),
+                                ),
+                              ),
+                              child: ListTile(
+                                title: Text(
+                                    filteredChats[index].chatName ?? 'Чат'),
+                                subtitle: Text(
+                                    filteredChats[index].lastMessagePreview ??
+                                        ''),
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => PersonalChatPage(
+                                      chatId: filteredChats[index].id!,
+                                      currentUserId: _currentUserId!,
+                                      onBack: () => _loadData(),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ),
-              ),
+                        )),
             ],
           ),
           if (_showCreateOptions) _buildCreateOptionsOverlay(),
@@ -524,7 +537,7 @@ class ChatPageState extends State<ChatPage> {
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        selectedItemColor: const Color(0xFF48036F),
+        selectedItemColor: AppStyles.purple,
         unselectedItemColor: Colors.grey,
       ),
     );

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:news_feed_neoflex/constans/app_style.dart';
 import 'package:openapi/openapi.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -53,7 +54,10 @@ class _GroupCreationPageState extends State<GroupCreationPage> {
         foregroundColor: Colors.purple,
         title: const Align(
           alignment: Alignment.centerLeft,
-          child: Text("Создание группы"),
+          child: Text(
+            "Создание группы",
+            style: AppStyles.heading2,
+          ),
         ),
         surfaceTintColor: const Color.fromARGB(255, 100, 29, 113),
         actions: [
@@ -83,7 +87,10 @@ class _GroupCreationPageState extends State<GroupCreationPage> {
                 'groupImage': _groupImage,
               });
             },
-            child: const Text('Создать'),
+            child: const Text('Создать',
+                style: TextStyle(
+                  fontSize: 16.0,
+                )),
           ),
         ],
       ),
@@ -103,8 +110,7 @@ class _GroupCreationPageState extends State<GroupCreationPage> {
               padding: EdgeInsets.all(16.0),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Text('Участники',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                child: Text('Участники', style: AppStyles.textForComment),
               ),
             ),
             if (widget.users.isEmpty)

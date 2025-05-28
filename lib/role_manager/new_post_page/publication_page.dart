@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:news_feed_neoflex/constans/app_style.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:dio/dio.dart';
@@ -238,7 +239,10 @@ class _PublicationPageState extends State<PublicationPage> {
         ),
         title: const Align(
           alignment: Alignment.center,
-          child: Text("Новый пост"),
+          child: Text(
+            "Новый пост",
+            style: AppStyles.heading2,
+          ),
         ),
         centerTitle: true,
         actions: [
@@ -259,7 +263,10 @@ class _PublicationPageState extends State<PublicationPage> {
                       color: Colors.purple,
                     ),
                   )
-                : const Text('Опубликовать'),
+                : const Text(
+                    'Опубликовать',
+                    style: AppStyles.purpleButtonText,
+                  ),
           ),
         ],
         surfaceTintColor: const Color.fromARGB(255, 100, 29, 113),
@@ -277,6 +284,7 @@ class _PublicationPageState extends State<PublicationPage> {
                 ),
                 maxLines: null,
                 keyboardType: TextInputType.multiline,
+                style: AppStyles.textMain,
               ),
               const SizedBox(height: 50),
               if (_selectedImages.isNotEmpty)

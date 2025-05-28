@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:intl/intl.dart';
+import 'package:news_feed_neoflex/constans/app_style.dart';
 import 'package:openapi/openapi.dart';
 import 'package:get_it/get_it.dart';
 import 'package:news_feed_neoflex/role_emloyee/chat_page/personal_chat_page.dart';
@@ -155,12 +156,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           alignment: Alignment.centerLeft,
           child: Text(
             "Уведомления",
-            style: TextStyle(
-              fontFamily: 'Osmo Font',
-              fontSize: 36.0,
-              color: Colors.purple,
-              fontWeight: FontWeight.bold,
-            ),
+            style: AppStyles.heading2,
           ),
         ),
         actions: [
@@ -309,7 +305,7 @@ class _NotificationItem extends StatelessWidget {
               ),
           ],
         ),
-        trailing: const Icon(Icons.circle, size: 12, color: Colors.purple),
+        //trailing: const Icon(Icons.circle, size: 12, color: Colors.purple),
         //: null,
         onTap: onTap,
       ),

@@ -12,19 +12,20 @@ part 'user_extended_dto.g.dart';
 /// UserExtendedDTO
 ///
 /// Properties:
-/// * [id] 
-/// * [login] 
-/// * [roleName] 
-/// * [lastName] 
-/// * [firstName] 
-/// * [patronymic] 
-/// * [appointment] 
-/// * [birthday] 
-/// * [avatarUrl] 
-/// * [phoneNumber] 
-/// * [password] 
+/// * [id]
+/// * [login]
+/// * [roleName]
+/// * [lastName]
+/// * [firstName]
+/// * [patronymic]
+/// * [appointment]
+/// * [birthday]
+/// * [avatarUrl]
+/// * [phoneNumber]
+/// * [password]
 @BuiltValue()
-abstract class UserExtendedDTO implements Built<UserExtendedDTO, UserExtendedDTOBuilder> {
+abstract class UserExtendedDTO
+    implements Built<UserExtendedDTO, UserExtendedDTOBuilder> {
   @BuiltValueField(wireName: r'id')
   int? get id;
 
@@ -60,16 +61,19 @@ abstract class UserExtendedDTO implements Built<UserExtendedDTO, UserExtendedDTO
 
   UserExtendedDTO._();
 
-  factory UserExtendedDTO([void updates(UserExtendedDTOBuilder b)]) = _$UserExtendedDTO;
+  factory UserExtendedDTO([void updates(UserExtendedDTOBuilder b)]) =
+      _$UserExtendedDTO;
 
   @BuiltValueHook(initializeBuilder: true)
   static void _defaults(UserExtendedDTOBuilder b) => b;
 
   @BuiltValueSerializer(custom: true)
-  static Serializer<UserExtendedDTO> get serializer => _$UserExtendedDTOSerializer();
+  static Serializer<UserExtendedDTO> get serializer =>
+      _$UserExtendedDTOSerializer();
 }
 
-class _$UserExtendedDTOSerializer implements PrimitiveSerializer<UserExtendedDTO> {
+class _$UserExtendedDTOSerializer
+    implements PrimitiveSerializer<UserExtendedDTO> {
   @override
   final Iterable<Type> types = const [UserExtendedDTO, _$UserExtendedDTO];
 
@@ -164,7 +168,9 @@ class _$UserExtendedDTOSerializer implements PrimitiveSerializer<UserExtendedDTO
     UserExtendedDTO object, {
     FullType specifiedType = FullType.unspecified,
   }) {
-    return _serializeProperties(serializers, object, specifiedType: specifiedType).toList();
+    return _serializeProperties(serializers, object,
+            specifiedType: specifiedType)
+        .toList();
   }
 
   void _deserializeProperties(
@@ -284,4 +290,3 @@ class _$UserExtendedDTOSerializer implements PrimitiveSerializer<UserExtendedDTO
     return result.build();
   }
 }
-

@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
+import 'package:news_feed_neoflex/constans/app_style.dart';
 import 'package:news_feed_neoflex/features/auth/auth_repository_impl.dart';
 import 'package:openapi/openapi.dart';
 
@@ -329,7 +330,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
               foregroundColor: Colors.purple,
               title: const Align(
                 alignment: Alignment.center,
-                child: Text("Профиль пользователя"),
+                child: Text(
+                  "Профиль пользователя",
+                  style: AppStyles.heading2,
+                ),
               ),
               leading: widget.isAdmin
                   ? IconButton(
@@ -411,14 +415,15 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
+                    backgroundColor: AppStyles.orange,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 32, vertical: 16),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: const Text('Удалить профиль'),
+                  child: const Text('Удалить профиль',
+                      style: AppStyles.deleteButtonText),
                 ),
               ],
             ],

@@ -61,7 +61,49 @@ dev_dependencies:
   openapi_generator_cli: ^6.1.0
 
 flutter:
-  uses-material-design: true  
+  uses-material-design: true
+
+  fonts:
+    # - family: XPLOR Bold
+    #   fonts:
+    #     - asset: assets/fonts/XPLOR_Bold.otf
+    #       weight: 700
+    
+    # - family: Andy Bold
+    #   fonts:
+    #     - asset: assets/fonts/Andy.otf
+    #       weight: 700
+    
+    - family: Osmo Font Regular
+      fonts:
+        - asset: assets/fonts/osmo_font.otf
+          weight: 700
+    
+    - family: Exo 2.0 Light
+      fonts:
+        - asset: assets/fonts/exo2_0_light.otf
+          weight: 700
+    
+    # - family: Sukplena Bd Bold
+    #   fonts:
+    #     - asset: assets/fonts/Sukplena.ttf
+    #       weight: 700
+
+    - family: Open Sans Light
+      fonts:
+        - asset: assets/fonts/Open_Sans.ttf
+          weight: 300
+
+    - family: Roboto Light
+      fonts:
+        - asset: assets/fonts/Roboto.ttf
+          weight: 300
+
+    - family: Nunito Black 900 Italic
+      fonts:
+        - asset: assets/fonts/Nunito.ttf
+          weight: 900
+
   assets:
     - assets/images/
     - assets/images.json
@@ -69,3 +111,4 @@ flutter:
     - assets/data.json
     - assets/office_map.svg
     - assets/notification_icon.png
+    - assets/fonts/  

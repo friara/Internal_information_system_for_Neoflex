@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/services.dart';
 import 'package:news_feed_neoflex/app_routes.dart';
+import 'package:news_feed_neoflex/constans/app_style.dart';
 import 'package:news_feed_neoflex/role_manager/users_page/user_profile_page.dart';
 import 'package:path_drawing/path_drawing.dart';
 import 'package:intl/intl.dart' as intl;
@@ -254,7 +255,8 @@ class _BookingDialogState extends State<BookingDialog> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Дата: ${intl.DateFormat('dd.MM.yyyy').format(_selectedDate)}'),
+          Text(
+              'Дата: ${intl.DateFormat('dd.MM.yyyy').format(_selectedDate.toLocal())}'),
           const SizedBox(height: 16),
           Text('Начало: ${_selectedStartTime.format(context)}'),
           const SizedBox(height: 16),
@@ -370,9 +372,9 @@ class _WorkspacesScreenState extends State<WorkspacesScreen> {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Дата: ${_formatDate(booking.bookingStart)}'),
+            Text('Дата: ${_formatDate(booking.bookingStart?.toLocal())}'),
             Text(
-                'Время: ${_formatTime(booking.bookingStart)} - ${_formatTime(booking.bookingEnd)}'),
+                'Время: ${_formatTime(booking.bookingStart?.toLocal())} - ${_formatTime(booking.bookingEnd?.toLocal())}'),
           ],
         ),
         trailing: IconButton(
@@ -410,12 +412,14 @@ class _WorkspacesScreenState extends State<WorkspacesScreen> {
 
   String _formatDate(DateTime? date) {
     return date != null
-        ? intl.DateFormat('dd.MM.yyyy').format(date)
+        ? intl.DateFormat('dd.MM.yyyy').format(date.toLocal())
         : '--.--.----';
   }
 
   String _formatTime(DateTime? time) {
-    return time != null ? intl.DateFormat('HH:mm').format(time) : '--:--';
+    return time != null
+        ? intl.DateFormat('HH:mm').format(time.toLocal())
+        : '--:--';
   }
 
   Future<void> _loadUserRole() async {
@@ -484,14 +488,14 @@ class _WorkspacesScreenState extends State<WorkspacesScreen> {
             pickedDate.day,
             timeRange.startTime.hour,
             timeRange.startTime.minute,
-          );
+          ).toLocal();
           _selectedEnd = DateTime(
             pickedDate.year,
             pickedDate.month,
             pickedDate.day,
             timeRange.endTime.hour,
             timeRange.endTime.minute,
-          );
+          ).toLocal();
         });
         _refreshData();
       }
@@ -607,12 +611,7 @@ class _WorkspacesScreenState extends State<WorkspacesScreen> {
           alignment: Alignment.centerLeft,
           child: Text(
             "Выбор рабочего места",
-            style: TextStyle(
-              fontFamily: 'Osmo Font',
-              fontSize: 36.0,
-              color: Colors.purple,
-              fontWeight: FontWeight.normal,
-            ),
+            style: AppStyles.heading2,
           ),
         ),
         actions: [
@@ -643,8 +642,8 @@ class _WorkspacesScreenState extends State<WorkspacesScreen> {
                     child: Text(
                       _selectedStart == null
                           ? 'Выберите время'
-                          : '${intl.DateFormat('dd.MM.yyyy HH:mm').format(_selectedStart!)} - '
-                              '${intl.DateFormat('HH:mm').format(_selectedEnd!)}',
+                          : '${intl.DateFormat('dd.MM.yyyy HH:mm').format(_selectedStart!.toLocal())} - '
+                              '${intl.DateFormat('HH:mm').format(_selectedEnd!.toLocal())}',
                       style: const TextStyle(fontSize: 16),
                     ),
                   ),
@@ -676,20 +675,6 @@ class _WorkspacesScreenState extends State<WorkspacesScreen> {
                         });
                       },
                     ),
-                    //   onWorkspaceTap: (workspaceId) => showDialog(
-                    //     context: context,
-                    //     builder: (context) => BookingDialog(
-                    //       workspaceId: workspaceId,
-                    //       initialStart: _selectedStart,
-                    //       initialEnd: _selectedEnd,
-                    //     ),
-                    //   ).then((result) {
-                    //     if (result == true) {
-                    //       _refreshData();
-                    //       _refreshBookings();
-                    //     }
-                    //   }),
-                    // ),
                   ),
                 ],
               ),
@@ -703,8 +688,7 @@ class _WorkspacesScreenState extends State<WorkspacesScreen> {
                     padding: EdgeInsets.all(8.0),
                     child: Text(
                       'Мои бронирования',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: AppStyles.heading3,
                     ),
                   ),
                   Expanded(
@@ -764,7 +748,7 @@ class _WorkspacesScreenState extends State<WorkspacesScreen> {
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        selectedItemColor: const Color(0xFF48036F),
+        selectedItemColor: AppStyles.purple,
         unselectedItemColor: Colors.grey,
       ),
     );

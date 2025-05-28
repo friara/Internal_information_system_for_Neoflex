@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:news_feed_neoflex/constans/app_style.dart';
 import 'package:news_feed_neoflex/role_manager/users_page/create_user_page.dart';
 import 'package:news_feed_neoflex/role_manager/users_page/user_profile_page.dart';
 import 'dart:io';
@@ -349,12 +350,7 @@ class _ListOfUsersState extends State<ListOfUsers> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Список пользователей",
-                  style: TextStyle(
-                    fontFamily: 'Osmo Font',
-                    fontSize: 36.0,
-                    color: Colors.purple,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: AppStyles.heading2,
                 ),
               ),
               actions: [
@@ -432,39 +428,55 @@ class _ListOfUsersState extends State<ListOfUsers> {
                           .resolve(user.avatarUrl!)
                           .toString()
                       : null;
-                  return ListTile(
-                    title: Text(userFio),
-                    // subtitle: Text(
-                    //     '${user.appointment ?? ''} - ${_roleDisplayNames[user.role] ?? user.role ?? ''}'),
-                    leading: _buildAvatarWidget(user),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => UserProfilePage(
-                            userData: {
-                              'id': user.id?.toString() ?? '',
-                              'fio':
-                                  '${user.firstName ?? ''} ${user.lastName ?? ''} ${user.patronymic ?? ''}',
-                              'phone': user.phoneNumber ?? '',
-                              'position': user.appointment ?? '',
-                              'role': user.roleName ?? 'ROLE_USER',
-                              'login': user.login ?? '',
-                              'birthDate': user.birthday?.toString() ?? '',
-                              'avatarUrl': avatarUrl ?? '',
-                            },
-                            initialAvatarUrl: user.avatarUrl,
-                            onSave: _updateUserData,
-                            onDelete: _deleteUser,
-                            onAvatarChanged: (file) =>
-                                _updateAvatar(user, file),
-                            isAdmin: true,
-                            currentUserId: GetIt.I<AuthRepositoryImpl>()
-                                .getCurrentUserId(),
+
+                  return Column(
+                    children: [
+                      ListTile(
+                        title: Text(userFio),
+                        leading: _buildAvatarWidget(user),
+                        onTap: () => {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => UserProfilePage(
+                                userData: {
+                                  'id': user.id?.toString() ?? '',
+                                  'fio':
+                                      '${user.firstName ?? ''} ${user.lastName ?? ''} ${user.patronymic ?? ''}',
+                                  'phone': user.phoneNumber ?? '',
+                                  'position': user.appointment ?? '',
+                                  'role': user.roleName ?? 'ROLE_USER',
+                                  'login': user.login ?? '',
+                                  'birthDate': user.birthday?.toString() ?? '',
+                                  'avatarUrl': avatarUrl ?? '',
+                                },
+                                initialAvatarUrl: user.avatarUrl,
+                                onSave: _updateUserData,
+                                onDelete: _deleteUser,
+                                onAvatarChanged: (file) =>
+                                    _updateAvatar(user, file),
+                                isAdmin: true,
+                                currentUserId: GetIt.I<AuthRepositoryImpl>()
+                                    .getCurrentUserId(),
+                              ),
+                            ),
+                          )
+                        },
+                      ),
+                      Container(
+                        height: 1,
+                        margin: EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.transparent,
+                              Colors.purple.withOpacity(0.3),
+                              Colors.transparent,
+                            ],
                           ),
                         ),
-                      );
-                    },
+                      ),
+                    ],
                   );
                 },
               ),
@@ -481,7 +493,7 @@ class _ListOfUsersState extends State<ListOfUsers> {
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        selectedItemColor: const Color(0xFF48036F),
+        selectedItemColor: AppStyles.purple,
         unselectedItemColor: Colors.grey,
       ),
     );
