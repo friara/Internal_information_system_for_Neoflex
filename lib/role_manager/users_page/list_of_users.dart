@@ -386,9 +386,7 @@ class _ListOfUsersState extends State<ListOfUsers> {
               controller: _searchController,
               decoration: InputDecoration(
                 labelText: 'Поиск пользователей',
-                labelStyle: const TextStyle(
-                  color: Color.fromARGB(255, 104, 102, 102),
-                ),
+                labelStyle: AppStyles.textMain,
                 hintText: 'Введите имя...',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.0),
@@ -432,7 +430,10 @@ class _ListOfUsersState extends State<ListOfUsers> {
                   return Column(
                     children: [
                       ListTile(
-                        title: Text(userFio),
+                        title: Text(
+                          userFio,
+                          style: AppStyles.textMain,
+                        ),
                         leading: _buildAvatarWidget(user),
                         onTap: () => {
                           Navigator.push(

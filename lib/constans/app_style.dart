@@ -54,6 +54,12 @@ class AppStyles {
       fontWeight: FontWeight.bold,
       color: AppStyles.purple);
 
+  static const TextStyle greyButtonText = TextStyle(
+      fontFamily: 'Exo 2.0 Light',
+      fontSize: 18.0,
+      fontWeight: FontWeight.bold,
+      color: AppStyles.dateColor);
+
   // static const TextStyle text1 = TextStyle(
   //   fontFamily: 'Open Sans Light',
   //   fontSize: 17.0,

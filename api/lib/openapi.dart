@@ -43,6 +43,7 @@ export 'package:openapi/src/model/pageable_object.dart';
 export 'package:openapi/src/model/post_dto.dart';
 export 'package:openapi/src/model/post_response_dto.dart';
 export 'package:openapi/src/model/sort_object.dart';
+export 'package:openapi/src/model/update_chat_name_request.dart';
 export 'package:openapi/src/model/user_dto.dart';
 export 'package:openapi/src/model/user_extended_dto.dart';
 export 'package:openapi/src/model/workspace_dto.dart';

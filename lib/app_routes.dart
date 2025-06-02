@@ -60,6 +60,7 @@ class AppRoutes {
                   'birthDate': user.birthday?.toString() ?? '',
                   'avatarUrl': user.avatarUrl ?? '',
                 },
+                currentUserId: user.id ?? 0,
                 onSave: (updatedUser) {
                   // // Логика сохранения данных пользователя
                   // context.read<AuthBloc>().add(UpdateUserProfile(updatedUser));

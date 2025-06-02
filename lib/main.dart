@@ -62,7 +62,6 @@ class _MyAppState extends State<MyApp> {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'News Feed',
-        // Добавляем navigatorKey для глобальной навигации
         navigatorKey: navigatorKey,
         theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue)),

@@ -87,10 +87,7 @@ class _GroupCreationPageState extends State<GroupCreationPage> {
                 'groupImage': _groupImage,
               });
             },
-            child: const Text('Создать',
-                style: TextStyle(
-                  fontSize: 16.0,
-                )),
+            child: const Text('Создать', style: AppStyles.purpleButtonText),
           ),
         ],
       ),
@@ -119,36 +116,39 @@ class _GroupCreationPageState extends State<GroupCreationPage> {
                 child: Text('Нет доступных пользователей для добавления'),
               ),
             ...widget.users.map((user) => CheckboxListTile(
-                  title: Text('${user.firstName} ${user.lastName}'),
-                  subtitle: Text(user.appointment ?? ''),
-                  value: _selectedUsers[user.id!] ?? false,
-                  onChanged: (value) =>
-                      setState(() => _selectedUsers[user.id!] = value!),
-                  secondary: CircleAvatar(
-                    radius: 20,
-                    child: user.avatarUrl != null
-                        ? ClipOval(
-                            child: CachedNetworkImage(
-                              imageUrl: user.avatarUrl!.startsWith('http')
+                title: Text(
+                  '${user.firstName} ${user.lastName}',
+                  style: AppStyles.textMain,
+                ),
+                subtitle: Text(user.appointment ?? ''),
+                value: _selectedUsers[user.id!] ?? false,
+                onChanged: (value) =>
+                    setState(() => _selectedUsers[user.id!] = value!),
+                secondary: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    shape: BoxShape
+                        .circle, // Главный секрет - используем встроенную круглую форму
+                    color: Colors.grey[300], // Фон по умолчанию
+                    image: user.avatarUrl != null
+                        ? DecorationImage(
+                            image: CachedNetworkImageProvider(
+                              user.avatarUrl!.startsWith('http')
                                   ? user.avatarUrl!
                                   : '${widget.avatarBaseUrl}${user.avatarUrl!.startsWith('/') ? user.avatarUrl!.substring(1) : user.avatarUrl}',
-                              httpHeaders: {
+                              headers: {
                                 'Authorization': 'Bearer ${widget.accessToken}'
                               },
-                              placeholder: (context, url) => Container(
-                                color: Colors.grey,
-                                child: const Icon(Icons.person, size: 20),
-                              ),
-                              errorWidget: (context, url, error) =>
-                                  const Icon(Icons.error, size: 20),
-                              fit: BoxFit.cover,
-                              width: 40,
-                              height: 40,
                             ),
+                            fit: BoxFit.cover,
                           )
-                        : const Icon(Icons.person),
+                        : null,
                   ),
-                )),
+                  child: user.avatarUrl == null
+                      ? const Icon(Icons.person, size: 40, color: Colors.white)
+                      : null,
+                ))),
           ],
         ),
       ),

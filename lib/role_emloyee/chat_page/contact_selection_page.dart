@@ -45,35 +45,60 @@ class ContactSelectionPage extends StatelessWidget {
               : null;
 
           return ListTile(
-            leading: CircleAvatar(
-              radius: 20,
-              backgroundColor: Colors.grey[200],
-              child: avatarUrl != null
-                  ? ClipOval(
-                      child: CachedNetworkImage(
-                        imageUrl: avatarUrl,
-                        httpHeaders: {'Authorization': 'Bearer $accessToken'},
-                        placeholder: (context, url) => Container(
-                          color: Colors.grey,
-                          child: const Icon(Icons.person, size: 20),
-                        ),
-                        errorWidget: (context, url, error) =>
-                            const Icon(Icons.error, size: 20),
-                        fit: BoxFit.cover,
-                        width: 40,
-                        height: 40,
-                      ),
-                    )
-                  : const Icon(Icons.person),
+            leading: _buildPerfectCircleAvatar(avatarUrl),
+            title: Text(
+              '${user.firstName} ${user.lastName}',
+              style: AppStyles.textMain,
             ),
-            title: Text('${user.firstName} ${user.lastName}'),
             subtitle: Text(user.appointment ?? ''),
             onTap: () {
               Navigator.pop(context, user.id);
             },
+            contentPadding: EdgeInsets.symmetric(
+                vertical: 8, horizontal: 16), // Добавлен отступ
+            minVerticalPadding: 12,
           );
         },
       ),
+    );
+  }
+
+  Widget _buildPerfectCircleAvatar(String? avatarUrl) {
+    return SizedBox(
+      width: 80, // Фиксированный размер
+      height: 80,
+      child: PhysicalModel(
+        color: Colors.transparent,
+        elevation: 0,
+        shape: BoxShape.circle, // Физическая круглая форма
+        child: avatarUrl != null
+            ? CachedNetworkImage(
+                imageUrl: avatarUrl,
+                httpHeaders: {'Authorization': 'Bearer $accessToken'},
+                imageBuilder: (context, imageProvider) => Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle, // Двойная страховка
+                    image: DecorationImage(
+                      image: imageProvider,
+                      fit: BoxFit.cover, // Заполнение с сохранением пропорций
+                    ),
+                  ),
+                ),
+                placeholder: (context, url) => _buildPlaceholder(),
+                errorWidget: (context, url, error) => _buildPlaceholder(),
+              )
+            : _buildPlaceholder(),
+      ),
+    );
+  }
+
+  Widget _buildPlaceholder() {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.grey[300],
+      ),
+      child: const Icon(Icons.person, size: 40, color: Colors.white),
     );
   }
 }

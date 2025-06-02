@@ -70,11 +70,15 @@ Class | Method | HTTP request | Description
 [*BookingControllerApi*](doc/BookingControllerApi.md) | [**getAllBookings**](doc/BookingControllerApi.md#getallbookings) | **GET** /api/bookings | 
 [*BookingControllerApi*](doc/BookingControllerApi.md) | [**getBookingById**](doc/BookingControllerApi.md#getbookingbyid) | **GET** /api/bookings/{id} | 
 [*BookingControllerApi*](doc/BookingControllerApi.md) | [**getBookings**](doc/BookingControllerApi.md#getbookings) | **GET** /api/bookings/me | 
+[*ChatControllerApi*](doc/ChatControllerApi.md) | [**addParticipants**](doc/ChatControllerApi.md#addparticipants) | **POST** /api/chats/{chatId}/participants | 
 [*ChatControllerApi*](doc/ChatControllerApi.md) | [**createChat**](doc/ChatControllerApi.md#createchat) | **POST** /api/chats | 
 [*ChatControllerApi*](doc/ChatControllerApi.md) | [**deleteChat**](doc/ChatControllerApi.md#deletechat) | **DELETE** /api/chats/{id} | 
+[*ChatControllerApi*](doc/ChatControllerApi.md) | [**exitFromChat**](doc/ChatControllerApi.md#exitfromchat) | **DELETE** /api/chats/{chatId}/exit | 
 [*ChatControllerApi*](doc/ChatControllerApi.md) | [**getChatById**](doc/ChatControllerApi.md#getchatbyid) | **GET** /api/chats/{id} | 
 [*ChatControllerApi*](doc/ChatControllerApi.md) | [**getMyChats**](doc/ChatControllerApi.md#getmychats) | **GET** /api/chats/my | 
+[*ChatControllerApi*](doc/ChatControllerApi.md) | [**removeParticipant**](doc/ChatControllerApi.md#removeparticipant) | **DELETE** /api/chats/{chatId}/participants/{userId} | 
 [*ChatControllerApi*](doc/ChatControllerApi.md) | [**updateChat**](doc/ChatControllerApi.md#updatechat) | **PUT** /api/chats/{id} | 
+[*ChatControllerApi*](doc/ChatControllerApi.md) | [**updateChatName**](doc/ChatControllerApi.md#updatechatname) | **PATCH** /api/chats/{id}/name | 
 [*CommentControllerApi*](doc/CommentControllerApi.md) | [**createComment**](doc/CommentControllerApi.md#createcomment) | **POST** /api/posts/{postId}/comments | 
 [*CommentControllerApi*](doc/CommentControllerApi.md) | [**deleteComment**](doc/CommentControllerApi.md#deletecomment) | **DELETE** /api/posts/{postId}/comments/{commentId} | 
 [*CommentControllerApi*](doc/CommentControllerApi.md) | [**getComment**](doc/CommentControllerApi.md#getcomment) | **GET** /api/posts/{postId}/comments/{commentId} | 
@@ -145,6 +149,7 @@ Class | Method | HTTP request | Description
  - [PostDTO](doc/PostDTO.md)
  - [PostResponseDTO](doc/PostResponseDTO.md)
  - [SortObject](doc/SortObject.md)
+ - [UpdateChatNameRequest](doc/UpdateChatNameRequest.md)
  - [UserDTO](doc/UserDTO.md)
  - [UserExtendedDTO](doc/UserExtendedDTO.md)
  - [WorkspaceDTO](doc/WorkspaceDTO.md)

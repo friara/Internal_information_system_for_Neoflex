@@ -7,7 +7,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http_parser/http_parser.dart';
-import 'package:news_feed_neoflex/constans/app_style.dart';
 import 'package:news_feed_neoflex/features/auth/auth_repository_impl.dart';
 import 'package:open_file/open_file.dart';
 import 'package:openapi/openapi.dart';
@@ -44,7 +43,6 @@ class PersonalChatPage extends StatefulWidget {
 }
 
 class _PersonalChatPageState extends State<PersonalChatPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final List<ChatFile> _selectedFiles = [];
   List<MessageDTO> _messages = [];
   final TextEditingController _messageController = TextEditingController();
@@ -657,6 +655,8 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
   }
 
   void _handleLongPress(MessageDTO message) {
+    if (message.userId != widget.currentUserId) return;
+
     final hasText = message.text != null && message.text!.isNotEmpty;
     final hasFiles = message.files != null && message.files!.isNotEmpty;
 
@@ -703,7 +703,6 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
     if (message.files == null || message.files!.isEmpty) return;
 
     final file = message.files!.first;
-    final isMyMessage = message.userId == widget.currentUserId;
 
     showModalBottomSheet(
       context: context,
@@ -719,16 +718,14 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
                 _downloadFile(file);
               },
             ),
-            if (isMyMessage)
-              ListTile(
-                leading: const Icon(Icons.delete, color: Colors.red),
-                title:
-                    const Text('Удалить', style: TextStyle(color: Colors.red)),
-                onTap: () {
-                  Navigator.pop(context);
-                  _showDeleteDialog(message.id!);
-                },
-              ),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text('Удалить', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.pop(context);
+                _showDeleteDialog(message.id!);
+              },
+            ),
           ],
         ),
       ),
@@ -953,6 +950,7 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
         ),
       );
     } else {
+      // Для видео скачиваем файл и открываем через стороннее приложение
       try {
         final tempDir = await getTemporaryDirectory();
         final fileName =
@@ -1370,12 +1368,15 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
         return;
       }
 
-      // Получаем текущего пользователя из хранилища (более надежный способ)
-      final currentUserId = widget.currentUserId;
-
       final messageExists = _messages.any((m) => m.id == messageId);
       if (!messageExists) {
         _showErrorSnackbar('Сообщение не найдено в локальном кеше');
+        return;
+      }
+
+      final currentUserId = _getUserIdFromToken(token);
+      if (currentUserId == null) {
+        _showErrorSnackbar('Не удалось определить пользователя из токена');
         return;
       }
 
@@ -1389,7 +1390,7 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
 
       debugPrint('Пытаемся удалить сообщение: '
           'ID сообщения: $messageId, '
-          'ID текущего пользователя: $currentUserId, '
+          'ID пользователя из токена: $currentUserId, '
           'Автор сообщения: ${message.userId}');
 
       final messageApi = GetIt.I<Openapi>().getMessageControllerApi();
@@ -1398,6 +1399,7 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
         messageId: messageId,
         headers: {
           'Authorization': 'Bearer $token',
+          'X-User-Id': currentUserId.toString(),
         },
       );
 
@@ -1423,44 +1425,23 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
     }
   }
 
-  // int? _getUserIdFromToken(String token) {
-  //   try {
-  //     final parts = token.split('.');
-  //     if (parts.length != 3) {
-  //       debugPrint('Некорректный формат токена: ожидалось 3 части');
-  //       return null;
-  //     }
+  int? _getUserIdFromToken(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return null;
 
-  //     // Декодируем payload часть токена
-  //     final payload = parts[1];
-  //     final normalizedPayload = base64Url.normalize(payload);
-  //     final decodedPayload = utf8.decode(base64Url.decode(normalizedPayload));
-  //     final payloadJson = json.decode(decodedPayload) as Map<String, dynamic>;
+      final payload = json
+          .decode(utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))));
 
-  //     // Пробуем получить ID пользователя разными способами
-  //     final userId =
-  //         payloadJson['sub'] ?? payloadJson['userId'] ?? payloadJson['user_id'];
+      final userIdStr = payload['sub'];
+      if (userIdStr is! String || !userIdStr.startsWith('user')) return null;
 
-  //     if (userId == null) {
-  //       debugPrint('Токен не содержит идентификатора пользователя');
-  //       return null;
-  //     }
-
-  //     // Если userId - число, возвращаем его
-  //     if (userId is int) return userId;
-
-  //     // Если userId - строка в формате "user123"
-  //     if (userId is String && userId.startsWith('user')) {
-  //       return int.tryParse(userId.substring(4));
-  //     }
-
-  //     // Если userId - просто строка с числом
-  //     return int.tryParse(userId.toString());
-  //   } catch (e) {
-  //     debugPrint('Ошибка декодирования токена: $e');
-  //     return null;
-  //   }
-  // }
+      return int.tryParse(userIdStr.replaceAll('user', ''));
+    } catch (e) {
+      debugPrint('Ошибка декодирования токена: $e');
+      return null;
+    }
+  }
 
   Widget _buildUserAvatar(int? userId) {
     if (userId == null || _users[userId]?.avatarUrl == null) {
@@ -1518,344 +1499,200 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
     }
 
     if (_chat!.chatType == 'GROUP') {
-      _scaffoldKey.currentState?.openEndDrawer();
+      _showGroupParticipants();
     } else {
-      _scaffoldKey.currentState?.openEndDrawer();
-      //_showPrivateChatParticipant();
+      _showPrivateChatParticipant();
     }
   }
 
-  Widget _buildRightDrawer() {
-    final chat = _chat;
-    if (chat == null) {
-      return Drawer(
-        child: Center(child: CircularProgressIndicator()),
-      );
+  void _showGroupParticipants() {
+    final participantIds = _chat?.participantIds?.toList() ?? [];
+    final missingUsers =
+        participantIds.where((id) => !_users.containsKey(id)).toList();
+
+    if (missingUsers.isNotEmpty) {
+      _loadMissingUsers(missingUsers).then((_) {
+        if (mounted) {
+          _showGroupParticipantsDialog(participantIds);
+        }
+      });
+      return;
     }
 
-    if (chat.chatType != 'GROUP') {
-      final otherUserId = chat.otherUserId ??
-          chat.participantIds
-              ?.firstWhereOrNull((id) => id != widget.currentUserId);
-      final user = otherUserId != null ? _users[otherUserId] : null;
-      if (user == null && otherUserId != null) {
-        _loadMissingUsers([otherUserId!]);
-        return Drawer(
-          child: Center(child: CircularProgressIndicator()),
-        );
-      }
+    _showGroupParticipantsDialog(participantIds);
+  }
 
-      return Drawer(
-        child: Container(
-          width: MediaQuery.of(context).size.width * 0.85,
-          padding: const EdgeInsets.all(16.0),
+  void _showGroupParticipantsDialog(List<int> participantIds) {
+    participantIds.sort((a, b) {
+      if (a == widget.currentUserId) return -1;
+      if (b == widget.currentUserId) return 1;
+
+      final userA = _users[a];
+      final userB = _users[b];
+      final nameA = '${userA?.lastName ?? ''} ${userA?.firstName ?? ''}'.trim();
+      final nameB = '${userB?.lastName ?? ''} ${userB?.firstName ?? ''}'.trim();
+
+      return nameA.compareTo(nameB);
+    });
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(_chat?.chatName ?? 'Участники чата'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: participantIds.length,
+            itemBuilder: (context, index) {
+              final userId = participantIds[index];
+              final user = _users[userId];
+
+              if (user == null) {
+                return ListTile(
+                  leading: const CircleAvatar(child: Icon(Icons.person)),
+                  title: const Text('Загрузка...'),
+                );
+              }
+
+              final isCurrentUser = userId == widget.currentUserId;
+              final fullName =
+                  '${user.lastName ?? ''} ${user.firstName ?? ''} ${user.patronymic ?? ''}'
+                      .trim();
+
+              return ListTile(
+                leading: ClipOval(
+                  child: _buildUserAvatar(user.id),
+                ),
+                title: Text(
+                  '$fullName${isCurrentUser ? ' (Вы)' : ''}',
+                  style: TextStyle(
+                    fontWeight:
+                        isCurrentUser ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (user.appointment != null) Text(user.appointment!),
+                    if (user.phoneNumber != null)
+                      Text(
+                        user.phoneNumber!,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            child: const Text(
+              'Закрыть',
+              style: TextStyle(color: Colors.purple),
+            ),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showPrivateChatParticipant() {
+    final otherUserId = _chat?.otherUserId ??
+        _chat?.participantIds
+            ?.firstWhereOrNull((id) => id != widget.currentUserId);
+
+    if (otherUserId == null) {
+      _showErrorSnackbar('Не удалось определить собеседника');
+      return;
+    }
+
+    if (!_users.containsKey(otherUserId)) {
+      _loadMissingUsers([otherUserId]).then((_) {
+        if (mounted && _users.containsKey(otherUserId)) {
+          _showPrivateParticipantDialog(otherUserId);
+        }
+      });
+      return;
+    }
+
+    _showPrivateParticipantDialog(otherUserId);
+  }
+
+  void _showPrivateParticipantDialog(int userId) {
+    final user = _users[userId]!;
+    final fullName =
+        '${user.lastName ?? ''} ${user.firstName ?? ''} ${user.patronymic ?? ''}'
+            .trim();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Информация о собеседнике'),
+        content: SingleChildScrollView(
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: Text(
-                  user != null
-                      ? '${user.lastName ?? ''} ${user.firstName ?? ''} ${user.patronymic ?? ''}'
-                          .trim()
-                      : 'Собеседник',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+              Center(
+                child: ClipOval(
+                  child: _buildUserAvatar(user.id),
                 ),
               ),
-              if (user != null) ...[
-                Center(
-                  child: Container(
-                    width: 120, // Увеличиваем размер аватарки
-                    height: 120,
-                    child: ClipOval(
-                      child: _buildLargeUserAvatar(
-                          user.id), // Используем увеличенную версию аватарки
-                    ),
-                  ),
+              const SizedBox(height: 20),
+              Text(
+                fullName,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(height: 20),
-                if (user.appointment != null)
-                  ListTile(
-                    leading: const Icon(Icons.work),
-                    title: const Text('Должность'),
-                    subtitle: Text(user.appointment!),
-                  ),
-                if (user.phoneNumber != null)
-                  ListTile(
-                    leading: const Icon(Icons.phone),
-                    title: const Text('Телефон'),
-                    subtitle: Text(user.phoneNumber!),
-                  ),
-              ] else ...[
-                const Center(child: CircularProgressIndicator()),
-              ]
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              if (user.appointment != null) ...[
+                const Text(
+                  'Должность:',
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+                Text(
+                  user.appointment!,
+                  style: const TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 12),
+              ],
+              if (user.phoneNumber != null) ...[
+                const Text(
+                  'Телефон:',
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+                Row(
+                  children: [
+                    const Icon(Icons.phone, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      user.phoneNumber!,
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
         ),
-      );
-    }
-
-    final isOwner = chat.createdBy == widget.currentUserId;
-    final sortedParticipants = [...chat.participantIds!]..sort((a, b) {
-        if (a == chat.createdBy) return -1;
-        if (b == chat.createdBy) return 1;
-        return 0;
-      });
-
-    return Drawer(
-      child: Container(
-        width: MediaQuery.of(context).size.width * 0.7,
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            isOwner
-                ? InkWell(
-                    onTap: () async {
-                      Navigator.pop(context);
-                      await _showEditChatNameDialog(context);
-                      if (mounted) setState(() {});
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              chat.chatName ?? 'Групповой чат',
-                              style: AppStyles.heading3,
-                            ),
-                          ),
-                          const Icon(
-                            Icons.edit,
-                            size: 20,
-                            color: AppStyles.textColor,
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    child: Text(
-                      chat.chatName ?? 'Групповой чат',
-                      style: AppStyles.heading3,
-                    ),
-                  ),
-            if (isOwner)
-              ListTile(
-                leading: const Icon(Icons.add),
-                title: const Text('Добавить участника'),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await _showAddParticipantsDialog();
-                  if (mounted) setState(() {});
-                },
-              ),
-            Expanded(
-              child: ListView(
-                children: sortedParticipants.map((userId) {
-                  final user = _users[userId];
-                  if (user == null) {
-                    _loadMissingUsers([userId]);
-                    return ListTile(
-                      leading: CircleAvatar(child: const Icon(Icons.person)),
-                      title: const Text('Загрузка...'),
-                    );
-                  }
-
-                  final isCurrentUser = userId == widget.currentUserId;
-                  final isAdmin = userId == chat.createdBy;
-
-                  return ListTile(
-                    leading: _buildUserAvatar(userId),
-                    title: Text(
-                      '${user.lastName ?? ''} ${user.firstName ?? ''} ${user.patronymic ?? ''}'
-                      '${isAdmin ? ' (Админ)' : ''}'
-                      '${isCurrentUser ? ' (Вы)' : ''}',
-                      style: TextStyle(
-                        fontWeight: isCurrentUser || isAdmin
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                      ),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (user.appointment != null) Text(user.appointment!),
-                        if (user.phoneNumber != null)
-                          Text(user.phoneNumber!,
-                              style: const TextStyle(fontSize: 12)),
-                      ],
-                    ),
-                    trailing: isOwner && !isCurrentUser
-                        ? IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () async {
-                              await _removeParticipant(userId);
-                              if (mounted) setState(() {});
-                            },
-                          )
-                        : null,
-                  );
-                }).toList(),
-              ),
+        actions: [
+          TextButton(
+            child: const Text(
+              'Закрыть',
+              style: TextStyle(color: Colors.purple),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLargeUserAvatar(int? userId) {
-    if (userId == null || _users[userId]?.avatarUrl == null) {
-      return Container(
-        width: 120,
-        height: 120,
-        decoration: BoxDecoration(
-          color: Colors.grey,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(Icons.person, color: Colors.white, size: 60),
-      );
-    }
-
-    final user = _users[userId]!;
-    final dio = GetIt.I<Dio>();
-    String baseUrl = dio.options.baseUrl;
-
-    if (!baseUrl.endsWith('/')) {
-      baseUrl += '/';
-    }
-
-    String avatarPath = user.avatarUrl!;
-    if (avatarPath.startsWith('/')) {
-      avatarPath = avatarPath.substring(1);
-    }
-
-    final avatarUrl = '$baseUrl$avatarPath';
-
-    return CachedNetworkImage(
-      imageUrl: avatarUrl,
-      width: 120,
-      height: 120,
-      fit: BoxFit.cover,
-      placeholder: (context, url) => Container(
-        decoration: BoxDecoration(
-          color: Colors.grey,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(Icons.person, color: Colors.white, size: 60),
-      ),
-      errorWidget: (context, url, error) {
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.grey,
-            shape: BoxShape.circle,
+            onPressed: () => Navigator.pop(context),
           ),
-          child: Icon(Icons.error, color: Colors.white, size: 60),
-        );
-      },
+        ],
+      ),
     );
   }
-
-  // void _showPrivateChatParticipant() {
-  //   final otherUserId = _chat?.otherUserId ??
-  //       _chat?.participantIds
-  //           ?.firstWhereOrNull((id) => id != widget.currentUserId);
-
-  //   if (otherUserId == null) {
-  //     _showErrorSnackbar('Не удалось определить собеседника');
-  //     return;
-  //   }
-
-  //   if (!_users.containsKey(otherUserId)) {
-  //     _loadMissingUsers([otherUserId]).then((_) {
-  //       if (mounted && _users.containsKey(otherUserId)) {
-  //         _showPrivateParticipantDialog(otherUserId);
-  //       }
-  //     });
-  //     return;
-  //   }
-
-  //   _showPrivateParticipantDialog(otherUserId);
-  // }
-
-  // void _showPrivateParticipantDialog(int userId) {
-  //   final user = _users[userId]!;
-  //   final fullName =
-  //       '${user.lastName ?? ''} ${user.firstName ?? ''} ${user.patronymic ?? ''}'
-  //           .trim();
-
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) => AlertDialog(
-  //       title: const Text('Информация о собеседнике'),
-  //       content: SingleChildScrollView(
-  //         child: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           crossAxisAlignment: CrossAxisAlignment.start,
-  //           children: [
-  //             Center(
-  //               child: ClipOval(
-  //                 child: _buildUserAvatar(user.id),
-  //               ),
-  //             ),
-  //             const SizedBox(height: 20),
-  //             Text(
-  //               fullName,
-  //               style: const TextStyle(
-  //                 fontSize: 18,
-  //                 fontWeight: FontWeight.bold,
-  //               ),
-  //               textAlign: TextAlign.center,
-  //             ),
-  //             const SizedBox(height: 16),
-  //             if (user.appointment != null) ...[
-  //               const Text(
-  //                 'Должность:',
-  //                 style: TextStyle(fontWeight: FontWeight.w500),
-  //               ),
-  //               Text(
-  //                 user.appointment!,
-  //                 style: const TextStyle(fontSize: 16),
-  //               ),
-  //               const SizedBox(height: 12),
-  //             ],
-  //             if (user.phoneNumber != null) ...[
-  //               const Text(
-  //                 'Телефон:',
-  //                 style: TextStyle(fontWeight: FontWeight.w500),
-  //               ),
-  //               Row(
-  //                 children: [
-  //                   const Icon(Icons.phone, size: 20),
-  //                   const SizedBox(width: 8),
-  //                   Text(
-  //                     user.phoneNumber!,
-  //                     style: const TextStyle(fontSize: 16),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ],
-  //           ],
-  //         ),
-  //       ),
-  //       actions: [
-  //         TextButton(
-  //           child: const Text(
-  //             'Закрыть',
-  //             style: TextStyle(color: Colors.purple),
-  //           ),
-  //           onPressed: () => Navigator.pop(context),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   Future<void> _loadMissingUsers(List<int> userIds) async {
     try {
@@ -1865,13 +1702,10 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
       final userApi = GetIt.I<Openapi>().getUserControllerApi();
 
       for (final userId in userIds) {
-        if (_users.containsKey(userId)) continue;
-
         final response = await userApi.getUserById(
           id: userId,
           headers: {'Authorization': 'Bearer $token'},
         );
-
         if (response.data != null && mounted) {
           setState(() {
             _users[userId] = response.data!;
@@ -1880,243 +1714,6 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
       }
     } catch (e) {
       debugPrint('Ошибка загрузки пользователей: $e');
-    }
-  }
-
-  Future<void> _showEditChatNameDialog(BuildContext context) async {
-    final currentName = _chat!.chatName ?? '';
-    final controller = TextEditingController(text: currentName);
-
-    await showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (dialogContext, dialogSetState) {
-            return AlertDialog(
-              title: Text('Изменить название чата'),
-              content: TextField(
-                controller: controller,
-                decoration: InputDecoration(hintText: 'Название чата'),
-              ),
-              actions: [
-                TextButton(
-                  child: Text(
-                    'Отмена',
-                    style: AppStyles.purpleButtonText,
-                  ),
-                  onPressed: () => Navigator.pop(dialogContext),
-                ),
-                TextButton(
-                  child: Text(
-                    'Сохранить',
-                    style: AppStyles.purpleButtonText,
-                  ),
-                  onPressed: () async {
-                    final newName = controller.text.trim();
-                    if (newName.isNotEmpty && newName != currentName) {
-                      dialogSetState(() {
-                        _chat = _chat!.rebuild((b) => b..chatName = newName);
-                      });
-
-                      try {
-                        final token = await GetIt.I<AuthRepositoryImpl>()
-                            .getAccessToken();
-                        if (token == null) return;
-
-                        final chatApi =
-                            GetIt.I<Openapi>().getChatControllerApi();
-                        await chatApi.updateChatName(
-                          id: _chat!.id!,
-                          updateChatNameRequest: UpdateChatNameRequest(
-                              (b) => b..newName = newName),
-                          headers: {'Authorization': 'Bearer $token'},
-                        );
-                        Navigator.pop(dialogContext);
-                        if (mounted) {
-                          setState(() {});
-                        }
-                      } catch (e) {
-                        dialogSetState(() {
-                          _chat =
-                              _chat!.rebuild((b) => b..chatName = currentName);
-                        });
-                        _showErrorSnackbar('Ошибка обновления названия: $e');
-                      }
-                    } else {
-                      Navigator.pop(dialogContext);
-                    }
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Future<void> _showAddParticipantsDialog() async {
-    try {
-      final token = await GetIt.I<AuthRepositoryImpl>().getAccessToken();
-      if (token == null) return;
-
-      final userApi = GetIt.I<Openapi>().getUserControllerApi();
-      final response = await userApi
-          .getAllUsers(headers: {'Authorization': 'Bearer $token'});
-
-      if (response.data == null) return;
-
-      final allUsers = response.data!;
-      final currentParticipants = _chat!.participantIds!.toSet();
-      final availableUsers = allUsers
-          .where((user) =>
-              user.id != null && !currentParticipants.contains(user.id))
-          .toList();
-
-      final selectedUsers = <int>{};
-
-      await showDialog(
-        context: context,
-        builder: (context) {
-          return StatefulBuilder(
-            builder: (dialogContext, dialogSetState) {
-              return AlertDialog(
-                title: Text('Добавить участников'),
-                content: SingleChildScrollView(
-                  child: Column(
-                    children: availableUsers.map((user) {
-                      return CheckboxListTile(
-                        title: Text(
-                          '${user.lastName ?? ''} ${user.firstName ?? ''} ${user.patronymic ?? ''}',
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (user.appointment != null)
-                              Text(user.appointment!),
-                            if (user.phoneNumber != null)
-                              Text(user.phoneNumber!,
-                                  style: TextStyle(fontSize: 12)),
-                          ],
-                        ),
-                        value: selectedUsers.contains(user.id),
-                        onChanged: (value) {
-                          dialogSetState(() {
-                            if (value == true) {
-                              selectedUsers.add(user.id!);
-                            } else {
-                              selectedUsers.remove(user.id);
-                            }
-                          });
-                        },
-                      );
-                    }).toList(),
-                  ),
-                ),
-                actions: [
-                  TextButton(
-                    child: Text(
-                      'Отмена',
-                      style: AppStyles.purpleButtonText,
-                    ),
-                    onPressed: () => Navigator.pop(dialogContext),
-                  ),
-                  TextButton(
-                    child: Text('Добавить',
-                        style: selectedUsers.isEmpty
-                            ? AppStyles.greyButtonText
-                            : AppStyles.purpleButtonText),
-                    style: TextButton.styleFrom(
-                      backgroundColor: selectedUsers.isEmpty
-                          ? null // Неактивное состояние - прозрачный фон
-                          : Colors.purple.withOpacity(
-                              0.1), // Активное состояние - легкий фиолетовый фон
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    onPressed: selectedUsers.isEmpty
-                        ? null
-                        : () async {
-                            dialogSetState(() {
-                              _chat = _chat!.rebuild((b) =>
-                                  b..participantIds.addAll(selectedUsers));
-                              for (final user in availableUsers) {
-                                if (selectedUsers.contains(user.id)) {
-                                  _users[user.id!] = user;
-                                }
-                              }
-                            });
-
-                            try {
-                              final chatApi =
-                                  GetIt.I<Openapi>().getChatControllerApi();
-                              await chatApi.addParticipants(
-                                chatId: _chat!.id!,
-                                requestBody:
-                                    BuiltList<int>(selectedUsers.toList()),
-                                headers: {'Authorization': 'Bearer $token'},
-                              );
-
-                              Navigator.pop(dialogContext);
-
-                              if (mounted) {
-                                setState(() {});
-                              }
-                            } catch (e) {
-                              dialogSetState(() {
-                                _chat = _chat!.rebuild((b) {
-                                  for (final userId in selectedUsers) {
-                                    b.participantIds.remove(userId);
-                                  }
-                                  return b;
-                                });
-                              });
-                              _showErrorSnackbar(
-                                  'Ошибка добавления участников: $e');
-                            }
-                          },
-                  ),
-                ],
-              );
-            },
-          );
-        },
-      );
-    } catch (e) {
-      _showErrorSnackbar('Ошибка загрузки пользователей: $e');
-    }
-  }
-
-  Future<void> _removeParticipant(int userId) async {
-    try {
-      final token = await GetIt.I<AuthRepositoryImpl>().getAccessToken();
-      if (token == null) return;
-
-      if (mounted) {
-        setState(() {
-          _chat = _chat!.rebuild((b) => b..participantIds.remove(userId));
-          _users.remove(userId);
-        });
-      }
-
-      final chatApi = GetIt.I<Openapi>().getChatControllerApi();
-      await chatApi.removeParticipant(
-        chatId: _chat!.id!,
-        userId: userId,
-        headers: {'Authorization': 'Bearer $token'},
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Участник удалён')),
-      );
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _chat = _chat!.rebuild((b) => b..participantIds.add(userId));
-        });
-      }
-      _showErrorSnackbar('Ошибка удаления участника: $e');
     }
   }
 
@@ -2129,8 +1726,6 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
           }
         },
         child: Scaffold(
-          key: _scaffoldKey,
-          endDrawer: _buildRightDrawer(),
           backgroundColor: Colors.white,
           appBar: PreferredSize(
             preferredSize: const Size.fromHeight(80.0),
@@ -2150,14 +1745,6 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
                         Navigator.pop(context);
                       },
                     ),
-                    actions: [
-                      IconButton(
-                        icon: const Icon(Icons.more_vert),
-                        onPressed: () {
-                          _scaffoldKey.currentState?.openEndDrawer();
-                        },
-                      ),
-                    ],
                   ),
                 ),
                 const Divider(
@@ -2176,6 +1763,7 @@ class _PersonalChatPageState extends State<PersonalChatPage> {
                       children: [
                         Expanded(
                           child: ListView.builder(
+                            //controller: _scrollController,
                             reverse: true,
                             itemCount: _messages.length,
                             itemBuilder: (context, index) =>
